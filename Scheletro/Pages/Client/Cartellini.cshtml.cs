@@ -15,7 +15,7 @@ public class CartelliniModel : PageModel
 {
     private const char PartnerValueSeparator = '|';
     private const string CardPrefix = "CTL";
-    private const int CardNumberWidth = 5;
+    private const int CardNumberWidth = 8;
 
     private readonly dbContext _db;
     private readonly LoggerDTO _logger;
@@ -858,7 +858,10 @@ public class CartelliniModel : PageModel
                 PartnerType = combination != null ? combination.PartnerType : string.Empty,
                 LocationID = combination != null ? combination.LocationID : 0
             })
-            .OrderBy(x => x.IDCard)
+            .OrderBy(x => x.IDPartner)
+            .ThenBy(x=> x.LocationCode)
+            .ThenBy(x => x.IDProduct)
+            .ThenBy(x => x.IDCard)
             .ToListAsync();
 
         return rows

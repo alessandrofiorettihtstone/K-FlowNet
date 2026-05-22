@@ -131,9 +131,20 @@
                             <div class="d-flex justify-content-between align-items-start gap-2">
                                 <div>
                                     <p class="kflow-work-title">@row.IDPartner - @row.PartnerName</p>
+                                    <div class="kflow-location-chip">
+                                        <i class="bi bi-geo-alt-fill"></i>
+                                        <span>
+                                            @(string.IsNullOrWhiteSpace(row.LocationCode) && string.IsNullOrWhiteSpace(row.LocationName)
+                                                ? "Nessuna location"
+                                                : $"{row.LocationCode} {row.LocationName}".Trim())
+                                        </span>
+                                    </div>
                                     <div class="kflow-work-meta">
-                                        @row.IDProduct - @row.ProductName<br />
-                                        @row.IDCross
+                                        @row.IDProduct - @row.ProductName
+                                        @if (!string.IsNullOrWhiteSpace(row.IDCross))
+                                        {
+                                            <text><br />@row.IDCross</text>
+                                        }
                                     </div>
                                 </div>
                                 <button type="button"

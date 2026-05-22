@@ -62,6 +62,8 @@ public class KanbanService
         var rows = await query
             .OrderBy(x => x.Status)
             .ThenBy(x => x.PartnerName)
+            .ThenBy(x => x.LocationCode)
+            .ThenBy(x => x.LocationName)
             .ThenBy(x => x.ProductName)
             .ThenBy(x => x.IDCard)
             .ToListAsync();
@@ -87,6 +89,8 @@ public class KanbanService
                             x.IDCombinazione,
                             x.IDPartner,
                             x.PartnerName,
+                            x.LocationCode,
+                            x.LocationName,
                             x.IDProduct,
                             x.ProductName,
                             x.IDCross
@@ -96,6 +100,8 @@ public class KanbanService
                             IDCombinazione = group.Key.IDCombinazione,
                             IDPartner = group.Key.IDPartner,
                             PartnerName = group.Key.PartnerName,
+                            LocationCode = group.Key.LocationCode,
+                            LocationName = group.Key.LocationName,
                             IDProduct = group.Key.IDProduct,
                             ProductName = group.Key.ProductName,
                             IDCross = group.Key.IDCross,
@@ -108,6 +114,10 @@ public class KanbanService
                                 .OrderBy(card => card.IDCard)
                                 .ToList()
                         })
+                        .OrderBy(row => row.PartnerName)
+                        .ThenBy(row => row.LocationCode)
+                        .ThenBy(row => row.LocationName)
+                        .ThenBy(row => row.ProductName)
                         .ToList()
                 };
             })

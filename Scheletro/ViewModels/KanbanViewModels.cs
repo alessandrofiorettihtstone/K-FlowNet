@@ -50,6 +50,10 @@ public class PartnerProductRowViewModel
 
     public string PartnerName { get; set; } = string.Empty;
 
+    public string? LocationCode { get; set; }
+
+    public string? LocationName { get; set; }
+
     public string IDProduct { get; set; } = string.Empty;
 
     public string ProductName { get; set; } = string.Empty;
