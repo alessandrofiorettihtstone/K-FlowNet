@@ -1,0 +1,208 @@
+@page "/Client/Printer.cshtml"
+@model Scheletro.Pages.Client.PrinterModel
+@{
+    Layout = "_KFlowLayout";
+    ViewData["Title"] = "Printer";
+    ViewData["KFlowSuccessMessage"] = Model.SuccessMessage;
+    var returnUrl = HttpContext.Request.Path + HttpContext.Request.QueryString;
+}
+
+@if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle me-1"></i>
+        @Model.ErrorMessage
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Chiudi"></button>
+    </div>
+}
+
+<section class="kflow-panel">
+    <div class="kflow-panel-header d-flex flex-wrap align-items-center justify-content-between gap-2">
+        <h2>Printer</h2>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createPrinterModal">
+            <i class="bi bi-plus-lg me-1"></i>
+            Nuova printer
+        </button>
+    </div>
+    <div class="kflow-panel-body p-0">
+        @if (Model.Rows.Count == 0)
+        {
+            <div class="kflow-empty-column">Nessuna printer configurata.</div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>IP</th>
+                            <th class="text-end">Porta</th>
+                            <th class="text-end">Azioni</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var row in Model.Rows)
+                        {
+                            <tr>
+                                <td class="fw-semibold">@row.IdPrinter</td>
+                                <td>@row.Ip</td>
+                                <td class="text-end">@row.Port</td>
+                                <td class="text-end">
+                                    <div class="btn-group btn-group-sm" role="group" aria-label="Azioni printer">
+                                        <button type="button"
+                                                class="btn btn-outline-primary"
+                                                title="Modifica printer"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#editPrinterModal"
+                                                data-edit-id="@row.IdPrinter"
+                                                data-edit-ip="@row.Ip"
+                                                data-edit-port="@row.Port">
+                                            <i class="bi bi-pencil-square"></i>
+                                            Modifica
+                                        </button>
+                                        <form method="post" asp-page-handler="Delete" class="d-inline">
+                                            <input type="hidden" name="idPrinter" value="@row.IdPrinter" />
+                                            <input type="hidden" name="returnUrl" value="@returnUrl" />
+                                            <button type="submit"
+                                                    class="btn btn-outline-danger"
+                                                    title="Elimina printer"
+                                                    onclick="return confirm('Eliminare la printer @row.IdPrinter?');">
+                                                <i class="bi bi-trash-fill"></i>
+                                                Elimina
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</section>
+
+<div class="modal fade" id="createPrinterModal" tabindex="-1" aria-labelledby="createPrinterModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" asp-page-handler="Create">
+                <div class="modal-header">
+                    <h2 class="modal-title fs-5" id="createPrinterModalLabel">Nuova printer</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="returnUrl" value="@returnUrl" />
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                    <div class="mb-3">
+                        <label asp-for="Input.Ip" class="form-label">IP</label>
+                        <input asp-for="Input.Ip" class="form-control" maxlength="50" autocomplete="off" />
+                        <span asp-validation-for="Input.Ip" class="text-danger small"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Input.Port" class="form-label">Porta</label>
+                        <input asp-for="Input.Port" class="form-control" type="number" min="1" max="65535" />
+                        <span asp-validation-for="Input.Port" class="text-danger small"></span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annulla</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save me-1"></i>
+                        Crea printer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editPrinterModal" tabindex="-1" aria-labelledby="editPrinterModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" asp-page-handler="Update">
+                <div class="modal-header">
+                    <h2 class="modal-title fs-5" id="editPrinterModalLabel">Modifica printer</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="returnUrl" value="@returnUrl" />
+                    <input asp-for="EditInput.IdPrinter" type="hidden" />
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                    <div class="mb-3">
+                        <label class="form-label" for="editPrinterIdDisplay">ID</label>
+                        <input id="editPrinterIdDisplay" class="form-control bg-light" readonly />
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="EditInput.Ip" class="form-label">IP</label>
+                        <input asp-for="EditInput.Ip" class="form-control" maxlength="50" autocomplete="off" />
+                        <span asp-validation-for="EditInput.Ip" class="text-danger small"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="EditInput.Port" class="form-label">Porta</label>
+                        <input asp-for="EditInput.Port" class="form-control" type="number" min="1" max="65535" />
+                        <span asp-validation-for="EditInput.Port" class="text-danger small"></span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annulla</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save me-1"></i>
+                        Salva modifiche
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (() => {
+            const setValue = (id, value) => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.value = value || "";
+                }
+            };
+
+            const showModal = modalId => {
+                const modalElement = document.getElementById(modalId);
+                if (modalElement && window.bootstrap) {
+                    bootstrap.Modal.getOrCreateInstance(modalElement).show();
+                }
+            };
+
+            const editModal = document.getElementById("editPrinterModal");
+            editModal?.addEventListener("show.bs.modal", event => {
+                const button = event.relatedTarget;
+                if (!button) {
+                    return;
+                }
+
+                setValue("EditInput_IdPrinter", button.getAttribute("data-edit-id"));
+                setValue("editPrinterIdDisplay", button.getAttribute("data-edit-id"));
+                setValue("EditInput_Ip", button.getAttribute("data-edit-ip"));
+                setValue("EditInput_Port", button.getAttribute("data-edit-port"));
+            });
+
+            const showRequestedModals = () => {
+                @if (Model.ShowCreateModal)
+                {
+                    <text>showModal("createPrinterModal");</text>
+                }
+                @if (Model.ShowEditModal)
+                {
+                    <text>showModal("editPrinterModal");</text>
+                }
+            };
+
+            if (document.readyState === "loading") {
+                document.addEventListener("DOMContentLoaded", showRequestedModals);
+            } else {
+                showRequestedModals();
+            }
+        })();
+    </script>
+}

@@ -26,7 +26,7 @@
             </div>
             <h1>Accesso</h1>
 
-            <form id="loginForm" method="post">
+            <form id="loginForm" method="post" novalidate>
                 @if (!ViewData.ModelState.IsValid)
                 {
                     <div class="alert alert-danger" role="alert">
@@ -101,16 +101,6 @@
 
             form?.addEventListener("submit", event => {
                 if (event.submitter !== submit) {
-                    restoreLoginButton();
-                    return;
-                }
-
-                if (typeof form.checkValidity === "function" && !form.checkValidity()) {
-                    restoreLoginButton();
-                    return;
-                }
-
-                if (window.jQuery && typeof window.jQuery(form).valid === "function" && !window.jQuery(form).valid()) {
                     restoreLoginButton();
                     return;
                 }

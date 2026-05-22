@@ -6,6 +6,7 @@
     var isClienti = path.Contains("Clienti", StringComparison.OrdinalIgnoreCase);
     var isArticoli = path.Contains("Articoli", StringComparison.OrdinalIgnoreCase);
     var isCartellini = path.Contains("Cartellini", StringComparison.OrdinalIgnoreCase);
+    var isPrinter = path.Contains("/Client/Printer", StringComparison.OrdinalIgnoreCase);
     var isMobile = path.StartsWith("/Mobile", StringComparison.OrdinalIgnoreCase);
     var isScanner = path.Contains("BarcodeScanner", StringComparison.OrdinalIgnoreCase);
     var isPrint = path.Contains("StampaCartellino", StringComparison.OrdinalIgnoreCase);
@@ -54,6 +55,10 @@
                 <a class="kflow-nav-link @(isClienti ? "active" : "")" href="/Client/Clienti.cshtml"><i class="bi bi-building"></i><span>Clienti</span></a>
                 <a class="kflow-nav-link @(isArticoli ? "active" : "")" href="/Client/Articoli.cshtml"><i class="bi bi-box-seam"></i><span>Articoli</span></a>
                 <a class="kflow-nav-link @(isCartellini ? "active" : "")" href="/Client/Cartellini.cshtml"><i class="bi bi-credit-card-2-front"></i><span>Cartellini</span></a>
+                <div class="kflow-sidebar-section">
+                <div class="kflow-sidebar-title">Impostazioni</div>
+                <a class="kflow-nav-link @(isPrinter ? "active" : "")" href="/Client/Printer.cshtml"><i class="bi bi-printer-fill"></i><span>Printer</span></a>
+            </div>
             </div>
         </aside>
 
@@ -92,6 +97,7 @@
                 <a class="kflow-nav-link @(isClienti ? "active" : "")" href="/Client/Clienti.cshtml"><i class="bi bi-building"></i><span>Clienti</span></a>
                 <a class="kflow-nav-link @(isArticoli ? "active" : "")" href="/Client/Articoli.cshtml"><i class="bi bi-box-seam"></i><span>Articoli</span></a>
                 <a class="kflow-nav-link @(isCartellini ? "active" : "")" href="/Client/Cartellini.cshtml"><i class="bi bi-credit-card-2-front"></i><span>Cartellini</span></a>
+                <a class="kflow-nav-link @(isPrinter ? "active" : "")" href="/Client/Printer.cshtml"><i class="bi bi-printer-fill"></i><span>Printer</span></a>
             </nav>
         </div>
     </div>

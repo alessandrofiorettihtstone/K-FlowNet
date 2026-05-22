@@ -24,15 +24,15 @@ public class LoginModel : PageModel
     }
 
     [BindProperty]
-    public string Username { get; set; } = string.Empty;
+    public string? Username { get; set; }
 
     [BindProperty]
     [DataType(DataType.Password)]
-    public string Password { get; set; } = string.Empty;
+    public string? Password { get; set; }
 
     [BindProperty]
     [DataType(DataType.Password)]
-    public string CID { get; set; } = string.Empty;
+    public string? CID { get; set; }
 
     public async Task<IActionResult> OnGetAsync()
     {
@@ -59,17 +59,27 @@ public class LoginModel : PageModel
     public async Task<IActionResult> OnPostAsync()
     {
         Scheletro.Models.User? user = null;
-        var username = Username.Trim();
-        var password = Password;
-        var cid = CID.Trim();
+        var username = Username?.Trim() ?? string.Empty;
+        var password = Password ?? string.Empty;
+        var cid = CID?.Trim() ?? string.Empty;
+        var hasUsername = !string.IsNullOrWhiteSpace(username);
+        var hasPassword = !string.IsNullOrWhiteSpace(password);
+        var hasCid = !string.IsNullOrWhiteSpace(cid);
+        var hasCredentials = hasUsername || hasPassword;
 
-        if (string.IsNullOrWhiteSpace(username) && string.IsNullOrWhiteSpace(cid))
+        if (!hasCredentials && !hasCid)
         {
-            ModelState.AddModelError(string.Empty, "Username o CID obbligatorio.");
+            ModelState.AddModelError(string.Empty, "Inserisci username e password oppure CID.");
             return Page();
         }
 
-        if (!string.IsNullOrWhiteSpace(cid))
+        if (hasCredentials && hasCid)
+        {
+            ModelState.AddModelError(string.Empty, "Usa username e password oppure CID, non entrambi.");
+            return Page();
+        }
+
+        if (hasCid)
         {
             if (!Guid.TryParse(cid, out var userGuid))
             {
@@ -81,7 +91,13 @@ public class LoginModel : PageModel
         }
         else
         {
-            if (string.IsNullOrWhiteSpace(password))
+            if (!hasUsername)
+            {
+                ModelState.AddModelError(nameof(Username), "Username obbligatorio.");
+                return Page();
+            }
+
+            if (!hasPassword)
             {
                 ModelState.AddModelError(nameof(Password), "Password obbligatoria.");
                 return Page();

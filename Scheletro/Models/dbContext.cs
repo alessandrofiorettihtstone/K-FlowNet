@@ -96,7 +96,7 @@ public partial class dbContext : DbContext
         {
             entity.HasKey(e => e.IdPrinter);
             entity.ToTable("Printer");
-            entity.Property(e => e.IdPrinter).HasColumnName("idPrinter");
+            entity.Property(e => e.IdPrinter).HasColumnName("idPrinter").ValueGeneratedOnAdd();
             entity.Property(e => e.Ip).HasColumnName("ip").HasMaxLength(50).IsUnicode(false);
             entity.Property(e => e.Port).HasColumnName("port");
         });
