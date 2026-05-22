@@ -23,6 +23,48 @@ body {
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
+body.kflow-app,
+body.kflow-login-page,
+body.kflow-mobile-app {
+  font-size: 0.8rem;
+}
+
+.kflow-app .btn,
+.kflow-app .form-control,
+.kflow-app .form-select,
+.kflow-app .input-group-text,
+.kflow-app .dropdown-menu,
+.kflow-app .table,
+.kflow-app .badge,
+.kflow-app .alert,
+.kflow-app .modal-title,
+.kflow-app .toast,
+.kflow-app .form-label,
+.kflow-login-page .btn,
+.kflow-login-page .form-control,
+.kflow-login-page .form-select,
+.kflow-login-page .input-group-text,
+.kflow-login-page .alert,
+.kflow-login-page .form-label,
+.kflow-mobile-app .btn,
+.kflow-mobile-app .form-control,
+.kflow-mobile-app .form-select,
+.kflow-mobile-app .input-group-text,
+.kflow-mobile-app .dropdown-menu,
+.kflow-mobile-app .alert,
+.kflow-mobile-app .form-label {
+  font-size: inherit;
+}
+
+.kflow-app .bi,
+.kflow-login-page .bi,
+.kflow-mobile-app .bi {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1em;
+}
+
 .kflow-app .btn-primary {
   border-color: #101820;
   background-color: #101820;
@@ -118,7 +160,7 @@ body {
 .kflow-sidebar-title {
   margin: 0 12px 8px;
   color: rgba(255, 255, 255, 0.52);
-  font-size: 0.76rem;
+  font-size: 0.61rem;
   font-weight: 700;
   text-transform: uppercase;
 }
@@ -142,14 +184,14 @@ body {
 
 .kflow-page-kicker {
   color: var(--kflow-muted);
-  font-size: 0.78rem;
+  font-size: 0.62rem;
   font-weight: 700;
   text-transform: uppercase;
 }
 
 .kflow-topbar h1 {
   margin: 0;
-  font-size: 1.55rem;
+  font-size: 1.24rem;
   font-weight: 700;
 }
 
@@ -185,7 +227,7 @@ body {
 .kflow-panel-header h2,
 .kflow-panel-header h3 {
   margin: 0;
-  font-size: 1rem;
+  font-size: 0.8rem;
   font-weight: 700;
 }
 
@@ -206,7 +248,7 @@ body {
   max-width: 100%;
   max-height: 350px;
   overflow-y: auto;
-  font-size: 0.9rem;
+  font-size: 0.72rem;
 }
 
 .kflow-autocomplete-suggestions button,
@@ -282,7 +324,7 @@ body {
   justify-content: center;
   padding: 8px 10px;
   color: #fff;
-  font-size: 0.95rem;
+  font-size: 0.76rem;
   font-weight: 700;
   text-align: center;
 }
@@ -306,14 +348,14 @@ body {
 
 .kflow-work-title {
   margin: 0;
-  font-size: 0.9rem;
+  font-size: 0.72rem;
   font-weight: 700;
 }
 
 .kflow-work-meta {
   margin-top: 4px;
   color: var(--kflow-muted);
-  font-size: 0.78rem;
+  font-size: 0.62rem;
 }
 
 .kflow-card-list {
@@ -351,14 +393,14 @@ body {
 
 .kflow-card-qty {
   color: var(--kflow-muted);
-  font-size: 0.85rem;
+  font-size: 0.68rem;
 }
 
 .kflow-empty-column {
   padding: 20px 12px;
   color: var(--kflow-muted);
   text-align: center;
-  font-size: 0.9rem;
+  font-size: 0.72rem;
 }
 
 .kflow-login-page {
@@ -397,7 +439,7 @@ body {
 
 .kflow-login-form h1 {
   margin: 0 0 22px;
-  font-size: 1.8rem;
+  font-size: 1.44rem;
   font-weight: 700;
 }
 
@@ -419,7 +461,7 @@ body {
 
 .kflow-user-details dt {
   color: var(--kflow-muted);
-  font-size: 0.78rem;
+  font-size: 0.62rem;
   text-transform: uppercase;
 }
 
@@ -456,7 +498,7 @@ body {
   justify-content: center;
   border-radius: 50%;
   color: #fff;
-  font-size: 0.95rem;
+  font-size: 0.76rem;
 }
 
 .kflow-toast-icon-success {
@@ -500,7 +542,7 @@ body {
   gap: 2px;
   color: var(--kflow-muted);
   text-decoration: none;
-  font-size: 0.78rem;
+  font-size: 0.62rem;
   font-weight: 700;
 }
 
@@ -572,20 +614,20 @@ body {
 }
 
 .kflow-label-brand {
-  font-size: 1.8rem;
+  font-size: 1.44rem;
   font-weight: 800;
   line-height: 1;
 }
 
 .kflow-label-card {
   margin-top: 18px;
-  font-size: 1.45rem;
+  font-size: 1.16rem;
   font-weight: 800;
 }
 
 .kflow-label-line {
   margin-top: 10px;
-  font-size: 0.95rem;
+  font-size: 0.76rem;
   font-weight: 600;
   overflow-wrap: anywhere;
 }
