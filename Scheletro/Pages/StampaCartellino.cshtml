@@ -1,0 +1,28 @@
+@page "/StampaCartellino.cshtml"
+@model Scheletro.Pages.StampaCartellinoModel
+@{
+    Layout = "_KFlowLayout";
+    ViewData["Title"] = "Stampa cartellino";
+    ViewData["KFlowSuccessMessage"] = Model.Success ? Model.Message : null;
+}
+
+@if (!string.IsNullOrWhiteSpace(Model.Message) && !Model.Success)
+{
+    <div class="alert alert-danger" role="alert">
+        @Model.Message
+    </div>
+}
+
+<section class="kflow-panel">
+    <div class="kflow-panel-header">
+        <h2><i class="bi bi-printer me-1"></i>Stampa cartellino</h2>
+    </div>
+    <div class="kflow-panel-body">
+        <form method="post" asp-page-handler="Print">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-printer me-1"></i>
+                Stampa
+            </button>
+        </form>
+    </div>
+</section>

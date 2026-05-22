@@ -1,0 +1,82 @@
+@page "/BarcodeScanner.cshtml"
+@model Scheletro.Pages.BarcodeScannerModel
+@{
+    Layout = "_KFlowLayout";
+    ViewData["Title"] = "Scanner Barcode";
+}
+
+<section class="kflow-panel">
+    <div class="kflow-panel-header">
+        <h2><i class="bi bi-upc-scan me-1"></i>Scanner Barcode</h2>
+    </div>
+    <div class="kflow-panel-body text-center">
+        <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#scannerModal">
+            <i class="bi bi-camera me-1"></i>
+            Apri Fotocamera
+        </button>
+        <div id="barcodeResult" class="h4 mt-4 text-primary"></div>
+    </div>
+</section>
+
+<div class="modal fade" id="scannerModal" tabindex="-1" aria-labelledby="scannerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title fs-5" id="scannerModalLabel">
+                    <i class="bi bi-qr-code-scan me-1"></i>
+                    Scansiona barcode
+                </h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+            </div>
+            <div class="modal-body">
+                <div class="kflow-scanner-frame" style="min-height:65vh;">
+                    <div id="reader" class="h-100"></div>
+                    <div class="kflow-crosshair"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/Scripts/html5-qrcode.min.js"></script>
+    <script>
+        (() => {
+            const modalElement = document.getElementById("scannerModal");
+            const result = document.getElementById("barcodeResult");
+            let scanner;
+            let audioContext;
+
+            const playBeep = () => {
+                try {
+                    audioContext ??= new (window.AudioContext || window.webkitAudioContext)();
+                    const oscillator = audioContext.createOscillator();
+                    oscillator.type = "sine";
+                    oscillator.frequency.setValueAtTime(1000, audioContext.currentTime);
+                    oscillator.connect(audioContext.destination);
+                    oscillator.start();
+                    oscillator.stop(audioContext.currentTime + 0.18);
+                } catch {
+                }
+            };
+
+            const stop = () => scanner?.stop().catch(() => { });
+
+            modalElement?.addEventListener("shown.bs.modal", () => {
+                scanner ??= new Html5Qrcode("reader");
+                scanner.start(
+                    { facingMode: "environment" },
+                    { fps: 10, qrbox: { width: 300, height: 120 } },
+                    decodedText => {
+                        result.textContent = decodedText;
+                        playBeep();
+                        stop();
+                        bootstrap.Modal.getInstance(modalElement)?.hide();
+                    }
+                ).catch(() => { });
+            });
+
+            modalElement?.addEventListener("hidden.bs.modal", stop);
+        })();
+    </script>
+}

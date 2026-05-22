@@ -1,0 +1,134 @@
+@page "/Mobile/LeggiCartellinoMain.cshtml"
+@model Scheletro.Pages.Mobile.LeggiCartellinoMainModel
+@{
+    Layout = "_MobileLayout";
+    ViewData["Title"] = "Leggi cartellino";
+    ViewData["KFlowSuccessMessage"] = Model.SuccessMessage;
+}
+
+@if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+{
+    <div class="alert alert-danger" role="alert">
+        <i class="bi bi-exclamation-triangle me-1"></i>
+        @Model.ErrorMessage
+    </div>
+}
+
+<section class="kflow-mobile-card p-3">
+    <form method="post" asp-page-handler="Read" class="d-flex gap-2">
+        <input asp-for="Barcode" class="form-control form-control-lg" placeholder="Scansiona o inserisci QRCode" autocomplete="off" data-focus-target="true" />
+        <button id="btnSubmitBarcode" type="submit" class="btn btn-primary btn-lg" title="Carica">
+            <i class="bi bi-arrow-return-left"></i>
+        </button>
+    </form>
+</section>
+
+@if (Model.Card != null)
+{
+    <section class="kflow-mobile-card p-3 mt-3">
+        <div class="d-flex justify-content-between gap-2">
+            <div>
+                <h1 class="h5 mb-1"><i class="bi bi-credit-card-2-front me-1"></i>@Model.Card.IDCard</h1>
+                <div class="text-muted small">@Model.Card.StatusDescription</div>
+            </div>
+            <button class="btn text-white"
+                    type="button"
+                    style="background-color:@Model.Card.StatusColor"
+                    data-bs-toggle="modal"
+                    data-bs-target="#changeMobileStatusModal">
+                Stato
+            </button>
+        </div>
+        <hr />
+        <dl class="row mb-0 small">
+            <dt class="col-5">ID Partner</dt>
+            <dd class="col-7">@Model.Card.IDPartner</dd>
+            <dt class="col-5">Partner</dt>
+            <dd class="col-7">@Model.Card.PartnerName</dd>
+            <dt class="col-5">ID Prodotto</dt>
+            <dd class="col-7">@Model.Card.IDProduct</dd>
+            <dt class="col-5">Cross</dt>
+            <dd class="col-7">@Model.Card.IDCross</dd>
+            <dt class="col-5">Prodotto</dt>
+            <dd class="col-7">@Model.Card.ProductName</dd>
+            <dt class="col-5">Quantita</dt>
+            <dd class="col-7">@Model.Card.Quantity.ToString("N0") @Model.Card.UMBase</dd>
+        </dl>
+    </section>
+
+    <div class="modal fade" id="changeMobileStatusModal" tabindex="-1" aria-labelledby="changeMobileStatusModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title fs-5" id="changeMobileStatusModalLabel">Cambio stato @Model.Card.IDCard</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="d-grid gap-2">
+                        @foreach (var status in Model.Statuses)
+                        {
+                            <form method="post" asp-page-handler="ChangeStatus">
+                                <input type="hidden" name="idCard" value="@Model.Card.IDCard" />
+                                <button class="btn btn-lg text-white w-100"
+                                        type="submit"
+                                        name="newStatus"
+                                        value="@status.ID"
+                                        style="background-color:@status.Color">
+                                    @status.Description
+                                </button>
+                            </form>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<div class="fixed-bottom p-3" style="bottom:66px;">
+    <button type="button" class="btn btn-success btn-lg w-100" data-bs-toggle="modal" data-bs-target="#scannerModal">
+        <i class="bi bi-camera me-1"></i>
+        Apri Fotocamera
+    </button>
+</div>
+
+<div class="modal fade" id="scannerModal" tabindex="-1" aria-labelledby="scannerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title fs-5" id="scannerModalLabel">
+                    <i class="bi bi-qr-code-scan me-1"></i>
+                    Scansiona barcode
+                </h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+            </div>
+            <div class="modal-body">
+                <div class="kflow-scanner-frame">
+                    <div id="reader" class="h-100"></div>
+                    <div class="kflow-crosshair"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (() => {
+            document.querySelector("[name='Barcode']")?.addEventListener("keydown", event => {
+                if (event.key === "Enter") {
+                    event.preventDefault();
+                    document.getElementById("btnSubmitBarcode")?.click();
+                }
+            });
+
+            document.querySelectorAll(".modal").forEach(modal => {
+                modal.addEventListener("hidden.bs.modal", () => {
+                    window.setTimeout(() => document.querySelector("[data-focus-target='true']")?.focus(), 250);
+                });
+            });
+
+            setupKFlowScanner("scannerModal", "reader", "Barcode", "btnSubmitBarcode");
+        })();
+    </script>
+}

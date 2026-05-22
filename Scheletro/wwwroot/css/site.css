@@ -1,0 +1,122 @@
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  margin-bottom: 60px;
+}
+
+[data-page-transition-root] {
+  will-change: opacity;
+}
+
+/* Entrata più rapida: 120ms */
+[data-page-transition-root].page-entering {
+  animation: page-enter 100ms ease-out;
+}
+
+/* Uscita più rapida: 100ms */
+[data-page-transition-root].page-transition-leaving {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 80ms ease;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(circle at top, rgba(255, 255, 255, 0.42), transparent 60%),
+    linear-gradient(180deg, rgba(248, 250, 252, 0.2), rgba(248, 250, 252, 0.32));
+  opacity: 0;
+  pointer-events: none;
+  /* overlay più rapido: 100ms */
+  transition: opacity 100ms ease;
+  z-index: 2147483646;
+}
+
+html.is-page-transitioning body::before {
+  opacity: 1;
+}
+
+html.is-page-transitioning body {
+  overflow: hidden;
+}
+
+@keyframes page-enter {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-page-transition-root].page-entering {
+    animation: none;
+  }
+
+  [data-page-transition-root].page-transition-leaving {
+    transition: none;
+  }
+
+  body::before {
+    transition: none;
+  }
+}
+
+body.admin-layout-body .modal {
+  --bs-modal-width: 680px;
+}
+
+body.Scheletro-app .modal {
+  --bs-modal-width: 720px;
+}
+
+.modal {
+  padding: 1rem;
+}
+
+.modal.show {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-dialog {
+  width: min(100%, var(--bs-modal-width));
+  max-width: min(calc(100vw - 2rem), var(--bs-modal-width));
+  margin: 0 auto;
+}
+
+.modal-backdrop.show {
+  opacity: 0.45;
+}
+
+@media (max-width: 575.98px) {
+  .modal {
+    padding: 0.75rem;
+  }
+
+  .modal-dialog {
+    width: 100%;
+  }
+}

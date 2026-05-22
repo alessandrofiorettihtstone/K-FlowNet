@@ -1,0 +1,26 @@
+@{
+    var successMessage = ViewData["KFlowSuccessMessage"] as string;
+}
+
+@if (!string.IsNullOrWhiteSpace(successMessage))
+{
+    <div class="toast-container kflow-toast-container p-3">
+        <div class="toast kflow-toast kflow-toast-success border-0 shadow"
+             role="status"
+             aria-live="polite"
+             aria-atomic="true"
+             data-kflow-toast
+             data-bs-delay="3800">
+            <div class="toast-header">
+                <span class="kflow-toast-icon kflow-toast-icon-success">
+                    <i class="bi bi-check2"></i>
+                </span>
+                <strong class="me-auto">Operazione completata</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Chiudi"></button>
+            </div>
+            <div class="toast-body">
+                @successMessage
+            </div>
+        </div>
+    </div>
+}

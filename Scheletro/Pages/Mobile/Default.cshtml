@@ -1,0 +1,108 @@
+@page "/Mobile/Default.cshtml"
+@model Scheletro.Pages.Mobile.DefaultModel
+@{
+    Layout = "_MobileLayout";
+    ViewData["Title"] = "Mobile";
+}
+
+<section class="kflow-mobile-card p-3">
+    <div class="d-flex align-items-center gap-3">
+        <img src="~/img/K-Flow.png" alt="K-Flow" style="width: 92px;" />
+        <div>
+            <h1 class="h5 mb-1">K-Flow Mobile</h1>
+            <div class="text-muted small">@DateTime.Now.ToString("dd/MM/yyyy HH:mm")</div>
+        </div>
+    </div>
+</section>
+
+<div class="row g-3 mt-1">
+    <div class="col-12">
+        <a class="kflow-mobile-card p-3 d-flex align-items-center justify-content-between text-decoration-none text-dark" href="/Mobile/LeggiCartellinoMain.cshtml">
+            <span class="fw-bold"><i class="bi bi-upc-scan me-2"></i>Leggi cartellino</span>
+            <i class="bi bi-chevron-right"></i>
+        </a>
+    </div>
+    <div class="col-12">
+        <a class="kflow-mobile-card p-3 d-flex align-items-center justify-content-between text-decoration-none text-dark" href="/Client/KanbanBoard.cshtml">
+            <span class="fw-bold"><i class="bi bi-kanban me-2"></i>KanbanBoard</span>
+            <i class="bi bi-chevron-right"></i>
+        </a>
+    </div>
+</div>
+
+<div class="modal fade" id="loginModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form method="post" asp-page-handler="Login">
+                <div class="modal-header">
+                    <h2 class="modal-title fs-5" id="loginModalLabel">
+                        <i class="bi bi-person-lock me-1"></i>
+                        Login
+                    </h2>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#scannerModalLogin">
+                        <i class="bi bi-camera"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    @if (!string.IsNullOrWhiteSpace(Model.LoginError))
+                    {
+                        <div class="alert alert-danger">@Model.LoginError</div>
+                    }
+
+                    <label asp-for="CID" class="form-label">CID</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-key"></i></span>
+                        <input asp-for="CID" class="form-control form-control-lg" autocomplete="off" data-focus-target="true" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="btnMobileLogin" type="submit" class="btn btn-primary w-100 btn-lg">
+                        Accedi
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="scannerModalLogin" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title fs-5"><i class="bi bi-qr-code-scan me-1"></i>Scansiona barcode</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+            </div>
+            <div class="modal-body">
+                <div class="kflow-scanner-frame">
+                    <div id="readerLogin" class="h-100"></div>
+                    <div class="kflow-crosshair"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (() => {
+            const loginModal = document.getElementById("loginModal");
+            const shouldShowLogin = @Json.Serialize(Model.ShowLoginModal);
+            if (shouldShowLogin) {
+                bootstrap.Modal.getOrCreateInstance(loginModal).show();
+            }
+
+            loginModal?.addEventListener("shown.bs.modal", () => {
+                document.querySelector("[data-focus-target='true']")?.focus();
+            });
+
+            document.querySelector("[name='CID']")?.addEventListener("keydown", event => {
+                if (event.key === "Enter") {
+                    event.preventDefault();
+                    document.getElementById("btnMobileLogin")?.click();
+                }
+            });
+
+            setupKFlowScanner("scannerModalLogin", "readerLogin", "CID", "btnMobileLogin");
+        })();
+    </script>
+}

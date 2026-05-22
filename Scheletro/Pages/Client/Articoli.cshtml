@@ -1,0 +1,281 @@
+@page "/Client/Articoli.cshtml"
+@model Scheletro.Pages.Client.ArticoliModel
+@{
+    Layout = "_KFlowLayout";
+    ViewData["Title"] = "Articoli";
+    ViewData["KFlowSuccessMessage"] = Model.SuccessMessage;
+    var returnUrl = HttpContext.Request.Path + HttpContext.Request.QueryString;
+}
+
+@if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle me-1"></i>
+        @Model.ErrorMessage
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Chiudi"></button>
+    </div>
+}
+
+<form method="get" class="kflow-board-toolbar">
+    <section class="kflow-panel">
+        <div class="kflow-panel-header d-flex flex-wrap align-items-center justify-content-between gap-2">
+            <h2>Ricerca</h2>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createArticoloModal">
+                <i class="bi bi-plus-lg me-1"></i>
+                Nuovo articolo
+            </button>
+        </div>
+        <div class="kflow-panel-body">
+            <div class="row g-2 align-items-end">
+                <div class="col-md-6">
+                    <label asp-for="Filters.Search" class="form-label">Articolo</label>
+                    <div class="input-group kflow-autocomplete-wrapper">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                        <input asp-for="Filters.Search" class="form-control" placeholder="Codice o descrizione" autocomplete="off" />
+                        <button type="button" class="btn btn-outline-secondary" title="Pulisci articolo" aria-label="Pulisci articolo" data-clear-target="#Filters_Search">
+                            <i class="bi bi-trash-fill"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="Filters.UMBase" class="form-label">Unita di misura</label>
+                    <div class="input-group kflow-autocomplete-wrapper">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                        <input asp-for="Filters.UMBase" class="form-control" autocomplete="off" />
+                        <button type="button" class="btn btn-outline-secondary" title="Pulisci unita di misura" aria-label="Pulisci unita di misura" data-clear-target="#Filters_UMBase">
+                            <i class="bi bi-trash-fill"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-3 d-flex justify-content-end gap-2">
+                    <a class="btn btn-outline-secondary" href="/Client/Articoli.cshtml">Pulisci</a>
+                    <button class="btn btn-primary" type="submit">
+                        <i class="bi bi-search me-1"></i>
+                        Cerca
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+</form>
+
+<section class="kflow-panel">
+    <div class="kflow-panel-header d-flex flex-wrap align-items-center justify-content-between gap-2">
+        <h2>Elenco articoli</h2>
+        <span class="text-muted small">@Model.Rows.Count articoli</span>
+    </div>
+    <div class="kflow-panel-body p-0">
+        @if (Model.Rows.Count == 0)
+        {
+            <div class="kflow-empty-column">Nessun articolo trovato.</div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Articolo</th>
+                            <th>Unita</th>
+                            <th class="text-end">Combination</th>
+                            <th class="text-end">Cartellini</th>
+                            <th class="text-end">Azioni</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var row in Model.Rows)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="fw-semibold">@row.Name</div>
+                                    <div class="text-muted small">@row.ID</div>
+                                </td>
+                                <td>@(string.IsNullOrWhiteSpace(row.UMBase) ? "-" : row.UMBase)</td>
+                                <td class="text-end">@row.CombinationCount.ToString("N0")</td>
+                                <td class="text-end">@row.CardCount.ToString("N0")</td>
+                                <td class="text-end">
+                                    <button type="button"
+                                            class="btn btn-sm btn-outline-primary"
+                                            title="Modifica articolo"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#editArticoloModal"
+                                            data-edit-guid="@row.Guid"
+                                            data-edit-id="@row.ID"
+                                            data-edit-name="@row.Name"
+                                            data-edit-um="@row.UMBase">
+                                        <i class="bi bi-pencil-square me-1"></i>
+                                        Modifica
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</section>
+
+<div class="modal fade" id="createArticoloModal" tabindex="-1" aria-labelledby="createArticoloModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <form method="post" asp-page-handler="Create">
+                <div class="modal-header">
+                    <h2 class="modal-title fs-5" id="createArticoloModalLabel">Nuovo articolo</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="returnUrl" value="@returnUrl" />
+                    <input type="hidden" name="Filters.Search" value="@Model.Filters.Search" />
+                    <input type="hidden" name="Filters.UMBase" value="@Model.Filters.UMBase" />
+
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="row g-3">
+                        <div class="col-md-5">
+                            <label asp-for="Input.ID" class="form-label">Codice articolo</label>
+                            <input asp-for="Input.ID" class="form-control" maxlength="50" autocomplete="off" />
+                            <span asp-validation-for="Input.ID" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-7">
+                            <label asp-for="Input.UMBase" class="form-label">Unita di misura</label>
+                            <input asp-for="Input.UMBase" class="form-control" maxlength="50" autocomplete="off" />
+                            <span asp-validation-for="Input.UMBase" class="text-danger small"></span>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="Input.Name" class="form-label">Descrizione</label>
+                            <input asp-for="Input.Name" class="form-control" maxlength="150" autocomplete="off" />
+                            <span asp-validation-for="Input.Name" class="text-danger small"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annulla</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save me-1"></i>
+                        Crea articolo
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editArticoloModal" tabindex="-1" aria-labelledby="editArticoloModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <form method="post" asp-page-handler="Update">
+                <div class="modal-header">
+                    <h2 class="modal-title fs-5" id="editArticoloModalLabel">Modifica articolo</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="returnUrl" value="@returnUrl" />
+                    <input type="hidden" name="Filters.Search" value="@Model.Filters.Search" />
+                    <input type="hidden" name="Filters.UMBase" value="@Model.Filters.UMBase" />
+                    <input asp-for="EditInput.Guid" type="hidden" />
+
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="row g-3">
+                        <div class="col-md-5">
+                            <label class="form-label" for="editArticoloIdDisplay">Codice articolo</label>
+                            <input id="editArticoloIdDisplay" class="form-control" value="@Model.EditInput.ID" readonly />
+                        </div>
+                        <div class="col-md-7">
+                            <label asp-for="EditInput.UMBase" class="form-label">Unita di misura</label>
+                            <input asp-for="EditInput.UMBase" class="form-control" maxlength="50" autocomplete="off" />
+                            <span asp-validation-for="EditInput.UMBase" class="text-danger small"></span>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="EditInput.Name" class="form-label">Descrizione</label>
+                            <input asp-for="EditInput.Name" class="form-control" maxlength="150" autocomplete="off" />
+                            <span asp-validation-for="EditInput.Name" class="text-danger small"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annulla</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save me-1"></i>
+                        Salva modifiche
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (() => {
+            const firstLookupValue = value => {
+                const separatorIndex = value.indexOf(" - ");
+                return separatorIndex > 0 ? value.slice(0, separatorIndex).trim() : value;
+            };
+
+            setupKFlowAutocomplete({
+                inputSelector: "#Filters_Search",
+                url: "/Client/Articoli.cshtml",
+                tipoRicerca: "A",
+                emptyText: "Nessun articolo trovato",
+                submitOnSelect: true,
+                getSelectedValue: firstLookupValue
+            });
+            setupKFlowAutocomplete({
+                inputSelector: "#Filters_UMBase",
+                url: "/Client/Articoli.cshtml",
+                tipoRicerca: "UM",
+                emptyText: "Nessuna unita di misura trovata",
+                submitOnSelect: true,
+                getSelectedValue: firstLookupValue
+            });
+            setupKFlowFilterClear();
+
+            const setValue = (id, value) => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.value = value || "";
+                }
+            };
+
+            const showModal = modalId => {
+                const modalElement = document.getElementById(modalId);
+                if (modalElement && window.bootstrap) {
+                    bootstrap.Modal.getOrCreateInstance(modalElement).show();
+                }
+            };
+
+            const editModal = document.getElementById("editArticoloModal");
+            editModal?.addEventListener("show.bs.modal", event => {
+                const button = event.relatedTarget;
+                if (!button) {
+                    return;
+                }
+
+                setValue("EditInput_Guid", button.getAttribute("data-edit-guid"));
+                setValue("editArticoloIdDisplay", button.getAttribute("data-edit-id"));
+                setValue("EditInput_Name", button.getAttribute("data-edit-name"));
+                setValue("EditInput_UMBase", button.getAttribute("data-edit-um"));
+            });
+
+            const showRequestedModals = () => {
+                @if (Model.ShowCreateModal)
+                {
+                    <text>showModal("createArticoloModal");</text>
+                }
+                @if (Model.ShowEditModal)
+                {
+                    <text>showModal("editArticoloModal");</text>
+                }
+            };
+
+            if (document.readyState === "loading") {
+                document.addEventListener("DOMContentLoaded", showRequestedModals);
+            } else {
+                showRequestedModals();
+            }
+        })();
+    </script>
+}

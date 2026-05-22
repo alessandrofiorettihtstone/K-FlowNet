@@ -1,0 +1,45 @@
+﻿@page
+@model Scheletro.Pages.Admin.IndexAdminModel
+
+@{
+    ViewData["Title"] = "Area amministratore";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-9">
+            @if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+            {
+                <div class="alert alert-warning shadow-sm" role="alert">
+                    @Model.StatusMessage
+                </div>
+            }
+
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4 p-lg-5">
+                    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-md-between gap-3 mb-4">
+                        <div>
+                            <span class="badge rounded-pill text-bg-dark mb-3">Ruolo: @Model.Role</span>
+                            <h1 class="h3 mb-2">Area amministratore</h1>
+                            <p class="text-secondary mb-0">
+                                Questa pagina e riservata agli utenti autenticati con ruolo Admin.
+                            </p>
+                        </div>
+
+                        <a asp-page="/Admin/Logout" class="btn btn-outline-secondary">Esci</a>
+                    </div>
+
+                    <div class="p-4 rounded-4 bg-light border">
+                        <p class="mb-2">
+                            <strong>Utente autenticato:</strong> @Model.Username
+                        </p>
+                        <p class="mb-0">
+                            Il ruolo viene recuperato dal database in fase di login, salvato nel cookie come claim
+                            e usato per autorizzare automaticamente l'accesso all'area amministrativa.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

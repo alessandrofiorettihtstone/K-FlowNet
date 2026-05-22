@@ -1,0 +1,292 @@
+:root {
+    --keyboard-surface: var(--Scheletro-surface-strong, #ffffff);
+    --keyboard-border: var(--Scheletro-border, rgba(133, 151, 165, 0.22));
+    --keyboard-border-strong: var(--Scheletro-border-strong, #d7e1e8);
+    --keyboard-text: var(--Scheletro-text, #112433);
+    --keyboard-muted: var(--Scheletro-muted, #667888);
+    --keyboard-accent-alt: var(--Scheletro-accent-alt, #145da0);
+    --keyboard-shadow: var(--Scheletro-shadow, 0 24px 60px rgba(15, 23, 42, 0.08));
+    --keyboard-shadow-soft: var(--Scheletro-shadow-soft, 0 12px 28px rgba(15, 23, 42, 0.06));
+}
+
+/* =========================
+   OFFCANVAS KEYBOARD
+========================= */
+
+.keyboard-offcanvas {
+    height: 37vh !important;
+    min-height: 320px;
+    max-height: 430px;
+    background: linear-gradient(180deg, #fcfdff 0%, #faf8ff 100%);
+    border-top-left-radius: 24px;
+    border-top-right-radius: 24px;
+    border-top: 1px solid rgba(153, 204, 255, 0.55);
+    box-shadow: 0 -12px 30px rgba(70, 100, 140, 0.14);
+}
+
+    .keyboard-offcanvas .offcanvas-body {
+        padding: 16px 18px 18px;
+    }
+
+/* =========================
+   PREVIEW
+========================= */
+
+.keyboard-preview {
+    min-height: 60px;
+    padding: 14px 18px;
+    border-radius: 16px;
+    background: #ffffff;
+    border: 1px solid rgba(153, 204, 255, 0.45);
+    color: #4b627d;
+    font-size: 1.08rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    word-break: break-word;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+/* =========================
+   GRID TASTIERA
+========================= */
+
+.keyboard-keys {
+    display: grid;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.keyboard-row {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+/* =========================
+   TASTI BASE
+========================= */
+
+.keyboard-key {
+    min-width: 54px;
+    height: 50px;
+    padding: 0 12px;
+    border-radius: 14px;
+    border: 1px solid rgba(153, 204, 255, 0.42);
+    background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+    color: #4b627d;
+    font-size: 1rem;
+    font-weight: 600;
+    box-shadow: 0 2px 6px rgba(80, 110, 150, 0.08);
+    transition: all 0.12s ease;
+}
+
+    /* Hover */
+    .keyboard-key:hover {
+        background: #f3f9ff;
+        border-color: #99CCFF;
+    }
+
+    /* Pressione */
+    .keyboard-key:active,
+    .keyboard-key.active-touch {
+        background: #E5CCFF;
+        border-color: #c9aaf0;
+        color: #4b627d;
+        transform: scale(0.97);
+        box-shadow: inset 0 2px 5px rgba(120, 100, 160, 0.10);
+    }
+
+    /* =========================
+   TASTI SPECIALI
+========================= */
+
+    .keyboard-key.backspace-key,
+    .keyboard-key.shift-key,
+    .keyboard-key.arrow-key {
+        background: linear-gradient(180deg, #f3f7fb 0%, #eaf2fb 100%);
+        border-color: rgba(153, 204, 255, 0.75);
+        color: #3f5f7a;
+        font-weight: 700;
+    }
+
+        /* Hover speciali */
+        .keyboard-key.backspace-key:hover,
+        .keyboard-key.shift-key:hover,
+        .keyboard-key.arrow-key:hover {
+            background: #e4f0ff;
+            border-color: #99CCFF;
+        }
+
+        /* Active speciali */
+        .keyboard-key.backspace-key:active,
+        .keyboard-key.shift-key:active,
+        .keyboard-key.arrow-key:active,
+        .keyboard-key.backspace-key.active-touch,
+        .keyboard-key.shift-key.active-touch,
+        .keyboard-key.arrow-key.active-touch {
+            background: #E5CCFF;
+            border-color: #c9aaf0;
+        }
+
+    /* SHIFT attivo */
+    .keyboard-key.shift-active {
+        background: #99CCFF;
+        border-color: #99CCFF;
+        color: #244c73;
+    }
+
+    /* =========================
+   SPAZIO
+========================= */
+
+    .keyboard-key[data-key-value=" "] {
+        background: #f5f7fa;
+        border-color: rgba(160, 170, 180, 0.4);
+        color: #5f6774;
+    }
+
+        .keyboard-key[data-key-value=" "]:active,
+        .keyboard-key[data-key-value=" "].active-touch {
+            background: #E5CCFF;
+            border-color: #c9aaf0;
+        }
+
+/* =========================
+   AZIONI IN BASSO
+========================= */
+
+.keyboard-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(229, 204, 255, 0.65);
+    gap: 10px;
+}
+
+.keyboard-right-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.keyboard-action-btn {
+    height: 44px;
+    padding: 0 18px;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid transparent;
+    transition: all 0.12s ease;
+    box-shadow: 0 2px 8px rgba(80, 110, 150, 0.06);
+}
+
+    .keyboard-action-btn:active,
+    .keyboard-action-btn.active-touch {
+        transform: scale(0.97);
+    }
+
+/* Chiudi */
+.keyboard-btn-close {
+    background: #ffffff;
+    border-color: rgba(153, 204, 255, 0.32);
+    color: #6a7482;
+}
+
+    .keyboard-btn-close:hover {
+        background: #f8fbfe;
+    }
+
+/* Svuota */
+.keyboard-btn-clear {
+    background: #f7f7f8;
+    border-color: rgba(160, 170, 180, 0.28);
+    color: #6b7280;
+}
+
+    .keyboard-btn-clear:hover {
+        background: #efeff1;
+    }
+
+/* Avanti */
+.keyboard-btn-next {
+    background: #E5CCFF;
+    border-color: #d9b8fb;
+    color: #5b4b70;
+    font-weight: 700;
+}
+
+    .keyboard-btn-next:hover {
+        background: #dcc0fb;
+    }
+
+/* Conferma */
+.keyboard-btn-confirm {
+    background: #99CCFF;
+    border-color: #99CCFF;
+    color: #244c73;
+    font-weight: 700;
+}
+.keyboard-cursor {
+    display: inline-block;
+    width: 2px;
+    height: 1.2em;
+    background: #244c73;
+    margin: 0 1px;
+    animation: blinkCursor 1s infinite;
+    vertical-align: middle;
+}
+
+@keyframes blinkCursor {
+    0%, 50%, 100% {
+        opacity: 1;
+    }
+
+    25%, 75% {
+        opacity: 0;
+    }
+}
+
+    .keyboard-btn-confirm:hover {
+        background: #8bc5ff;
+    }
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 768px) {
+    .keyboard-offcanvas {
+        height: 40vh !important;
+        min-height: 330px;
+    }
+
+    .keyboard-key {
+        min-width: 48px;
+        height: 46px;
+        font-size: 0.94rem;
+        border-radius: 12px;
+    }
+
+        .keyboard-key.backspace-key {
+            min-width: 58px;
+        }
+
+    .keyboard-action-btn {
+        height: 42px;
+        padding: 0 14px;
+        font-size: 0.9rem;
+    }
+
+    .keyboard-preview {
+        min-height: 54px;
+        font-size: 1rem;
+    }
+}

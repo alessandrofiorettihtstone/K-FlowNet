@@ -1,0 +1,810 @@
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Outfit:wght@300;400;500;600;700;800&display=swap");
+
+:root {
+    --Scheletro-bg: #ecf1f4;
+    --Scheletro-surface: rgba(255, 255, 255, 0.9);
+    --Scheletro-surface-strong: #ffffff;
+    --Scheletro-surface-soft: #f5f8fa;
+    --Scheletro-border: rgba(133, 151, 165, 0.2);
+    --Scheletro-border-strong: #d7e1e8;
+    --Scheletro-text: #112433;
+    --Scheletro-muted: #667888;
+    --Scheletro-accent: #0f766e;
+    --Scheletro-accent-soft: rgba(15, 118, 110, 0.12);
+    --Scheletro-accent-alt: #145da0;
+    --Scheletro-danger: #b45309;
+    --Scheletro-danger-soft: #fff4e8;
+    --Scheletro-success: #15803d;
+    --Scheletro-success-soft: #ebfaf0;
+    --Scheletro-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
+    --Scheletro-shadow-soft: 0 12px 28px rgba(15, 23, 42, 0.06);
+}
+
+html {
+    font-size: 15px;
+}
+
+body.Scheletro-app {
+    min-height: 100vh;
+    margin: 0;
+    font-family: "Outfit", sans-serif;
+    color: var(--Scheletro-text);
+    background:
+        radial-gradient(circle at top left, rgba(20, 93, 160, 0.09), transparent 25%),
+        radial-gradient(circle at top right, rgba(15, 118, 110, 0.1), transparent 22%),
+        linear-gradient(180deg, #f7fafb 0%, var(--Scheletro-bg) 100%);
+}
+
+body.Scheletro-app::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background:
+        linear-gradient(rgba(255, 255, 255, 0.26), rgba(255, 255, 255, 0.26)),
+        linear-gradient(90deg, rgba(148, 163, 184, 0.04) 1px, transparent 1px),
+        linear-gradient(rgba(148, 163, 184, 0.04) 1px, transparent 1px);
+    background-size: auto, 38px 38px, 38px 38px;
+    mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.42), transparent 78%);
+}
+
+body.Scheletro-app main {
+    position: relative;
+    z-index: 1;
+}
+
+.Scheletro-shell,
+.Scheletro-home {
+    width: min(1120px, calc(100% - 32px));
+    margin: 0 auto;
+}
+
+.Scheletro-shell {
+    padding: 18px 0 140px;
+}
+
+.logo-wd {
+    height: 54px;
+    width: auto;
+    padding: 10px 14px;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.78);
+    border: 1px solid var(--Scheletro-border);
+    box-shadow: var(--Scheletro-shadow-soft);
+}
+
+.Scheletro-shell .logo-wd,
+.Scheletro-home .logo-wd {
+    position: fixed;
+    top: 18px;
+    right: max(16px, calc((100vw - 1120px) / 2 + 8px));
+    z-index: 12;
+}
+
+.logo {
+    position: fixed;
+    top: 18px;
+    left: max(16px, calc((100vw - 1120px) / 2 + 8px));
+    max-height: 54px;
+    width: auto;
+    z-index: 12;
+}
+
+.logo-left {
+    left: max(16px, calc((100vw - 1120px) / 2 + 8px));
+}
+
+.logo-right {
+    left: auto;
+    right: max(16px, calc((100vw - 1120px) / 2 + 8px));
+}
+
+#liveClock {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    margin: 0 auto 28px;
+    padding: 0 18px;
+    border-radius: 999px;
+    border: 1px solid var(--Scheletro-border);
+    background: rgba(255, 255, 255, 0.72);
+    box-shadow: var(--Scheletro-shadow-soft);
+    color: var(--Scheletro-text);
+    font-size: 0.98rem;
+    font-weight: 700;
+    text-align: center;
+    backdrop-filter: blur(10px);
+}
+
+.content-area {
+    min-height: calc(100vh - 220px);
+    padding-bottom: 210px;
+}
+
+body.Scheletro-app .card,
+.Scheletro-home-panel,
+.Scheletro-home-card,
+.home-action-card,
+.choice-card,
+.scan-card,
+.summary-card {
+    border: 1px solid var(--Scheletro-border);
+    border-radius: 30px;
+    background: var(--Scheletro-surface);
+    box-shadow: var(--Scheletro-shadow);
+}
+
+body.Scheletro-app .card {
+    border: 1px solid var(--Scheletro-border) !important;
+    background: var(--Scheletro-surface) !important;
+}
+
+body.Scheletro-app .card-body {
+    position: relative;
+    z-index: 1;
+}
+
+body.Scheletro-app .card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.38), transparent);
+    pointer-events: none;
+}
+
+.title-responsive,
+.Scheletro-panel-title {
+    margin: 0 0 12px;
+    font-family: "Fraunces", serif;
+    font-size: clamp(2rem, 3vw, 3rem);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.08;
+}
+
+.subtitle-responsive,
+.Scheletro-panel-subtitle {
+    color: var(--Scheletro-muted);
+    font-size: clamp(1rem, 1.8vw, 1.15rem);
+    line-height: 1.75;
+}
+
+body.Scheletro-app .form-label {
+    margin-bottom: 8px;
+    color: var(--Scheletro-text);
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.small-label {
+    color: var(--Scheletro-muted);
+}
+
+body.Scheletro-app .form-control,
+body.Scheletro-app .form-select {
+    min-height: 56px;
+    border-radius: 18px;
+    border-color: var(--Scheletro-border-strong);
+    color: var(--Scheletro-text);
+    background: #ffffff;
+    box-shadow: none;
+    font-size: 1rem;
+}
+
+body.Scheletro-app .form-control:focus,
+body.Scheletro-app .form-select:focus {
+    border-color: rgba(15, 118, 110, 0.45);
+    box-shadow: 0 0 0 0.2rem rgba(15, 118, 110, 0.12);
+}
+
+body.Scheletro-app .btn-primary,
+body.Scheletro-app .btn-danger,
+body.Scheletro-app .btn-outline-secondary,
+body.Scheletro-app .btn-outline-dark,
+body.Scheletro-app .btn-secondary {
+    border-radius: 18px;
+    font-weight: 700;
+}
+
+body.Scheletro-app .btn-primary {
+    border: 0;
+    background: linear-gradient(135deg, #10253b 0%, #0f766e 100%);
+    box-shadow: 0 14px 28px rgba(15, 118, 110, 0.18);
+}
+
+body.Scheletro-app .btn-danger {
+    border: 0;
+    background: linear-gradient(135deg, #c05621 0%, #a16207 100%);
+    box-shadow: 0 14px 28px rgba(180, 83, 9, 0.18);
+}
+
+body.Scheletro-app .btn-outline-secondary,
+body.Scheletro-app .btn-secondary {
+    color: var(--Scheletro-text);
+    border-color: var(--Scheletro-border-strong);
+    background: #ffffff;
+}
+
+body.Scheletro-app .btn-outline-dark {
+    color: #10253b;
+    border-color: rgba(16, 37, 59, 0.16);
+    background: #edf4f8;
+}
+
+body.Scheletro-app .modal-content {
+    border: 1px solid var(--Scheletro-border);
+    border-radius: 28px;
+    overflow: hidden;
+    box-shadow: var(--Scheletro-shadow);
+}
+
+body.Scheletro-app .modal-header,
+body.Scheletro-app .modal-footer {
+    border-color: #e8eef2;
+}
+
+body.Scheletro-app .alert {
+    border-radius: 18px;
+    border: 1px solid transparent;
+}
+
+body.Scheletro-app .alert-danger {
+    color: #9a3412;
+    background: #fff5eb;
+    border-color: rgba(180, 83, 9, 0.14);
+}
+
+body.Scheletro-app .list-group {
+    border-radius: 20px;
+}
+
+body.Scheletro-app .list-group-item {
+    border-color: #e5edf2;
+    padding: 14px 16px;
+}
+
+body.Scheletro-app .list-group-item:hover {
+    background: #f8fcfb;
+}
+
+.input-responsive {
+    min-height: 72px !important;
+    font-size: clamp(1.15rem, 2vw, 1.5rem) !important;
+    border-radius: 22px !important;
+}
+
+.privacy-box,
+.memo-box {
+    padding: 16px 18px;
+    border-radius: 20px;
+    background: var(--Scheletro-surface-soft);
+    border: 1px solid var(--Scheletro-border);
+}
+
+.privacy-link,
+.skip-link {
+    color: var(--Scheletro-accent-alt);
+    font-weight: 700;
+}
+
+.skip-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 18px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid var(--Scheletro-border);
+    text-decoration: none;
+    box-shadow: var(--Scheletro-shadow-soft);
+}
+
+.skip-link:hover {
+    color: var(--Scheletro-accent);
+}
+
+.footer-bar {
+    position: fixed;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(1120px, calc(100% - 24px));
+    padding: 12px 14px;
+    border: 1px solid var(--Scheletro-border);
+    border-radius: 28px;
+    background: rgba(255, 255, 255, 0.82);
+    box-shadow: var(--Scheletro-shadow);
+    backdrop-filter: blur(16px);
+    z-index: 10;
+}
+
+.footer-bar .container-fluid {
+    padding: 0;
+}
+
+.footer-btn,
+.footer-home {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 68px;
+    min-width: 84px;
+    border-radius: 18px;
+    font-size: 1.8rem;
+    font-weight: 700;
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.footer-home {
+    min-width: 96px;
+}
+
+.footer-btn:hover,
+.footer-home:hover {
+    transform: translateY(-1px);
+}
+
+.footer-home i {
+    font-size: 2.3rem;
+}
+
+.dept-scroll,
+.emp-scroll {
+    max-height: calc(100vh - 350px);
+    overflow-y: auto;
+    padding-right: 6px;
+    scrollbar-width: thin;
+    scrollbar-color: #c6d2db transparent;
+}
+
+.dept-scroll::-webkit-scrollbar,
+.emp-scroll::-webkit-scrollbar {
+    width: 6px;
+}
+
+.dept-scroll::-webkit-scrollbar-thumb,
+.emp-scroll::-webkit-scrollbar-thumb {
+    background: #c6d2db;
+    border-radius: 999px;
+}
+
+.dept-list,
+.emp-list {
+    display: grid;
+    gap: 12px;
+}
+
+.dept-item,
+.emp-item,
+.guest-option-btn {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+    padding: 18px 20px;
+    border: 1px solid var(--Scheletro-border);
+    border-radius: 22px;
+    background: #ffffff;
+    color: var(--Scheletro-text);
+    text-align: left;
+    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.05);
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, background-color 0.18s ease;
+}
+
+.dept-item:hover,
+.emp-item:hover,
+.guest-option-btn:hover,
+.dept-item.selected,
+.emp-item.selected,
+.guest-option-btn.selected {
+    border-color: rgba(15, 118, 110, 0.24);
+    background: #f8fcfb;
+    transform: translateY(-1px);
+    box-shadow: 0 16px 28px rgba(15, 118, 110, 0.1);
+}
+
+.dept-icon-wrap,
+.emp-avatar,
+.guest-avatar {
+    width: 52px;
+    height: 52px;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 18px;
+    color: var(--Scheletro-accent-alt);
+    background: rgba(20, 93, 160, 0.1);
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.emp-avatar,
+.guest-avatar {
+    border-radius: 50%;
+}
+
+.dept-name,
+.emp-name {
+    flex: 1;
+    font-size: 1.12rem;
+    font-weight: 700;
+    line-height: 1.35;
+}
+
+.dept-arrow,
+.emp-arrow,
+.guest-check {
+    color: #9aaab7;
+    font-size: 1.2rem;
+}
+
+.guest-option-btn.selected .guest-check {
+    color: var(--Scheletro-accent);
+}
+
+.recap-table,
+body.Scheletro-app table {
+    width: 100%;
+    margin-bottom: 0;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.recap-table th,
+.recap-table td,
+body.Scheletro-app table th,
+body.Scheletro-app table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid #e5edf2;
+    vertical-align: middle;
+}
+
+.recap-table th,
+body.Scheletro-app table th {
+    color: var(--Scheletro-text);
+    font-weight: 700;
+}
+
+.recap-table tr:last-child th,
+.recap-table tr:last-child td,
+body.Scheletro-app table tr:last-child th,
+body.Scheletro-app table tr:last-child td {
+    border-bottom: 0;
+}
+
+.row-odd,
+body.Scheletro-app table tr:nth-child(odd) {
+    background: #f9fbfc;
+}
+
+.row-even,
+body.Scheletro-app table tr:nth-child(even) {
+    background: #ffffff;
+}
+
+.scan-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.95rem 1.4rem;
+    border-radius: 999px;
+    font-size: 1rem;
+    font-weight: 700;
+    transition: all 0.2s ease;
+}
+
+.scan-status--waiting {
+    color: #4e6473;
+    background: #eef3f7;
+}
+
+.scan-status--processing {
+    color: #915f10;
+    background: var(--Scheletro-danger-soft);
+    box-shadow: 0 0 0 3px rgba(180, 83, 9, 0.14);
+}
+
+.scan-status__spinner {
+    display: none;
+    width: 1.1rem;
+    height: 1.1rem;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: scan-spin 0.8s linear infinite;
+}
+
+.scan-status--processing .scan-status__spinner {
+    display: inline-block;
+}
+
+@keyframes scan-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.Scheletro-home {
+    padding: 28px 0 150px;
+    min-height: 100vh;
+    display: grid;
+    align-items: center;
+}
+
+.Scheletro-home-panel {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.9fr);
+    gap: 22px;
+    padding: 28px;
+}
+
+.Scheletro-home-copy,
+.Scheletro-home-actions {
+    min-width: 0;
+}
+
+.Scheletro-home-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 14px;
+    border-radius: 999px;
+    color: var(--Scheletro-accent);
+    background: var(--Scheletro-accent-soft);
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.Scheletro-home-copy h1 {
+    margin: 20px 0 14px;
+    font-family: "Fraunces", serif;
+    font-size: clamp(2.7rem, 5vw, 4.4rem);
+    font-weight: 700;
+    line-height: 1.02;
+    letter-spacing: -0.05em;
+}
+
+.Scheletro-home-copy p {
+    max-width: 44rem;
+    margin: 0;
+    color: var(--Scheletro-muted);
+    font-size: 1.05rem;
+    line-height: 1.8;
+}
+
+.Scheletro-home-brand {
+    max-width: min(420px, 100%);
+    margin: 24px 0 0;
+}
+
+.Scheletro-home-grid {
+    margin-top: 28px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.Scheletro-home-card {
+    padding: 18px 20px;
+}
+
+.Scheletro-home-card span {
+    display: block;
+    color: var(--Scheletro-muted);
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.Scheletro-home-card strong {
+    display: block;
+    margin-top: 10px;
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.55;
+}
+
+.Scheletro-home-actions {
+    display: grid;
+    gap: 16px;
+}
+
+.home-action-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 24px;
+    color: inherit;
+    text-decoration: none;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.home-action-card:hover {
+    color: inherit;
+    transform: translateY(-2px);
+    box-shadow: 0 22px 40px rgba(15, 23, 42, 0.1);
+}
+
+.home-action-card.is-checkin {
+    background:
+        linear-gradient(145deg, rgba(15, 118, 110, 0.14), rgba(255, 255, 255, 0.96)),
+        var(--Scheletro-surface);
+}
+
+.home-action-card.is-checkout {
+    background:
+        linear-gradient(145deg, rgba(180, 83, 9, 0.14), rgba(255, 255, 255, 0.96)),
+        var(--Scheletro-surface);
+}
+
+.home-action-icon {
+    width: 58px;
+    height: 58px;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 20px;
+    font-size: 1.55rem;
+}
+
+.home-action-card.is-checkin .home-action-icon {
+    color: var(--Scheletro-accent);
+    background: rgba(15, 118, 110, 0.12);
+}
+
+.home-action-card.is-checkout .home-action-icon {
+    color: var(--Scheletro-danger);
+    background: rgba(180, 83, 9, 0.12);
+}
+
+.home-action-card strong {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 1.3rem;
+    font-weight: 700;
+}
+
+.home-action-card p {
+    margin: 0;
+    color: var(--Scheletro-muted);
+    line-height: 1.7;
+}
+
+.home-action-arrow {
+    margin-left: auto;
+    color: #9aaab7;
+    font-size: 1.25rem;
+}
+
+.Scheletro-home-footnote {
+    margin-top: 22px;
+    padding: 18px 20px;
+    border-radius: 24px;
+    border: 1px solid var(--Scheletro-border);
+    background: rgba(255, 255, 255, 0.72);
+    color: var(--Scheletro-muted);
+    line-height: 1.7;
+}
+
+.iti {
+    width: 100%;
+}
+
+.iti input {
+    width: 100%;
+    min-height: 56px;
+    border-radius: 18px;
+}
+
+.iti__flag-container {
+    padding-right: 8px;
+    border-right: 1px solid #e2e8ee;
+}
+
+.iti__country-list {
+    border-radius: 18px;
+    border: 1px solid var(--Scheletro-border);
+    box-shadow: var(--Scheletro-shadow);
+}
+
+@media (max-width: 1199.98px) {
+    .Scheletro-home-panel {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 991.98px) {
+    .Scheletro-shell,
+    .Scheletro-home {
+        width: calc(100% - 20px);
+    }
+
+    .footer-bar {
+        width: calc(100% - 20px);
+    }
+
+    .logo,
+    .Scheletro-shell .logo-wd,
+    .Scheletro-home .logo-wd {
+        position: static;
+        margin-bottom: 18px;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .Scheletro-shell {
+        padding-top: 14px;
+        padding-bottom: 130px;
+    }
+
+    .Scheletro-home {
+        padding-top: 16px;
+        padding-bottom: 130px;
+    }
+
+    #liveClock {
+        width: 100%;
+        border-radius: 20px;
+        line-height: 1.5;
+        white-space: normal;
+    }
+
+    .Scheletro-home-panel,
+    .footer-bar {
+        border-radius: 24px;
+    }
+
+    .Scheletro-home-panel,
+    .home-action-card,
+    .Scheletro-home-card,
+    body.Scheletro-app .card,
+    .dept-item,
+    .emp-item,
+    .guest-option-btn {
+        border-radius: 24px;
+    }
+
+    .Scheletro-home-panel,
+    .home-action-card,
+    .Scheletro-home-card,
+    .footer-bar {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .Scheletro-home-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .footer-btn,
+    .footer-home {
+        min-width: 72px;
+        min-height: 60px;
+        font-size: 1.5rem;
+    }
+
+    .footer-home i {
+        font-size: 2rem;
+    }
+
+    .dept-icon-wrap,
+    .emp-avatar,
+    .guest-avatar {
+        width: 46px;
+        height: 46px;
+    }
+
+    .dept-name,
+    .emp-name {
+        font-size: 1rem;
+    }
+}

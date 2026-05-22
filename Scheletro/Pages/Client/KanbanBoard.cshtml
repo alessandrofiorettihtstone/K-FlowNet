@@ -1,0 +1,349 @@
+@page "/Client/KanbanBoard.cshtml"
+@model Scheletro.Pages.Client.KanbanBoardModel
+@{
+    Layout = "_KFlowLayout";
+    ViewData["Title"] = "KanbanBoard";
+    ViewData["KFlowSuccessMessage"] = Model.SuccessMessage;
+    var returnUrl = HttpContext.Request.Path + HttpContext.Request.QueryString;
+    var selectedStatuses = Model.Board.Statuses.Where(status => status.Selected).ToList();
+    var statusDropdownLabel = selectedStatuses.Count switch
+    {
+        0 => "Seleziona uno stato",
+        1 => selectedStatuses[0].Description,
+        var count when count == Model.Board.Statuses.Count => "Tutti gli stati",
+        var count => $"{count} stati selezionati"
+    };
+}
+
+@if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle me-1"></i>
+        @Model.ErrorMessage
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Chiudi"></button>
+    </div>
+}
+
+<form method="get" class="kflow-board-toolbar">
+    <section class="kflow-panel">
+        <div class="kflow-panel-header">
+            <h2>Ricerca</h2>
+        </div>
+        <div class="kflow-panel-body">
+            <div class="row g-2 align-items-end">
+                <div class="col-md-3">
+                    <label asp-for="Filters.CardId" class="form-label">Cartellino</label>
+                    <div class="input-group kflow-autocomplete-wrapper">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                        <input asp-for="Filters.CardId" class="form-control" autocomplete="off" />
+                        <button type="button" class="btn btn-outline-secondary" title="Pulisci cartellino" aria-label="Pulisci cartellino" data-clear-target="#Filters_CardId">
+                            <i class="bi bi-trash-fill"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="Filters.Partner" class="form-label">Cliente</label>
+                    <div class="input-group kflow-autocomplete-wrapper">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                        <input asp-for="Filters.Partner" class="form-control" autocomplete="off" />
+                        <button type="button" class="btn btn-outline-secondary" title="Pulisci cliente" aria-label="Pulisci cliente" data-clear-target="#Filters_Partner">
+                            <i class="bi bi-trash-fill"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="Filters.Product" class="form-label">Articolo</label>
+                    <div class="input-group kflow-autocomplete-wrapper">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                        <input asp-for="Filters.Product" class="form-control" autocomplete="off" />
+                        <button type="button" class="btn btn-outline-secondary" title="Pulisci articolo" aria-label="Pulisci articolo" data-clear-target="#Filters_Product">
+                            <i class="bi bi-trash-fill"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-auto ms-md-auto">
+                    <label class="form-label">Status</label>
+                    <div class="d-flex gap-2">
+                        <div class="dropdown kflow-status-dropdown flex-grow-1">
+                            <button id="btnStatusDropdown"
+                                    type="button"
+                                    class="btn btn-outline-secondary dropdown-toggle w-100 text-start"
+                                    data-bs-toggle="dropdown"
+                                    data-bs-auto-close="outside"
+                                    aria-expanded="false">
+                                <span data-status-dropdown-label>@statusDropdownLabel</span>
+                            </button>
+                            <div class="dropdown-menu kflow-status-menu p-2">
+                                <div class="status-check-list">
+                                    @foreach (var status in Model.Board.Statuses)
+                                    {
+                                        <label class="form-check kflow-status-check">
+                                            <input class="form-check-input"
+                                                   type="checkbox"
+                                                   name="Filters.StatusIds"
+                                                   value="@status.ID"
+                                                   checked="@status.Selected"
+                                                   data-status-option
+                                                   data-status-label="@status.Description" />
+                                            <span class="form-check-label">@status.Description</span>
+                                        </label>
+                                    }
+                                </div>
+                                <hr class="my-2" />
+                                <button type="submit" class="btn btn-sm btn-primary w-100">
+                                    Applica
+                                </button>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-outline-secondary" title="Pulisci status" aria-label="Pulisci status" data-clear-target="[data-status-option]">
+                            <i class="bi bi-trash-fill"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="d-flex justify-content-end gap-2 mt-3">
+                <a class="btn btn-outline-secondary" href="/Client/KanbanBoard.cshtml">Pulisci</a>
+                <button class="btn btn-primary" type="submit">
+                    <i class="bi bi-search me-1"></i>
+                    Cerca
+                </button>
+            </div>
+        </div>
+    </section>
+</form>
+
+<section class="kflow-board">
+    @foreach (var group in Model.Board.Groups)
+    {
+        <div class="kflow-column" data-drop-status="@group.StatusId">
+            <div class="kflow-column-title" style="background-color:@group.Color">
+                @group.StatusName
+            </div>
+            <div class="kflow-column-body">
+                @if (group.Rows.Count == 0)
+                {
+                    <div class="kflow-empty-column">Nessun cartellino</div>
+                }
+                @foreach (var row in group.Rows)
+                {
+                    <article class="kflow-work-row">
+                        <div class="kflow-work-row-header">
+                            <div class="d-flex justify-content-between align-items-start gap-2">
+                                <div>
+                                    <p class="kflow-work-title">@row.IDPartner - @row.PartnerName</p>
+                                    <div class="kflow-work-meta">
+                                        @row.IDProduct - @row.ProductName<br />
+                                        @row.IDCross
+                                    </div>
+                                </div>
+                                <button type="button"
+                                        class="btn btn-sm btn-outline-secondary"
+                                        title="Cambia stato combinazione"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#changeStatusModal"
+                                        data-change-combination="@row.IDCombinazione">
+                                    <i class="bi bi-arrow-left-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="kflow-card-list">
+                            @foreach (var card in row.Cards)
+                            {
+                                <div class="kflow-card-item"
+                                     draggable="true"
+                                     data-card-id="@card.IDCard"
+                                     data-current-status="@group.StatusId"
+                                     title="Trascina in un'altra colonna per cambiare stato">
+                                    <div>
+                                        <div class="kflow-card-id">@card.IDCard</div>
+                                        <div class="kflow-card-qty">Qty: @card.Quantity.ToString("N0")</div>
+                                    </div>
+                                    <div class="btn-group">
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-secondary"
+                                                title="Cambia stato cartellino"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#changeStatusModal"
+                                                data-change-card="@card.IDCard">
+                                            <i class="bi bi-arrow-left-right"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" title="Impostazioni non migrate" disabled>
+                                            <i class="bi bi-gear"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-danger" title="Elimina non migrato" disabled>
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </article>
+                }
+            </div>
+        </div>
+    }
+</section>
+
+<div class="modal fade" id="changeStatusModal" tabindex="-1" aria-labelledby="changeStatusModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" asp-page-handler="ChangeStatus">
+                <div class="modal-header">
+                    <h2 class="modal-title fs-5" id="changeStatusModalLabel">Cambio stato</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="targetCardId" id="targetCardId" />
+                    <input type="hidden" name="targetCombinationId" id="targetCombinationId" />
+                    <input type="hidden" name="returnUrl" value="@returnUrl" />
+                    <div id="changeStatusTarget" class="text-muted mb-3"></div>
+                    <div class="d-grid gap-2">
+                        @foreach (var status in Model.Board.Statuses)
+                        {
+                            <button type="submit"
+                                    class="btn text-white"
+                                    name="newStatus"
+                                    value="@status.ID"
+                                    style="background-color:@status.Color">
+                                @status.Description
+                            </button>
+                        }
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<form id="dragDropStatusForm" method="post" asp-page-handler="DragDropStatus" class="d-none">
+    <input type="hidden" name="targetCardId" id="dragTargetCardId" />
+    <input type="hidden" name="newStatus" id="dragNewStatus" />
+    <input type="hidden" name="returnUrl" value="@returnUrl" />
+</form>
+
+@section Scripts {
+    <script>
+        (() => {
+            const firstLookupValue = value => {
+                const raw = value || "";
+                const separatorIndex = raw.indexOf(" - ");
+                return separatorIndex > 0 ? raw.slice(0, separatorIndex).trim() : raw.trim();
+            };
+
+            setupKFlowAutocomplete({
+                inputSelector: "#Filters_CardId",
+                url: "/Client/KanbanBoard.cshtml",
+                tipoRicerca: "CARD",
+                emptyText: "Nessun cartellino trovato",
+                submitOnSelect: true
+            });
+            setupKFlowAutocomplete({
+                inputSelector: "#Filters_Partner",
+                url: "/Client/KanbanBoard.cshtml",
+                tipoRicerca: "PARTNER",
+                emptyText: "Nessun cliente trovato",
+                submitOnSelect: true,
+                getSelectedValue: firstLookupValue
+            });
+            setupKFlowAutocomplete({
+                inputSelector: "#Filters_Product",
+                url: "/Client/KanbanBoard.cshtml",
+                tipoRicerca: "PRODUCT",
+                emptyText: "Nessun articolo trovato",
+                submitOnSelect: true,
+                getSelectedValue: firstLookupValue
+            });
+            setupKFlowFilterClear();
+
+            const statusOptions = [...document.querySelectorAll("[data-status-option]")];
+            const statusLabel = document.querySelector("[data-status-dropdown-label]");
+            const updateStatusLabel = () => {
+                if (!statusLabel) {
+                    return;
+                }
+
+                const selected = statusOptions.filter(option => option.checked);
+                if (selected.length === 0) {
+                    statusLabel.textContent = "Seleziona uno stato";
+                } else if (selected.length === statusOptions.length) {
+                    statusLabel.textContent = "Tutti gli stati";
+                } else if (selected.length === 1) {
+                    statusLabel.textContent = selected[0].dataset.statusLabel || "1 stato selezionato";
+                } else {
+                    statusLabel.textContent = `${selected.length} stati selezionati`;
+                }
+            };
+
+            statusOptions.forEach(option => option.addEventListener("change", updateStatusLabel));
+            updateStatusLabel();
+
+            const modal = document.getElementById("changeStatusModal");
+            modal?.addEventListener("show.bs.modal", event => {
+                const button = event.relatedTarget;
+                const cardId = button?.getAttribute("data-change-card") || "";
+                const combinationId = button?.getAttribute("data-change-combination") || "";
+                document.getElementById("targetCardId").value = cardId;
+                document.getElementById("targetCombinationId").value = combinationId;
+                document.getElementById("changeStatusTarget").textContent = cardId
+                    ? `Cartellino ${cardId}`
+                    : `Tutti i cartellini della combinazione ${combinationId}`;
+            });
+
+            const columns = document.querySelectorAll("[data-drop-status]");
+            const cards = document.querySelectorAll("[data-card-id]");
+            let draggedCard = null;
+
+            cards.forEach(card => {
+                card.addEventListener("dragstart", event => {
+                    draggedCard = card;
+                    card.classList.add("is-dragging");
+                    event.dataTransfer.effectAllowed = "move";
+                    event.dataTransfer.setData("text/plain", card.dataset.cardId || "");
+                });
+
+                card.addEventListener("dragend", () => {
+                    card.classList.remove("is-dragging");
+                    columns.forEach(column => column.classList.remove("is-drop-target"));
+                    draggedCard = null;
+                });
+            });
+
+            columns.forEach(column => {
+                column.addEventListener("dragover", event => {
+                    if (!draggedCard || draggedCard.dataset.currentStatus === column.dataset.dropStatus) {
+                        return;
+                    }
+
+                    event.preventDefault();
+                    column.classList.add("is-drop-target");
+                    event.dataTransfer.dropEffect = "move";
+                });
+
+                column.addEventListener("dragleave", event => {
+                    if (!column.contains(event.relatedTarget)) {
+                        column.classList.remove("is-drop-target");
+                    }
+                });
+
+                column.addEventListener("drop", event => {
+                    if (!draggedCard) {
+                        return;
+                    }
+
+                    event.preventDefault();
+                    column.classList.remove("is-drop-target");
+
+                    const cardId = draggedCard.dataset.cardId || "";
+                    const newStatus = column.dataset.dropStatus || "";
+                    if (!cardId || !newStatus || draggedCard.dataset.currentStatus === newStatus) {
+                        return;
+                    }
+
+                    document.getElementById("dragTargetCardId").value = cardId;
+                    document.getElementById("dragNewStatus").value = newStatus;
+                    document.getElementById("dragDropStatusForm").submit();
+                });
+            });
+        })();
+    </script>
+}
