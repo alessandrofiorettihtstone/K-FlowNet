@@ -26,43 +26,43 @@
 
 <form method="get" class="kflow-board-toolbar">
     <section class="kflow-panel">
-        <div class="kflow-panel-header">
+       @*  <div class="kflow-panel-header">
             <h2>Ricerca</h2>
-        </div>
+        </div> *@
         <div class="kflow-panel-body">
             <div class="row g-2 align-items-end">
                 <div class="col-md-3">
-                    <label asp-for="Filters.CardId" class="form-label">Cartellino</label>
+                  @*   <label asp-for="Filters.CardId" class="form-label">Cartellino</label> *@
                     <div class="input-group kflow-autocomplete-wrapper">
                         <span class="input-group-text"><i class="bi bi-search"></i></span>
-                        <input asp-for="Filters.CardId" class="form-control" autocomplete="off" />
+                        <input asp-for="Filters.CardId" class="form-control" autocomplete="off" placeholder="Cartellino" />
                         <button type="button" class="btn btn-outline-secondary" title="Pulisci cartellino" aria-label="Pulisci cartellino" data-clear-target="#Filters_CardId">
                             <i class="bi bi-trash"></i>
                         </button>
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <label asp-for="Filters.Partner" class="form-label">Cliente</label>
+                    @* <label asp-for="Filters.Partner" class="form-label">Cliente</label> *@
                     <div class="input-group kflow-autocomplete-wrapper">
                         <span class="input-group-text"><i class="bi bi-search"></i></span>
-                        <input asp-for="Filters.Partner" class="form-control" autocomplete="off" />
+                        <input asp-for="Filters.Partner" class="form-control" autocomplete="off" placeholder="Cliente" />
                         <button type="button" class="btn btn-outline-secondary" title="Pulisci cliente" aria-label="Pulisci cliente" data-clear-target="#Filters_Partner">
                             <i class="bi bi-trash"></i>
                         </button>
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <label asp-for="Filters.Product" class="form-label">Articolo</label>
+                   @*  <label asp-for="Filters.Product" class="form-label">Articolo</label> *@
                     <div class="input-group kflow-autocomplete-wrapper">
                         <span class="input-group-text"><i class="bi bi-search"></i></span>
-                        <input asp-for="Filters.Product" class="form-control" autocomplete="off" />
+                        <input asp-for="Filters.Product" class="form-control" autocomplete="off" placeholder="Articolo" />
                         <button type="button" class="btn btn-outline-secondary" title="Pulisci articolo" aria-label="Pulisci articolo" data-clear-target="#Filters_Product">
                             <i class="bi bi-trash"></i>
                         </button>
                     </div>
                 </div>
                 <div class="col-md-auto ms-md-auto">
-                    <label class="form-label">Status</label>
+                   @*  <label class="form-label">Status</label> *@
                     <div class="d-flex gap-2">
                         <div class="dropdown kflow-status-dropdown flex-grow-1">
                             <button id="btnStatusDropdown"
