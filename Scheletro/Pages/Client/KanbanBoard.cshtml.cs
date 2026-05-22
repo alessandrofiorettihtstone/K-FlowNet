@@ -111,6 +111,45 @@ public class KanbanBoardModel : PageModel
         return await ChangeStatusAsync(targetCardId, null, newStatus, returnUrl, "DragDropStatus");
     }
 
+    public async Task<IActionResult> OnPostUpdateCardAsync(
+        string editCardId,
+        int quantity,
+        short status,
+        string? returnUrl)
+    {
+        try
+        {
+            await _kanbanService.UpdateCardAsync(editCardId, quantity, status);
+            SuccessMessage = $"Cartellino {editCardId} aggiornato.";
+
+            _logger.Log(new LoggerDTO.logDTO
+            {
+                typeMessage = "Kanban",
+                TypeFunction = "UpdateCard",
+                TypeText = SuccessMessage,
+                IDUser = User.Claims.FirstOrDefault(x => x.Type == "IDUser")?.Value ?? string.Empty
+            });
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+            _logger.Log(new LoggerDTO.logDTO
+            {
+                typeMessage = "Kanban",
+                TypeFunction = "UpdateCardError",
+                TypeText = ex.Message,
+                IDUser = User.Claims.FirstOrDefault(x => x.Type == "IDUser")?.Value ?? string.Empty
+            });
+        }
+
+        if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))
+        {
+            return LocalRedirect(returnUrl);
+        }
+
+        return Redirect(Request.GetEncodedPathAndQuery());
+    }
+
     private async Task<IActionResult> ChangeStatusAsync(
         string? targetCardId,
         int? targetCombinationId,

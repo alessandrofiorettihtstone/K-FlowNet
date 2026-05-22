@@ -1,0 +1,472 @@
+@page "/Client/Combination.cshtml"
+@model Scheletro.Pages.Client.CombinationModel
+@{
+    Layout = "_KFlowLayout";
+    ViewData["Title"] = "Combination";
+    ViewData["KFlowSuccessMessage"] = Model.SuccessMessage;
+    var returnUrl = HttpContext.Request.Path + HttpContext.Request.QueryString;
+}
+
+@if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle me-1"></i>
+        @Model.ErrorMessage
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Chiudi"></button>
+    </div>
+}
+
+<form method="get" class="kflow-board-toolbar">
+    <section class="kflow-panel">
+        <div class="kflow-panel-header d-flex flex-wrap align-items-center justify-content-between gap-2">
+            <h2>Ricerca</h2>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createCombinationModal">
+                <i class="bi bi-plus-lg me-1"></i>
+                Nuova combination
+            </button>
+        </div>
+        <div class="kflow-panel-body">
+            <div class="row g-2 align-items-end">
+                <div class="col-md-4">
+                    <label asp-for="Filters.Partner" class="form-label">Cliente</label>
+                    <div class="input-group kflow-autocomplete-wrapper">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                        <input asp-for="Filters.Partner" class="form-control" autocomplete="off" />
+                        <button type="button" class="btn btn-outline-secondary" title="Pulisci cliente" aria-label="Pulisci cliente" data-clear-target="#Filters_Partner">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="Filters.Product" class="form-label">Articolo</label>
+                    <div class="input-group kflow-autocomplete-wrapper">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                        <input asp-for="Filters.Product" class="form-control" autocomplete="off" />
+                        <button type="button" class="btn btn-outline-secondary" title="Pulisci articolo" aria-label="Pulisci articolo" data-clear-target="#Filters_Product">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="Filters.Cross" class="form-label">Cross</label>
+                    <div class="input-group kflow-autocomplete-wrapper">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                        <input asp-for="Filters.Cross" class="form-control" autocomplete="off" />
+                        <button type="button" class="btn btn-outline-secondary" title="Pulisci cross" aria-label="Pulisci cross" data-clear-target="#Filters_Cross">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="d-flex justify-content-end gap-2 mt-3">
+                <a class="btn btn-outline-secondary" href="/Client/Combination.cshtml">Pulisci</a>
+                <button class="btn btn-primary" type="submit">
+                    <i class="bi bi-search me-1"></i>
+                    Cerca
+                </button>
+            </div>
+        </div>
+    </section>
+</form>
+
+<section class="kflow-panel">
+    <div class="kflow-panel-header d-flex flex-wrap align-items-center justify-content-between gap-2">
+        <h2>Elenco combination</h2>
+        <span class="text-muted small">@Model.Rows.Count combination</span>
+    </div>
+    <div class="kflow-panel-body p-0">
+        @if (Model.Rows.Count == 0)
+        {
+            <div class="kflow-empty-column">Nessuna combination trovata.</div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>Cliente</th>
+                            <th>Articolo</th>
+                            <th>Location</th>
+                            <th>Cross</th>
+                            <th class="text-end">PDR</th>
+                            <th class="text-end">MOQ</th>
+                            <th class="text-end">Azioni</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var row in Model.Rows)
+                        {
+                            <tr>
+                                <td class="fw-semibold">@row.ID</td>
+                                <td>@row.PartnerDisplay</td>
+                                <td>@row.ProductDisplay</td>
+                                <td>@row.LocationDisplay</td>
+                                <td>@(string.IsNullOrWhiteSpace(row.IDCross) ? "-" : row.IDCross)</td>
+                                <td class="text-end">@row.PDR</td>
+                                <td class="text-end">@row.MOQ</td>
+                                <td class="text-end">
+                                    <div class="btn-group btn-group-sm" role="group" aria-label="Azioni combination">
+                                        <button type="button"
+                                                class="btn btn-outline-primary"
+                                                title="Modifica combination"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#editCombinationModal"
+                                                data-edit-id="@row.ID"
+                                                data-edit-partner-value="@row.PartnerLabel"
+                                                data-edit-product-id="@row.ProductLookupLabel"
+                                                data-edit-location-id="@row.LocationID"
+                                                data-edit-cross="@row.IDCross"
+                                                data-edit-pdr="@row.PDR"
+                                                data-edit-moq="@row.MOQ">
+                                            <i class="bi bi-pencil-square"></i>
+                                            Modifica
+                                        </button>
+                                        <form method="post" asp-page-handler="Delete" class="d-inline">
+                                            <input type="hidden" name="id" value="@row.ID" />
+                                            <input type="hidden" name="returnUrl" value="@returnUrl" />
+                                            <button type="submit"
+                                                    class="btn btn-outline-danger"
+                                                    title="Elimina combination"
+                                                    onclick="return confirm('Eliminare la combination @row.ID?');">
+                                                <i class="bi bi-trash"></i>
+                                                Elimina
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</section>
+
+<div class="modal fade" id="createCombinationModal" tabindex="-1" aria-labelledby="createCombinationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <form method="post" asp-page-handler="Create">
+                <div class="modal-header">
+                    <h2 class="modal-title fs-5" id="createCombinationModalLabel">Nuova combination</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="returnUrl" value="@returnUrl" />
+                    <input type="hidden" name="Filters.Partner" value="@Model.Filters.Partner" />
+                    <input type="hidden" name="Filters.Product" value="@Model.Filters.Product" />
+                    <input type="hidden" name="Filters.Cross" value="@Model.Filters.Cross" />
+
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label asp-for="Input.PartnerValue" class="form-label">Cliente</label>
+                            <div class="kflow-autocomplete-wrapper">
+                                <input asp-for="Input.PartnerValue" class="form-control" autocomplete="off" placeholder="Cerca cliente" />
+                            </div>
+                            <span asp-validation-for="Input.PartnerValue" class="text-danger small"></span>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="Input.IDProduct" class="form-label">Articolo</label>
+                            <div class="kflow-autocomplete-wrapper">
+                                <input asp-for="Input.IDProduct" class="form-control" autocomplete="off" placeholder="Cerca articolo" />
+                            </div>
+                            <span asp-validation-for="Input.IDProduct" class="text-danger small"></span>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="Input.LocationID" class="form-label">Location</label>
+                            <select asp-for="Input.LocationID" class="form-select">
+                                @foreach (var location in Model.LocationOptions)
+                                {
+                                    if (Model.Input.LocationID == location.Value)
+                                    {
+                                        <option value="@location.Value" data-partner-key="@location.PartnerKey" selected>@location.Text</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@location.Value" data-partner-key="@location.PartnerKey">@location.Text</option>
+                                    }
+                                }
+                            </select>
+                            <span asp-validation-for="Input.LocationID" class="text-danger small"></span>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="Input.IDCross" class="form-label">Cross</label>
+                            <div class="kflow-autocomplete-wrapper">
+                                <input asp-for="Input.IDCross" class="form-control" maxlength="50" autocomplete="off" />
+                            </div>
+                            <span asp-validation-for="Input.IDCross" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Input.PDR" class="form-label">PDR</label>
+                            <input asp-for="Input.PDR" class="form-control" type="number" min="0" />
+                            <span asp-validation-for="Input.PDR" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Input.MOQ" class="form-label">MOQ</label>
+                            <input asp-for="Input.MOQ" class="form-control" type="number" min="0" />
+                            <span asp-validation-for="Input.MOQ" class="text-danger small"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annulla</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save me-1"></i>
+                        Crea combination
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editCombinationModal" tabindex="-1" aria-labelledby="editCombinationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <form method="post" asp-page-handler="Update">
+                <div class="modal-header">
+                    <h2 class="modal-title fs-5" id="editCombinationModalLabel">Modifica combination</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="returnUrl" value="@returnUrl" />
+                    <input type="hidden" name="Filters.Partner" value="@Model.Filters.Partner" />
+                    <input type="hidden" name="Filters.Product" value="@Model.Filters.Product" />
+                    <input type="hidden" name="Filters.Cross" value="@Model.Filters.Cross" />
+                    <input asp-for="EditInput.ID" type="hidden" />
+
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="row g-3">
+                        @* <div class="col-12">
+                            <label class="form-label" for="editCombinationIdDisplay">ID</label>
+                            <input id="editCombinationIdDisplay" class="form-control bg-light" readonly />
+                        </div> *@
+                        <div class="col-12">
+                            <label asp-for="EditInput.PartnerValue" class="form-label">Cliente</label>
+                            <div class="kflow-autocomplete-wrapper">
+                                <input asp-for="EditInput.PartnerValue" class="form-control" autocomplete="off" placeholder="Cerca cliente" />
+                            </div>
+                            <span asp-validation-for="EditInput.PartnerValue" class="text-danger small"></span>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="EditInput.IDProduct" class="form-label">Articolo</label>
+                            <div class="kflow-autocomplete-wrapper">
+                                <input asp-for="EditInput.IDProduct" class="form-control" autocomplete="off" placeholder="Cerca articolo" />
+                            </div>
+                            <span asp-validation-for="EditInput.IDProduct" class="text-danger small"></span>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="EditInput.LocationID" class="form-label">Location</label>
+                            <select asp-for="EditInput.LocationID" class="form-select">
+                                @foreach (var location in Model.LocationOptions)
+                                {
+                                    if (Model.EditInput.LocationID == location.Value)
+                                    {
+                                        <option value="@location.Value" data-partner-key="@location.PartnerKey" selected>@location.Text</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@location.Value" data-partner-key="@location.PartnerKey">@location.Text</option>
+                                    }
+                                }
+                            </select>
+                            <span asp-validation-for="EditInput.LocationID" class="text-danger small"></span>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="EditInput.IDCross" class="form-label">Cross</label>
+                            <div class="kflow-autocomplete-wrapper">
+                                <input asp-for="EditInput.IDCross" class="form-control" maxlength="50" autocomplete="off" />
+                            </div>
+                            <span asp-validation-for="EditInput.IDCross" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="EditInput.PDR" class="form-label">PDR</label>
+                            <input asp-for="EditInput.PDR" class="form-control" type="number" min="0" />
+                            <span asp-validation-for="EditInput.PDR" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="EditInput.MOQ" class="form-label">MOQ</label>
+                            <input asp-for="EditInput.MOQ" class="form-control" type="number" min="0" />
+                            <span asp-validation-for="EditInput.MOQ" class="text-danger small"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annulla</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save me-1"></i>
+                        Salva modifiche
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (() => {
+            const firstLookupValue = value => {
+                const raw = value || "";
+                const separatorIndex = raw.indexOf(" - ");
+                return separatorIndex > 0 ? raw.slice(0, separatorIndex).trim() : raw.trim();
+            };
+
+            const setValue = (id, value) => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.value = value || "";
+                    element.dispatchEvent(new Event("change", { bubbles: true }));
+                }
+            };
+
+            const showModal = modalId => {
+                const modalElement = document.getElementById(modalId);
+                if (modalElement && window.bootstrap) {
+                    bootstrap.Modal.getOrCreateInstance(modalElement).show();
+                }
+            };
+
+            const filterLocations = (partnerInput, locationSelect) => {
+                if (!partnerInput || !locationSelect) {
+                    return;
+                }
+
+                const selectedPartner = firstLookupValue(partnerInput.value);
+                let selectedOptionVisible = true;
+
+                [...locationSelect.options].forEach(option => {
+                    const partnerKey = option.getAttribute("data-partner-key") || "";
+                    const isNeutral = option.value === "0" || partnerKey === "";
+                    const visible = isNeutral || (selectedPartner !== "" && partnerKey === selectedPartner);
+                    option.hidden = !visible;
+
+                    if (option.selected && !visible) {
+                        selectedOptionVisible = false;
+                    }
+                });
+
+                if (!selectedOptionVisible) {
+                    locationSelect.value = "0";
+                }
+            };
+
+            const bindLocationFilter = (partnerId, locationId) => {
+                const partnerInput = document.getElementById(partnerId);
+                const locationSelect = document.getElementById(locationId);
+                const refresh = () => filterLocations(partnerInput, locationSelect);
+                partnerInput?.addEventListener("change", refresh);
+                refresh();
+                return refresh;
+            };
+
+            setupKFlowAutocomplete({
+                inputSelector: "#Filters_Partner",
+                url: "/Client/Combination.cshtml",
+                tipoRicerca: "PARTNER",
+                emptyText: "Nessun cliente trovato",
+                submitOnSelect: true,
+                getSelectedValue: firstLookupValue
+            });
+            setupKFlowAutocomplete({
+                inputSelector: "#Filters_Product",
+                url: "/Client/Combination.cshtml",
+                tipoRicerca: "PRODUCT",
+                emptyText: "Nessun articolo trovato",
+                submitOnSelect: true,
+                getSelectedValue: firstLookupValue
+            });
+            setupKFlowAutocomplete({
+                inputSelector: "#Filters_Cross",
+                url: "/Client/Combination.cshtml",
+                tipoRicerca: "CROSS",
+                emptyText: "Nessuna cross trovata",
+                submitOnSelect: true
+            });
+            setupKFlowFilterClear();
+
+            const refreshCreateLocations = bindLocationFilter("Input_PartnerValue", "Input_LocationID");
+            const refreshEditLocations = bindLocationFilter("EditInput_PartnerValue", "EditInput_LocationID");
+
+            setupKFlowAutocomplete({
+                inputSelector: "#Input_PartnerValue",
+                url: "/Client/Combination.cshtml",
+                tipoRicerca: "PARTNER",
+                emptyText: "Nessun cliente trovato",
+                onSelect: refreshCreateLocations
+            });
+            setupKFlowAutocomplete({
+                inputSelector: "#Input_IDProduct",
+                url: "/Client/Combination.cshtml",
+                tipoRicerca: "PRODUCT",
+                emptyText: "Nessun articolo trovato"
+            });
+            setupKFlowAutocomplete({
+                inputSelector: "#Input_IDCross",
+                url: "/Client/Combination.cshtml",
+                tipoRicerca: "CROSS",
+                emptyText: "Nessuna cross trovata"
+            });
+            setupKFlowAutocomplete({
+                inputSelector: "#EditInput_PartnerValue",
+                url: "/Client/Combination.cshtml",
+                tipoRicerca: "PARTNER",
+                emptyText: "Nessun cliente trovato",
+                onSelect: refreshEditLocations
+            });
+            setupKFlowAutocomplete({
+                inputSelector: "#EditInput_IDProduct",
+                url: "/Client/Combination.cshtml",
+                tipoRicerca: "PRODUCT",
+                emptyText: "Nessun articolo trovato"
+            });
+            setupKFlowAutocomplete({
+                inputSelector: "#EditInput_IDCross",
+                url: "/Client/Combination.cshtml",
+                tipoRicerca: "CROSS",
+                emptyText: "Nessuna cross trovata"
+            });
+
+            const editModal = document.getElementById("editCombinationModal");
+            editModal?.addEventListener("show.bs.modal", event => {
+                const button = event.relatedTarget;
+                if (!button) {
+                    return;
+                }
+
+                setValue("EditInput_ID", button.getAttribute("data-edit-id"));
+                setValue("editCombinationIdDisplay", button.getAttribute("data-edit-id"));
+                setValue("EditInput_PartnerValue", button.getAttribute("data-edit-partner-value"));
+                setValue("EditInput_IDProduct", button.getAttribute("data-edit-product-id"));
+                setValue("EditInput_LocationID", button.getAttribute("data-edit-location-id"));
+                setValue("EditInput_IDCross", button.getAttribute("data-edit-cross"));
+                setValue("EditInput_PDR", button.getAttribute("data-edit-pdr"));
+                setValue("EditInput_MOQ", button.getAttribute("data-edit-moq"));
+                refreshEditLocations();
+            });
+
+            const showRequestedModals = () => {
+                @if (Model.ShowCreateModal)
+                {
+                    <text>showModal("createCombinationModal");</text>
+                }
+                @if (Model.ShowEditModal)
+                {
+                    <text>showModal("editCombinationModal");</text>
+                }
+            };
+
+            if (document.readyState === "loading") {
+                document.addEventListener("DOMContentLoaded", showRequestedModals);
+            } else {
+                showRequestedModals();
+            }
+        })();
+    </script>
+}

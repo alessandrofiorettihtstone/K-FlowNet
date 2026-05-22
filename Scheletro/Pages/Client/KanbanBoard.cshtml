@@ -37,7 +37,7 @@
                         <span class="input-group-text"><i class="bi bi-search"></i></span>
                         <input asp-for="Filters.CardId" class="form-control" autocomplete="off" />
                         <button type="button" class="btn btn-outline-secondary" title="Pulisci cartellino" aria-label="Pulisci cartellino" data-clear-target="#Filters_CardId">
-                            <i class="bi bi-trash-fill"></i>
+                            <i class="bi bi-trash"></i>
                         </button>
                     </div>
                 </div>
@@ -47,7 +47,7 @@
                         <span class="input-group-text"><i class="bi bi-search"></i></span>
                         <input asp-for="Filters.Partner" class="form-control" autocomplete="off" />
                         <button type="button" class="btn btn-outline-secondary" title="Pulisci cliente" aria-label="Pulisci cliente" data-clear-target="#Filters_Partner">
-                            <i class="bi bi-trash-fill"></i>
+                            <i class="bi bi-trash"></i>
                         </button>
                     </div>
                 </div>
@@ -57,7 +57,7 @@
                         <span class="input-group-text"><i class="bi bi-search"></i></span>
                         <input asp-for="Filters.Product" class="form-control" autocomplete="off" />
                         <button type="button" class="btn btn-outline-secondary" title="Pulisci articolo" aria-label="Pulisci articolo" data-clear-target="#Filters_Product">
-                            <i class="bi bi-trash-fill"></i>
+                            <i class="bi bi-trash"></i>
                         </button>
                     </div>
                 </div>
@@ -96,7 +96,7 @@
                             </div>
                         </div>
                         <button type="button" class="btn btn-outline-secondary" title="Pulisci status" aria-label="Pulisci status" data-clear-target="[data-status-option]">
-                            <i class="bi bi-trash-fill"></i>
+                            <i class="bi bi-trash"></i>
                         </button>
                     </div>
                 </div>
@@ -167,7 +167,14 @@
                                                 data-change-card="@card.IDCard">
                                             <i class="bi bi-arrow-left-right"></i>
                                         </button>
-                                        <button type="button" class="btn btn-sm btn-outline-secondary" title="Impostazioni non migrate" disabled>
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-secondary"
+                                                title="Modifica cartellino"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#editKanbanCardModal"
+                                                data-edit-card="@card.IDCard"
+                                                data-edit-quantity="@card.Quantity"
+                                                data-edit-status="@group.StatusId">
                                             <i class="bi bi-gear"></i>
                                         </button>
                                         <button type="button" class="btn btn-sm btn-outline-danger" title="Elimina non migrato" disabled>
@@ -209,6 +216,47 @@
                             </button>
                         }
                     </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editKanbanCardModal" tabindex="-1" aria-labelledby="editKanbanCardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" asp-page-handler="UpdateCard">
+                <div class="modal-header">
+                    <h2 class="modal-title fs-5" id="editKanbanCardModalLabel">Modifica cartellino</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="editCardId" id="editKanbanCardId" />
+                    <input type="hidden" name="returnUrl" value="@returnUrl" />
+                    <div class="mb-3">
+                        <label class="form-label" for="editKanbanCardIdDisplay">Cartellino</label>
+                        <input id="editKanbanCardIdDisplay" class="form-control bg-light" readonly />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="editKanbanQuantity">Quantita</label>
+                        <input id="editKanbanQuantity" name="quantity" class="form-control" type="number" min="1" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="editKanbanStatus">Stato</label>
+                        <select id="editKanbanStatus" name="status" class="form-select">
+                            @foreach (var status in Model.Board.Statuses)
+                            {
+                                <option value="@status.ID">@status.ID - @status.Description</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annulla</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save me-1"></i>
+                        Salva modifiche
+                    </button>
                 </div>
             </form>
         </div>
@@ -287,6 +335,20 @@
                 document.getElementById("changeStatusTarget").textContent = cardId
                     ? `Cartellino ${cardId}`
                     : `Tutti i cartellini della combinazione ${combinationId}`;
+            });
+
+            const editModal = document.getElementById("editKanbanCardModal");
+            editModal?.addEventListener("show.bs.modal", event => {
+                const button = event.relatedTarget;
+                if (!button) {
+                    return;
+                }
+
+                const cardId = button.getAttribute("data-edit-card") || "";
+                document.getElementById("editKanbanCardId").value = cardId;
+                document.getElementById("editKanbanCardIdDisplay").value = cardId;
+                document.getElementById("editKanbanQuantity").value = button.getAttribute("data-edit-quantity") || "1";
+                document.getElementById("editKanbanStatus").value = button.getAttribute("data-edit-status") || "";
             });
 
             const columns = document.querySelectorAll("[data-drop-status]");

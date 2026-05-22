@@ -209,6 +209,26 @@ body.kflow-mobile-app {
   font-weight: 600;
 }
 
+.kflow-user-menu {
+  margin-left: auto;
+}
+
+.kflow-profile-menu {
+  width: min(300px, calc(100vw - 28px));
+  padding: 14px;
+  border-color: var(--kflow-border);
+  border-radius: 8px;
+  box-shadow: 0 14px 36px rgba(16, 24, 32, 0.16);
+}
+
+.kflow-profile-title {
+  margin-bottom: 10px;
+  font-size: 0.62rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--kflow-muted);
+}
+
 .kflow-content {
   padding: 18px;
 }

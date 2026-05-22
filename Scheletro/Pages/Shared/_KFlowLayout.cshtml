@@ -6,6 +6,7 @@
     var isClienti = path.Contains("Clienti", StringComparison.OrdinalIgnoreCase);
     var isArticoli = path.Contains("Articoli", StringComparison.OrdinalIgnoreCase);
     var isCartellini = path.Contains("Cartellini", StringComparison.OrdinalIgnoreCase);
+    var isCombination = path.Contains("/Client/Combination", StringComparison.OrdinalIgnoreCase);
     var isPrinter = path.Contains("/Client/Printer", StringComparison.OrdinalIgnoreCase);
     var isMobile = path.StartsWith("/Mobile", StringComparison.OrdinalIgnoreCase);
     var isScanner = path.Contains("BarcodeScanner", StringComparison.OrdinalIgnoreCase);
@@ -54,11 +55,12 @@
                 <div class="kflow-sidebar-title">Anagrafiche</div>
                 <a class="kflow-nav-link @(isClienti ? "active" : "")" href="/Client/Clienti.cshtml"><i class="bi bi-building"></i><span>Clienti</span></a>
                 <a class="kflow-nav-link @(isArticoli ? "active" : "")" href="/Client/Articoli.cshtml"><i class="bi bi-box-seam"></i><span>Articoli</span></a>
+                <a class="kflow-nav-link @(isCombination ? "active" : "")" href="/Client/Combination.cshtml"><i class="bi bi-diagram-3"></i><span>Combination</span></a>
                 <a class="kflow-nav-link @(isCartellini ? "active" : "")" href="/Client/Cartellini.cshtml"><i class="bi bi-credit-card-2-front"></i><span>Cartellini</span></a>
-                <div class="kflow-sidebar-section">
+            </div>
+            <div class="kflow-sidebar-section">
                 <div class="kflow-sidebar-title">Impostazioni</div>
                 <a class="kflow-nav-link @(isPrinter ? "active" : "")" href="/Client/Printer.cshtml"><i class="bi bi-printer-fill"></i><span>Printer</span></a>
-            </div>
             </div>
         </aside>
 
@@ -71,10 +73,39 @@
                     <div class="kflow-page-kicker">K-Flow</div>
                     <h1>@title</h1>
                 </div>
-                <button class="kflow-user-button" type="button" data-bs-toggle="offcanvas" data-bs-target="#userPanel">
-                    <i class="bi bi-person-circle"></i>
-                    <span>@displayName</span>
-                </button>
+                <div class="dropdown kflow-user-menu">
+                    <button class="kflow-user-button dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                        <i class="bi bi-person-circle"></i>
+                        <span>@displayName</span>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end kflow-profile-menu">
+                        @if (isAuthenticated)
+                        {
+                            <div class="kflow-profile-title">Dati profilo</div>
+                            <dl class="kflow-user-details mb-3">
+                                <dt>Nome</dt>
+                                <dd>@(User.Claims.FirstOrDefault(x => x.Type == System.Security.Claims.ClaimTypes.GivenName)?.Value ?? "-")</dd>
+                                <dt>Cognome</dt>
+                                <dd>@(User.Claims.FirstOrDefault(x => x.Type == System.Security.Claims.ClaimTypes.Surname)?.Value ?? "-")</dd>
+                                <dt>Username</dt>
+                                <dd>@(User.Identity?.Name ?? "-")</dd>
+                                <dt>Ruolo</dt>
+                                <dd>@AuthConfiguration.GetRole(User)</dd>
+                            </dl>
+                            <a class="btn btn-danger w-100" href="/Client/Logout.cshtml" data-page-transition="none">
+                                <i class="bi bi-box-arrow-right me-1"></i>
+                                Logout
+                            </a>
+                        }
+                        else
+                        {
+                            <a class="btn btn-primary w-100" href="/Client/Login.cshtml">
+                                <i class="bi bi-box-arrow-in-right me-1"></i>
+                                Accedi
+                            </a>
+                        }
+                    </div>
+                </div>
             </header>
 
             <main class="kflow-content">
@@ -96,40 +127,10 @@
                 <a class="kflow-nav-link @(isPrint ? "active" : "")" href="/StampaCartellino.cshtml"><i class="bi bi-printer"></i><span>Stampa</span></a>
                 <a class="kflow-nav-link @(isClienti ? "active" : "")" href="/Client/Clienti.cshtml"><i class="bi bi-building"></i><span>Clienti</span></a>
                 <a class="kflow-nav-link @(isArticoli ? "active" : "")" href="/Client/Articoli.cshtml"><i class="bi bi-box-seam"></i><span>Articoli</span></a>
+                <a class="kflow-nav-link @(isCombination ? "active" : "")" href="/Client/Combination.cshtml"><i class="bi bi-diagram-3"></i><span>Combination</span></a>
                 <a class="kflow-nav-link @(isCartellini ? "active" : "")" href="/Client/Cartellini.cshtml"><i class="bi bi-credit-card-2-front"></i><span>Cartellini</span></a>
                 <a class="kflow-nav-link @(isPrinter ? "active" : "")" href="/Client/Printer.cshtml"><i class="bi bi-printer-fill"></i><span>Printer</span></a>
             </nav>
-        </div>
-    </div>
-
-    <div class="offcanvas offcanvas-end" tabindex="-1" id="userPanel" aria-labelledby="userPanelLabel">
-        <div class="offcanvas-header">
-            <h5 class="offcanvas-title" id="userPanelLabel">Dati utente</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Chiudi"></button>
-        </div>
-        <div class="offcanvas-body">
-            @if (isAuthenticated)
-            {
-                <dl class="kflow-user-details">
-                    <dt>Nome</dt>
-                    <dd>@(User.Claims.FirstOrDefault(x => x.Type == System.Security.Claims.ClaimTypes.GivenName)?.Value ?? "-")</dd>
-                    <dt>Cognome</dt>
-                    <dd>@(User.Claims.FirstOrDefault(x => x.Type == System.Security.Claims.ClaimTypes.Surname)?.Value ?? "-")</dd>
-                    <dt>Username</dt>
-                    <dd>@(User.Identity?.Name ?? "-")</dd>
-                </dl>
-                <a class="btn btn-danger w-100" href="/Client/Logout.cshtml">
-                    <i class="bi bi-box-arrow-right me-1"></i>
-                    Disconnetti
-                </a>
-            }
-            else
-            {
-                <a class="btn btn-primary w-100" href="/Client/Login.cshtml">
-                    <i class="bi bi-box-arrow-in-right me-1"></i>
-                    Accedi
-                </a>
-            }
         </div>
     </div>
 

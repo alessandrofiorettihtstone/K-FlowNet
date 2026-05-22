@@ -150,6 +150,38 @@ public class KanbanService
         await _db.SaveChangesAsync();
     }
 
+    public async Task UpdateCardAsync(string idCard, int quantity, short status)
+    {
+        if (string.IsNullOrWhiteSpace(idCard))
+        {
+            throw new InvalidOperationException("Cartellino non valido.");
+        }
+
+        if (quantity <= 0)
+        {
+            throw new InvalidOperationException("La quantita deve essere maggiore di zero.");
+        }
+
+        var statusEnabled = await _db.Statuses
+            .AsNoTracking()
+            .AnyAsync(x => x.ID == status && x.Enabled);
+
+        if (!statusEnabled)
+        {
+            throw new InvalidOperationException("Lo stato selezionato non esiste o non e abilitato.");
+        }
+
+        var card = await _db.Cards.FirstOrDefaultAsync(x => x.IDCard == idCard.Trim());
+        if (card == null)
+        {
+            throw new InvalidOperationException("Cartellino non trovato.");
+        }
+
+        card.Quantity = quantity;
+        card.Status = status;
+        await _db.SaveChangesAsync();
+    }
+
     public async Task ChangeCombinationStatusAsync(int combinationId, short newStatus)
     {
         var cards = await _db.Cards

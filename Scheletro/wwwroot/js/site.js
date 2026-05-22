@@ -98,6 +98,7 @@
         if (
             window.jQuery &&
             typeof window.jQuery(form).valid === "function" &&
+            !form.noValidate &&
             !window.jQuery(form).valid()
         ) {
             return false;
