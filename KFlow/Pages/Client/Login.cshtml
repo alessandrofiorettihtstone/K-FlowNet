@@ -1,0 +1,117 @@
+@page "/Client/Login.cshtml"
+@model Scheletro.Pages.Client.LoginModel
+@{
+    Layout = null;
+    ViewData["Title"] = "Login";
+}
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login - K-Flow</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/bootstrap-icons-1.13.1/bootstrap-icons.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/kflow.css" asp-append-version="true" />
+</head>
+<body class="kflow-login-page">
+    <section class="kflow-login-card">
+        <div class="kflow-login-brand">
+            <img src="~/img/K-Flow.png" alt="K-Flow" />
+        </div>
+        <div class="kflow-login-form">
+            <div class="text-center mb-3">
+                <img src="~/img/ASW.png" alt="Logo" height="54" />
+            </div>
+            <hr />
+            <h1>Accesso</h1>
+            <hr />
+            <form id="loginForm" method="post" novalidate>
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div class="alert alert-danger" role="alert">
+                        <i class="bi bi-exclamation-triangle me-1"></i>
+                        <span asp-validation-summary="ModelOnly"></span>
+                    </div>
+                }
+
+                <div class="mb-3">
+                    <label asp-for="Username" class="form-label">Username</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-person"></i></span>
+                        <input asp-for="Username" class="form-control" autocomplete="username" autofocus />
+                    </div>
+                    <span asp-validation-for="Username" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Password" class="form-label">Password</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-key"></i></span>
+                        <input asp-for="Password" class="form-control" autocomplete="current-password" />
+                    </div>
+                    <span asp-validation-for="Password" class="text-danger small"></span>
+                </div>
+
+                <div class="kflow-login-divider">o</div>
+
+                <div class="mb-4">
+                    <label asp-for="CID" class="form-label">CID</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-credit-card-2-front"></i></span>
+                        <input asp-for="CID" class="form-control" autocomplete="off" />
+                    </div>
+                    <span asp-validation-for="CID" class="text-danger small"></span>
+                </div>
+
+                <div class="row g-2">
+                    <div class="col-sm-6">
+                        <button type="submit" asp-page-handler="Clear" class="btn btn-outline-secondary w-100">
+                            Annulla
+                        </button>
+                    </div>
+                    <div class="col-sm-6">
+                        <button id="btnLogin" type="submit" class="btn btn-primary w-100">
+                            <span class="login-label">Accedi</span>
+                            <span class="login-wait d-none">
+                                <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+                                Attendere
+                            </span>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (() => {
+            const form = document.getElementById("loginForm");
+            const submit = document.getElementById("btnLogin");
+            const label = submit?.querySelector(".login-label");
+            const wait = submit?.querySelector(".login-wait");
+
+            const restoreLoginButton = () => {
+                submit?.removeAttribute("disabled");
+                label?.classList.remove("d-none");
+                wait?.classList.add("d-none");
+            };
+
+            form?.addEventListener("submit", event => {
+                if (event.submitter !== submit) {
+                    restoreLoginButton();
+                    return;
+                }
+
+                submit?.setAttribute("disabled", "disabled");
+                label?.classList.add("d-none");
+                wait?.classList.remove("d-none");
+            });
+
+            window.addEventListener("pageshow", restoreLoginButton);
+        })();
+    </script>
+</body>
+</html>

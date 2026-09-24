@@ -140,6 +140,17 @@ BEGIN
 END
 GO
 
+IF OBJECT_ID(N'dbo.ZPL', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.ZPL
+    (
+        id int IDENTITY(1,1) NOT NULL,
+        ZPL varchar(max) NULL,
+        CONSTRAINT PK_ZPL PRIMARY KEY (id)
+    );
+END
+GO
+
 IF OBJECT_ID(N'dbo.Status', N'U') IS NOT NULL
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM dbo.Status WHERE ID = 100)
