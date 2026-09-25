@@ -1,0 +1,140 @@
+@using Scheletro.Class
+@{
+    var title = ViewData["Title"] as string ?? "K-Flow";
+    var path = Context.Request.Path.Value ?? string.Empty;
+    var isKanban = path.Contains("KanbanBoard", StringComparison.OrdinalIgnoreCase);
+    var isClienti = path.Contains("Clienti", StringComparison.OrdinalIgnoreCase);
+    var isArticoli = path.Contains("Articoli", StringComparison.OrdinalIgnoreCase);
+    var isCartellini = path.Contains("Cartellini", StringComparison.OrdinalIgnoreCase);
+    var isCombination = path.Contains("/Client/Combination", StringComparison.OrdinalIgnoreCase);
+    var isPrinter = path.Contains("/Client/Printer", StringComparison.OrdinalIgnoreCase);
+    var isMobile = path.StartsWith("/Mobile", StringComparison.OrdinalIgnoreCase);
+    var isScanner = path.Contains("BarcodeScanner", StringComparison.OrdinalIgnoreCase);
+    var isPrint = path.Contains("StampaCartellino", StringComparison.OrdinalIgnoreCase);
+    var isAuthenticated = User.Identity?.IsAuthenticated == true;
+    var displayName = isAuthenticated ? AuthConfiguration.GetDisplayName(User) : "Accesso";
+}
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@title - K-Flow</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/bootstrap-icons-1.13.1/bootstrap-icons.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/kflow.css" asp-append-version="true" />
+</head>
+<body class="kflow-app">
+    <div class="kflow-shell">
+        <aside class="kflow-sidebar">
+            <a class="kflow-brand" href="/Client/KanbanBoard">
+                <img src="~/img/navK-Flow.png" alt="K-Flow" />
+            </a>
+
+            <nav class="kflow-nav" aria-label="Navigazione principale">
+                <a class="kflow-nav-link @(isKanban ? "active" : "")" href="/Client/KanbanBoard">
+                    <i class="bi bi-kanban"></i>
+                    <span>KanbanBoard</span>
+                </a>
+                <a class="kflow-nav-link @(isMobile ? "active" : "")" href="/Mobile/Default">
+                    <i class="bi bi-phone"></i>
+                    <span>Mobile</span>
+                </a>
+                <a class="kflow-nav-link @(isScanner ? "active" : "")" href="/BarcodeScanner">
+                    <i class="bi bi-upc-scan"></i>
+                    <span>Scanner</span>
+                </a>
+               
+            </nav>
+
+            <div class="kflow-sidebar-section">
+                <div class="kflow-sidebar-title">Anagrafiche</div>
+                <a class="kflow-nav-link @(isClienti ? "active" : "")" href="/Client/Clienti"><i class="bi bi-building"></i><span>Clienti</span></a>
+                <a class="kflow-nav-link @(isArticoli ? "active" : "")" href="/Client/Articoli"><i class="bi bi-box-seam"></i><span>Articoli</span></a>
+                <a class="kflow-nav-link @(isCombination ? "active" : "")" href="/Client/Combination"><i class="bi bi-diagram-3"></i><span>Combination</span></a>
+                <a class="kflow-nav-link @(isCartellini ? "active" : "")" href="/Client/Cartellini"><i class="bi bi-credit-card-2-front"></i><span>Cartellini</span></a>
+            </div>
+            <div class="kflow-sidebar-section">
+                <div class="kflow-sidebar-title">Impostazioni</div>
+                <a class="kflow-nav-link @(isPrinter ? "active" : "")" href="/Client/Printer"><i class="bi bi-printer-fill"></i><span>Printer</span></a>
+            </div>
+        </aside>
+
+        <div class="kflow-main">
+            <header class="kflow-topbar">
+                <button class="btn btn-light d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileNav" aria-label="Apri menu">
+                    <i class="bi bi-list"></i>
+                </button>
+                <div>
+                    <div class="kflow-page-kicker">K-Flow</div>
+                    <h1>@title</h1>
+                </div>
+                <div class="dropdown kflow-user-menu">
+                    <button class="kflow-user-button dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                        <i class="bi bi-person-circle"></i>
+                        <span>@displayName</span>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end kflow-profile-menu">
+                        @if (isAuthenticated)
+                        {
+                            <div class="kflow-profile-title">Dati profilo</div>
+                            <dl class="kflow-user-details mb-3">
+                                <dt>Nome</dt>
+                                <dd>@(User.Claims.FirstOrDefault(x => x.Type == System.Security.Claims.ClaimTypes.GivenName)?.Value ?? "-")</dd>
+                                <dt>Cognome</dt>
+                                <dd>@(User.Claims.FirstOrDefault(x => x.Type == System.Security.Claims.ClaimTypes.Surname)?.Value ?? "-")</dd>
+                                <dt>Username</dt>
+                                <dd>@(User.Identity?.Name ?? "-")</dd>
+                                <dt>Ruolo</dt>
+                                <dd>@AuthConfiguration.GetRole(User)</dd>
+                            </dl>
+                            <a class="btn btn-danger w-100" href="/Client/Logout" data-page-transition="none">
+                                <i class="bi bi-box-arrow-right me-1"></i>
+                                Logout
+                            </a>
+                        }
+                        else
+                        {
+                            <a class="btn btn-primary w-100" href="/Client/Login">
+                                <i class="bi bi-box-arrow-in-right me-1"></i>
+                                Accedi
+                            </a>
+                        }
+                    </div>
+                </div>
+            </header>
+
+            <main class="kflow-content">
+                @RenderBody()
+            </main>
+        </div>
+    </div>
+
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileNav" aria-labelledby="mobileNavLabel">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="mobileNavLabel">Menu</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Chiudi"></button>
+        </div>
+        <div class="offcanvas-body">
+            <nav class="kflow-nav mobile">
+                <a class="kflow-nav-link @(isKanban ? "active" : "")" href="/Client/KanbanBoard"><i class="bi bi-kanban"></i><span>KanbanBoard</span></a>
+                <a class="kflow-nav-link @(isMobile ? "active" : "")" href="/Mobile/Default"><i class="bi bi-phone"></i><span>Mobile</span></a>
+                <a class="kflow-nav-link @(isScanner ? "active" : "")" href="/BarcodeScanner"><i class="bi bi-upc-scan"></i><span>Scanner</span></a>
+                <a class="kflow-nav-link @(isPrint ? "active" : "")" href="/StampaCartellino"><i class="bi bi-printer"></i><span>Stampa</span></a>
+                <a class="kflow-nav-link @(isClienti ? "active" : "")" href="/Client/Clienti"><i class="bi bi-building"></i><span>Clienti</span></a>
+                <a class="kflow-nav-link @(isArticoli ? "active" : "")" href="/Client/Articoli"><i class="bi bi-box-seam"></i><span>Articoli</span></a>
+                <a class="kflow-nav-link @(isCombination ? "active" : "")" href="/Client/Combination"><i class="bi bi-diagram-3"></i><span>Combination</span></a>
+                <a class="kflow-nav-link @(isCartellini ? "active" : "")" href="/Client/Cartellini"><i class="bi bi-credit-card-2-front"></i><span>Cartellini</span></a>
+                <a class="kflow-nav-link @(isPrinter ? "active" : "")" href="/Client/Printer"><i class="bi bi-printer-fill"></i><span>Printer</span></a>
+            </nav>
+        </div>
+    </div>
+
+    <partial name="_KFlowToasts" />
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

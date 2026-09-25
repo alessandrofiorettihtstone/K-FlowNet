@@ -106,6 +106,7 @@ BEGIN
         IDCard varchar(50) NOT NULL,
         IDCombination int NOT NULL,
         Quantity int NOT NULL,
+        Location varchar(50) NULL,
         [Status] smallint NOT NULL,
         CONSTRAINT PK_Cards PRIMARY KEY (IDCard)
     );
@@ -136,6 +137,17 @@ BEGIN
         [Text] varchar(max) NOT NULL,
         PostingDate datetime NOT NULL,
         CONSTRAINT PK_tblLog PRIMARY KEY (id)
+    );
+END
+GO
+
+IF OBJECT_ID(N'dbo.ZPL', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.ZPL
+    (
+        id int IDENTITY(1,1) NOT NULL,
+        ZPL varchar(max) NULL,
+        CONSTRAINT PK_ZPL PRIMARY KEY (id)
     );
 END
 GO

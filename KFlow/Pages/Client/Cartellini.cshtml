@@ -1,0 +1,1139 @@
+@page "/Client/Cartellini.cshtml"
+@model Scheletro.Pages.Client.CartelliniModel
+@{
+    Layout = "_KFlowLayout";
+    ViewData["Title"] = "Cartellini";
+    ViewData["KFlowSuccessMessage"] = Model.SuccessMessage;
+    var returnUrl = HttpContext.Request.Path + HttpContext.Request.QueryString;
+}
+
+@if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle me-1"></i>
+        @Model.ErrorMessage
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Chiudi"></button>
+    </div>
+}
+
+<form method="get" class="kflow-board-toolbar">
+    <section class="kflow-panel">
+        <div class="kflow-panel-header d-flex flex-wrap align-items-center justify-content-between gap-2">
+            <h2>Ricerca</h2>
+            <div class="d-flex flex-wrap gap-2">
+                <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#createCombinationModal">
+                    <i class="bi bi-diagram-3 me-1"></i>
+                    Nuova combination
+                </button>
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createCardModal">
+                    <i class="bi bi-plus-lg me-1"></i>
+                    Nuovo cartellino
+                </button>
+            </div>
+        </div>
+        <div class="kflow-panel-body">
+            <div class="row g-2 align-items-end">
+                <div class="col-md-3">
+                    <label asp-for="Filters.CardId" class="form-label">Cartellino</label>
+                    <div class="input-group kflow-autocomplete-wrapper">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                        <input asp-for="Filters.CardId" class="form-control" autocomplete="off" />
+                        <button type="button" class="btn btn-outline-secondary" title="Pulisci cartellino" aria-label="Pulisci cartellino" data-clear-target="#Filters_CardId">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="Filters.Partner" class="form-label">Cliente</label>
+                    <div class="input-group kflow-autocomplete-wrapper">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                        <input asp-for="Filters.Partner" class="form-control" autocomplete="off" />
+                        <button type="button" class="btn btn-outline-secondary" title="Pulisci cliente" aria-label="Pulisci cliente" data-clear-target="#Filters_Partner">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="Filters.Product" class="form-label">Articolo</label>
+                    <div class="input-group kflow-autocomplete-wrapper">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                        <input asp-for="Filters.Product" class="form-control" autocomplete="off" />
+                        <button type="button" class="btn btn-outline-secondary" title="Pulisci articolo" aria-label="Pulisci articolo" data-clear-target="#Filters_Product">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="Filters.Status" class="form-label">Stato</label>
+                    <div class="input-group">
+                        <select asp-for="Filters.Status" asp-items="Model.StatusFilterOptions" class="form-select">
+                            <option value="">Tutti gli stati</option>
+                        </select>
+                        <button type="button" class="btn btn-outline-secondary" title="Pulisci stato" aria-label="Pulisci stato" data-clear-target="#Filters_Status">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="d-flex justify-content-end gap-2 mt-3">
+                <a class="btn btn-outline-secondary" href="/Client/Cartellini.cshtml">Pulisci</a>
+                <button class="btn btn-primary" type="submit">
+                    <i class="bi bi-search me-1"></i>
+                    Cerca
+                </button>
+            </div>
+        </div>
+    </section>
+</form>
+
+<section class="kflow-panel">
+    <div class="kflow-panel-header d-flex flex-wrap align-items-center justify-content-between gap-2">
+        <h2>Elenco cartellini</h2>
+        <span class="text-muted small">@Model.Rows.Count cartellini</span>
+    </div>
+    <div class="kflow-panel-body p-0">
+        @if (Model.Rows.Count == 0)
+        {
+            <div class="kflow-empty-column">Nessun cartellino trovato.</div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Sede/Reparto</th>
+                            <th>Cartellino</th>
+                            <th>Ubicazione/Scaffale</th>
+                            <th>Cliente</th>
+                            <th>Articolo</th>
+                            <th class="text-end">Quantita</th>
+                            <th>Stato</th>                          
+                            <th>Cross</th>
+                            <th class="text-end">Azioni</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var row in Model.Rows)
+                        {
+                            <tr>
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(row.LocationCode) || !string.IsNullOrWhiteSpace(row.LocationName))
+                                    {
+                                        <div class="kflow-location-chip">
+                                            <i class="bi bi-geo-alt-fill"></i>
+                                            <span>@($"{row.LocationCode} {row.LocationName}".Trim())</span>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="fw-bold">@row.IDCard</div>
+                                    <div class="text-muted small">Comb. @row.IDCombinazione</div>
+                                </td>
+                                <td>@(string.IsNullOrWhiteSpace(row.StorageLocation) ? "-" : row.StorageLocation)</td>
+                                <td>
+                                    <div class="fw-semibold">@row.PartnerName</div>
+                                    <div class="text-muted small">@row.IDPartner</div>
+                                </td>
+                                <td>
+                                    <div class="fw-semibold">@row.ProductName</div>
+                                    <div class="text-muted small">@row.IDProduct</div>
+                                </td>
+                                <td class="text-end">
+                                    @row.Quantity.ToString("N0")
+                                    @if (!string.IsNullOrWhiteSpace(row.UMBase))
+                                    {
+                                        <span class="text-muted small">@row.UMBase</span>
+                                    }
+                                </td>
+                                <td>
+                                    <span class="badge rounded-pill" style="background-color:@row.StatusColor">
+                                        @row.StatusDescription
+                                    </span>
+                                    @* <div class="text-muted small">@row.Status</div> *@
+                                </td>
+                               
+                                <td>@(string.IsNullOrWhiteSpace(row.IDCross) ? "-" : row.IDCross)</td>
+                                <td class="text-end">
+                                    <div class="btn-group btn-group-sm" role="group" aria-label="Azioni cartellino">
+                                        <button type="button"
+                                                class="btn btn-outline-secondary"
+                                                title="Stampa cartellino"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#printCardModal"
+                                                data-print-card-id="@row.IDCard"
+                                                data-print-partner="@($"{row.IDPartner} - {row.PartnerName}")"
+                                                data-print-product="@($"{row.IDProduct} - {row.ProductName}")"
+                                                data-print-quantity="@row.Quantity"
+                                                data-print-um="@row.UMBase"
+                                                data-print-location="@($"{row.LocationCode} {row.LocationName}".Trim())"
+                                                data-print-cross="@row.IDCross">
+                                            <i class="bi bi-printer"></i>
+                                            Stampa
+                                        </button>
+                                        <button type="button"
+                                                class="btn btn-outline-primary"
+                                                title="Modifica cartellino"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#editCardModal"
+                                                data-edit-card-id="@row.IDCard"
+                                                data-edit-storage-location="@row.StorageLocation"
+                                                data-edit-partner-value="@row.PartnerLookupLabel"
+                                                data-edit-product-id="@row.IDProduct"
+                                                data-edit-product-name="@row.ProductName"
+                                                data-edit-location-id="@row.LocationID"
+                                                data-edit-combination-id="@row.IDCombinazione"
+                                                data-edit-quantity="@row.Quantity"
+                                                data-edit-status="@row.Status">
+                                            <i class="bi bi-pencil-square"></i>
+                                            Modifica
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</section>
+
+<div class="modal fade" id="createCardModal" tabindex="-1" aria-labelledby="createCardModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <form method="post" asp-page-handler="Create">
+                <div class="modal-header">
+                    <h2 class="modal-title fs-5" id="createCardModalLabel">Nuovo cartellino</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="returnUrl" value="@returnUrl" />
+                    <input type="hidden" name="Filters.CardId" value="@Model.Filters.CardId" />
+                    <input type="hidden" name="Filters.Partner" value="@Model.Filters.Partner" />
+                    <input type="hidden" name="Filters.Product" value="@Model.Filters.Product" />
+                    <input type="hidden" name="Filters.Status" value="@Model.Filters.Status" />
+
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="row g-3">
+                        @* <div class="col-md-6">
+                            <label asp-for="Input.IDCard" class="form-label">Codice cartellino</label>
+                            <input asp-for="Input.IDCard" class="form-control bg-light" readonly tabindex="-1" />
+                            <div class="form-text">Generato automaticamente dal server. Il valore salvato viene ricalcolato in fase di creazione.</div>
+                            <span asp-validation-for="Input.IDCard" class="text-danger small"></span>
+                        </div> *@
+                        
+
+                        <div class="col-12">
+                            <div class="fw-semibold">Selezione guidata combination</div>
+                            <div class="text-muted small">Ordine: Cliente, Articolo, Location, Combination disponibile.</div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="Input.PartnerValue" class="form-label">Cliente</label>
+                            <div class="kflow-autocomplete-wrapper">
+                                <input asp-for="Input.PartnerValue" class="form-control" autocomplete="off" placeholder="Cerca cliente" />
+                            </div>
+                            <span asp-validation-for="Input.PartnerValue" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Input.IDProduct" class="form-label">Articolo</label>
+                            <div class="kflow-autocomplete-wrapper">
+                                <input asp-for="Input.IDProduct" class="form-control" autocomplete="off" placeholder="Cerca articolo" />
+                                <div id="inputProductDescription" class="form-text text-muted">Descrizione: -</div>
+                            </div>
+                            <span asp-validation-for="Input.IDProduct" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Input.LocationID" class="form-label">Sede/Reparto</label>
+                            <select asp-for="Input.LocationID" class="form-select">
+                                @foreach (var location in Model.LocationOptions)
+                                {
+                                    if (Model.Input.LocationID == location.Value)
+                                    {
+                                        <option value="@location.Value" data-partner-key="@location.PartnerKey" selected>@location.Text</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@location.Value" data-partner-key="@location.PartnerKey">@location.Text</option>
+                                    }
+                                }
+                            </select>
+                            <div class="form-text">Le location vengono filtrate in base al cliente selezionato.</div>
+                            <span asp-validation-for="Input.LocationID" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Input.IDCombination" class="form-label">Combination disponibili</label>
+                            <select asp-for="Input.IDCombination"
+                                    asp-items="Model.CombinationCreateOptions"
+                                    class="form-select"
+                                    data-selected-value="@Model.Input.IDCombination">
+                                <option value="">Seleziona cliente, articolo e location</option>
+                            </select>
+                            <div class="form-text">La lista viene caricata solo dopo i tre passaggi precedenti.</div>
+                            <span asp-validation-for="Input.IDCombination" class="text-danger small"></span>
+                        </div>
+                        <hr class="my-2" />
+
+                        <div class="col-md-6">
+                            <label asp-for="Input.Quantity" class="form-label">Quantita</label>
+                            <input asp-for="Input.Quantity" class="form-control" type="number" min="1" />
+                            <span asp-validation-for="Input.Quantity" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Input.StorageLocation" class="form-label">Storage location</label>
+                            <div class="kflow-autocomplete-wrapper">
+                                <input asp-for="Input.StorageLocation" class="form-control" maxlength="50" autocomplete="off" placeholder="Cerca storage location" />
+                            </div>
+                            <span asp-validation-for="Input.StorageLocation" class="text-danger small"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annulla</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save me-1"></i>
+                        Crea cartellino
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editCardModal" tabindex="-1" aria-labelledby="editCardModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <form method="post" asp-page-handler="UpdateCard">
+                <div class="modal-header">
+                    <h2 class="modal-title fs-5" id="editCardModalLabel">Modifica cartellino</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="returnUrl" value="@returnUrl" />
+                    <input type="hidden" name="Filters.CardId" value="@Model.Filters.CardId" />
+                    <input type="hidden" name="Filters.Partner" value="@Model.Filters.Partner" />
+                    <input type="hidden" name="Filters.Product" value="@Model.Filters.Product" />
+                    <input type="hidden" name="Filters.Status" value="@Model.Filters.Status" />
+                    <input asp-for="EditInput.IDCard" type="hidden" />
+
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label" for="editCardIdDisplay">Codice cartellino</label>
+                            <input id="editCardIdDisplay" class="form-control bg-light" value="@Model.EditInput.IDCard" readonly tabindex="-1" />
+                            <span asp-validation-for="EditInput.IDCard" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="EditInput.Quantity" class="form-label">Quantita</label>
+                            <input asp-for="EditInput.Quantity" class="form-control" type="number" min="1" />
+                            <span asp-validation-for="EditInput.Quantity" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="EditInput.StorageLocation" class="form-label">Storage location</label>
+                            <div class="kflow-autocomplete-wrapper">
+                                <input asp-for="EditInput.StorageLocation" class="form-control" maxlength="50" autocomplete="off" placeholder="Cerca storage location" />
+                            </div>
+                            <span asp-validation-for="EditInput.StorageLocation" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-12">
+                            <hr class="my-2" />
+                            <div class="fw-semibold">Selezione guidata combination</div>
+                            <div class="text-muted small">Ordine: Cliente, Articolo, Location, Combination disponibile.</div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="EditInput.PartnerValue" class="form-label">Cliente</label>
+                            <div class="kflow-autocomplete-wrapper">
+                                <input asp-for="EditInput.PartnerValue" class="form-control" autocomplete="off" placeholder="Cerca cliente" />
+                            </div>
+                            <span asp-validation-for="EditInput.PartnerValue" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="EditInput.IDProduct" class="form-label">Articolo</label>
+                            <div class="kflow-autocomplete-wrapper">
+                                <input asp-for="EditInput.IDProduct" class="form-control" autocomplete="off" placeholder="Cerca articolo" />
+                                <div id="editProductDescription" class="form-text text-muted">Descrizione: -</div>
+                            </div>
+                            <span asp-validation-for="EditInput.IDProduct" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="EditInput.LocationID" class="form-label">Sede/Reparto</label>
+                            <select asp-for="EditInput.LocationID" class="form-select">
+                                @foreach (var location in Model.LocationOptions)
+                                {
+                                    if (Model.EditInput.LocationID == location.Value)
+                                    {
+                                        <option value="@location.Value" data-partner-key="@location.PartnerKey" selected>@location.Text</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@location.Value" data-partner-key="@location.PartnerKey">@location.Text</option>
+                                    }
+                                }
+                            </select>
+                            <div class="form-text">Le location vengono filtrate in base al cliente selezionato.</div>
+                            <span asp-validation-for="EditInput.LocationID" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="EditInput.IDCombination" class="form-label">Combination disponibili</label>
+                            <select asp-for="EditInput.IDCombination"
+                                    asp-items="Model.CombinationEditOptions"
+                                    class="form-select"
+                                    data-selected-value="@Model.EditInput.IDCombination">
+                                <option value="">Seleziona cliente, articolo e location</option>
+                            </select>
+                            <div class="form-text">La lista viene caricata solo dopo i tre passaggi precedenti.</div>
+                            <span asp-validation-for="EditInput.IDCombination" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="EditInput.Status" class="form-label">Stato</label>
+                            <select asp-for="EditInput.Status" asp-items="Model.StatusEditOptions" class="form-select">
+                                <option value="">Seleziona uno stato</option>
+                            </select>
+                            <span asp-validation-for="EditInput.Status" class="text-danger small"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annulla</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save me-1"></i>
+                        Salva modifiche
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="printCardModal" tabindex="-1" aria-labelledby="printCardModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered kflow-print-modal-dialog">
+        <div class="modal-content">
+            <form method="post" asp-page-handler="PrintCard">
+                <div class="modal-header">
+                    <h2 class="modal-title fs-5" id="printCardModalLabel">Stampa cartellino</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="returnUrl" value="@returnUrl" />
+                    <input type="hidden" name="idCard" id="printCardId" />
+
+                    <div class="row g-3">
+                        <div class="col-md-5">
+                            <label class="form-label" for="printerValue">Stampante</label>
+                            <select id="printerValue" name="printerValue" class="form-select">
+                                @foreach (var printer in Model.PrinterOptions)
+                                {
+                                    <option value="@printer.Value">@printer.Text</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-7">
+                            <label class="form-label">Cartellino</label>
+                            <input id="printCardIdDisplay" class="form-control bg-light" readonly />
+                        </div>
+                        <div class="col-12">
+                            <div class="d-flex justify-content-end align-items-center gap-1 mb-2">
+                                <span class="text-muted small me-1">Zoom</span>
+                                <button type="button" class="btn btn-sm btn-outline-secondary" id="printCardZoomOut" aria-label="Riduci zoom">−</button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary" id="printCardZoomReset">100%</button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary" id="printCardZoomIn" aria-label="Aumenta zoom">+</button>
+                            </div>
+                            <div class="kflow-label-preview kflow-zpl-preview">
+                                <div class="kflow-zpl-preview-canvas" id="printCardPreviewCanvas">
+                                    <div class="kflow-zpl-preview-loading" id="printCardPreviewStatus">
+                                        Caricamento anteprima ZPL…
+                                    </div>
+                                    <img id="printCardPreviewImage"
+                                         class="d-none"
+                                         alt="Anteprima ZPL del cartellino" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annulla</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-printer me-1"></i>
+                        Stampa
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="createCombinationModal" tabindex="-1" aria-labelledby="createCombinationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <form method="post" asp-page-handler="CreateCombination">
+                <div class="modal-header">
+                    <h2 class="modal-title fs-5" id="createCombinationModalLabel">Nuova combination</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="returnUrl" value="@returnUrl" />
+                    <input type="hidden" name="Filters.CardId" value="@Model.Filters.CardId" />
+                    <input type="hidden" name="Filters.Partner" value="@Model.Filters.Partner" />
+                    <input type="hidden" name="Filters.Product" value="@Model.Filters.Product" />
+                    <input type="hidden" name="Filters.Status" value="@Model.Filters.Status" />
+
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="CombinationInput.PartnerValue" class="form-label">Cliente</label>
+                            <div class="kflow-autocomplete-wrapper">
+                                <input asp-for="CombinationInput.PartnerValue" class="form-control" autocomplete="off" placeholder="Cerca cliente" />
+                            </div>
+                            <span asp-validation-for="CombinationInput.PartnerValue" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="CombinationInput.IDProduct" class="form-label">Articolo</label>
+                            <div class="kflow-autocomplete-wrapper">
+                                <input asp-for="CombinationInput.IDProduct" class="form-control" autocomplete="off" placeholder="Cerca articolo" />
+                                <div id="combinationProductDescription" class="form-text text-muted">Descrizione: -</div>
+                            </div>
+                            <span asp-validation-for="CombinationInput.IDProduct" class="text-danger small"></span>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="CombinationInput.LocationID" class="form-label">Ubicazione</label>
+                            <select asp-for="CombinationInput.LocationID" class="form-select">
+                                @foreach (var location in Model.LocationOptions)
+                                {
+                                    if (Model.CombinationInput.LocationID == location.Value)
+                                    {
+                                        <option value="@location.Value" data-partner-key="@location.PartnerKey" selected>@location.Text</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@location.Value" data-partner-key="@location.PartnerKey">@location.Text</option>
+                                    }
+                                }
+                            </select>
+                            <div class="form-text">Le ubicazioni vengono filtrate in base al cliente selezionato.</div>
+                            <span asp-validation-for="CombinationInput.LocationID" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="CombinationInput.IDCross" class="form-label">Cross</label>
+                            <div class="kflow-autocomplete-wrapper">
+                                <input asp-for="CombinationInput.IDCross" class="form-control" maxlength="50" autocomplete="off" />
+                            </div>
+                            <span asp-validation-for="CombinationInput.IDCross" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-3">
+                            <label asp-for="CombinationInput.PDR" class="form-label">PDR</label>
+                            <input asp-for="CombinationInput.PDR" class="form-control" type="number" min="0" />
+                            <span asp-validation-for="CombinationInput.PDR" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-3">
+                            <label asp-for="CombinationInput.MOQ" class="form-label">MOQ</label>
+                            <input asp-for="CombinationInput.MOQ" class="form-control" type="number" min="0" />
+                            <span asp-validation-for="CombinationInput.MOQ" class="text-danger small"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annulla</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save me-1"></i>
+                        Crea combination
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (() => {
+            if (window.setupKFlowAutocomplete) {
+                return;
+            }
+
+            window.setupKFlowAutocomplete = options => {
+                const input = document.querySelector(options.inputSelector);
+                if (!input) {
+                    return;
+                }
+
+                const wrapper = input.closest(".kflow-autocomplete-wrapper") || input.parentElement;
+                if (!wrapper) {
+                    return;
+                }
+
+                if (!wrapper.style.position) {
+                    wrapper.style.position = "relative";
+                }
+
+                const menu = document.createElement("div");
+                menu.className = "list-group position-absolute shadow-sm w-100";
+                menu.style.zIndex = "1080";
+                menu.style.top = "100%";
+                menu.style.left = "0";
+                menu.style.maxHeight = "260px";
+                menu.style.overflowY = "auto";
+                menu.hidden = true;
+                wrapper.appendChild(menu);
+
+                let timer;
+                let controller;
+
+                const hide = () => {
+                    menu.hidden = true;
+                    menu.innerHTML = "";
+                };
+
+                const showMessage = text => {
+                    menu.innerHTML = "";
+                    const item = document.createElement("div");
+                    item.className = "list-group-item text-muted small";
+                    item.textContent = text;
+                    menu.appendChild(item);
+                    menu.hidden = false;
+                };
+
+                const buildUrl = query => {
+                    const url = new URL(options.url, window.location.origin);
+                    url.searchParams.set("handler", "SuggerimentiRicerca");
+                    url.searchParams.set("prefixText", query);
+                    url.searchParams.set("tipoRicerca", options.tipoRicerca || "");
+                    return url;
+                };
+
+                const selectValue = rawValue => {
+                    const value = typeof options.getSelectedValue === "function"
+                        ? options.getSelectedValue(rawValue)
+                        : rawValue;
+
+                    input.value = value || "";
+                    hide();
+
+                    if (typeof options.onSelect === "function") {
+                        options.onSelect(rawValue, value, input);
+                    }
+
+                    input.dispatchEvent(new Event("change", { bubbles: true }));
+
+                    if (options.submitOnSelect) {
+                        input.closest("form")?.requestSubmit();
+                    }
+                };
+
+                const renderValues = values => {
+                    menu.innerHTML = "";
+
+                    if (!Array.isArray(values) || values.length === 0) {
+                        showMessage(options.emptyText || "Nessun risultato trovato");
+                        return;
+                    }
+
+                    values.forEach(value => {
+                        const button = document.createElement("button");
+                        button.type = "button";
+                        button.className = "list-group-item list-group-item-action text-start";
+                        button.textContent = value;
+                        button.addEventListener("mousedown", event => event.preventDefault());
+                        button.addEventListener("click", () => selectValue(value));
+                        menu.appendChild(button);
+                    });
+
+                    menu.hidden = false;
+                };
+
+                const loadValues = () => {
+                    const query = input.value.trim();
+                    window.clearTimeout(timer);
+
+                    if (query.length < 2) {
+                        controller?.abort();
+                        hide();
+                        return;
+                    }
+
+                    timer = window.setTimeout(async () => {
+                        controller?.abort();
+                        controller = new AbortController();
+
+                        try {
+                            const response = await fetch(buildUrl(query), {
+                                headers: { "Accept": "application/json" },
+                                signal: controller.signal
+                            });
+
+                            if (!response.ok) {
+                                hide();
+                                return;
+                            }
+
+                            renderValues(await response.json());
+                        } catch (error) {
+                            if (error.name !== "AbortError") {
+                                hide();
+                            }
+                        }
+                    }, 220);
+                };
+
+                input.addEventListener("input", loadValues);
+                input.addEventListener("blur", () => window.setTimeout(hide, 160));
+            };
+        })();
+    </script>
+    <script>
+        (() => {
+            const setValue = (id, value) => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.value = value || "";
+                }
+            };
+
+            const setText = (selector, value) => {
+                const element = document.querySelector(selector);
+                if (element) {
+                    element.textContent = value || "-";
+                }
+            };
+
+            const showModal = modalId => {
+                const modalElement = document.getElementById(modalId);
+                if (modalElement && window.bootstrap) {
+                    bootstrap.Modal.getOrCreateInstance(modalElement).show();
+                }
+            };
+
+            const firstLookupValue = value => {
+                const raw = value || "";
+                const separatorIndex = raw.indexOf(" - ");
+                return separatorIndex > 0 ? raw.slice(0, separatorIndex).trim() : raw.trim();
+            };
+
+            const lookupDescription = value => {
+                const raw = value || "";
+                const separatorIndex = raw.indexOf(" - ");
+                return separatorIndex > 0 ? raw.slice(separatorIndex + 3).trim() : "-";
+            };
+
+            const autocompleteUrl = "/Client/Cartellini.cshtml";
+            const buildHandlerUrl = (handler, params) => {
+                const url = new URL(autocompleteUrl, window.location.origin);
+                url.searchParams.set("handler", handler);
+
+                Object.entries(params || {}).forEach(([key, value]) => {
+                    if (value !== undefined && value !== null && value !== "") {
+                        url.searchParams.set(key, value);
+                    }
+                });
+
+                return url;
+            };
+
+            const filterLocations = (partnerInput, locationSelect) => {
+                if (!partnerInput || !locationSelect) {
+                    return;
+                }
+
+                const selectedPartner = firstLookupValue(partnerInput.value);
+                let selectedOptionVisible = true;
+
+                [...locationSelect.options].forEach(option => {
+                    const partnerKey = option.getAttribute("data-partner-key") || "";
+                    const isNeutral = option.value === "0" || partnerKey === "";
+                    const visible = isNeutral || (selectedPartner !== "" && partnerKey === selectedPartner);
+                    option.hidden = !visible;
+
+                    if (option.selected && !visible) {
+                        selectedOptionVisible = false;
+                    }
+                });
+
+                if (!selectedOptionVisible) {
+                    locationSelect.value = "0";
+                }
+            };
+
+            const replaceOptions = (select, placeholder, options) => {
+                select.innerHTML = "";
+
+                const emptyOption = document.createElement("option");
+                emptyOption.value = "";
+                emptyOption.textContent = placeholder;
+                select.appendChild(emptyOption);
+
+                options.forEach(item => {
+                    const option = document.createElement("option");
+                    option.value = item.value || "";
+                    option.textContent = item.text || "";
+                    option.selected = !!item.selected;
+                    select.appendChild(option);
+                });
+            };
+
+            const setupCombinationFlow = config => {
+                const partnerInput = document.getElementById(config.partnerId);
+                const productInput = document.getElementById(config.productId);
+                const locationSelect = document.getElementById(config.locationId);
+                const combinationSelect = document.getElementById(config.combinationId);
+
+                const clearCombinations = message => {
+                    if (!combinationSelect) {
+                        return;
+                    }
+
+                    replaceOptions(combinationSelect, message || "Seleziona cliente, articolo e location", []);
+                    combinationSelect.disabled = true;
+                };
+
+                const loadCombinations = async options => {
+                    if (!partnerInput || !productInput || !locationSelect || !combinationSelect) {
+                        return;
+                    }
+
+                    filterLocations(partnerInput, locationSelect);
+
+                    const partnerValue = firstLookupValue(partnerInput.value);
+                    const productId = firstLookupValue(productInput.value);
+                    const locationId = locationSelect.value || "0";
+                    const keepSelection = options?.keepSelection === true;
+                    const selectedCombinationId = keepSelection
+                        ? (combinationSelect.dataset.selectedValue || combinationSelect.value || "")
+                        : "";
+
+                    if (!partnerValue || !productId) {
+                        combinationSelect.dataset.selectedValue = "";
+                        clearCombinations("Seleziona cliente, articolo e location");
+                        return;
+                    }
+
+                    combinationSelect.disabled = true;
+                    replaceOptions(combinationSelect, "Caricamento combination...", []);
+
+                    try {
+                        const response = await fetch(buildHandlerUrl("CombinationDisponibili", {
+                            partnerValue,
+                            productId,
+                            locationId,
+                            selectedCombinationId
+                        }), {
+                            headers: { "Accept": "application/json" }
+                        });
+
+                        if (!response.ok) {
+                            clearCombinations("Errore nel caricamento combination");
+                            return;
+                        }
+
+                        const values = await response.json();
+                        replaceOptions(combinationSelect, "Seleziona una combination", values);
+                        combinationSelect.disabled = values.length === 0;
+
+                        if (values.length === 0) {
+                            replaceOptions(combinationSelect, "Nessuna combination disponibile", []);
+                        }
+                    } catch {
+                        clearCombinations("Errore nel caricamento combination");
+                    }
+                };
+
+                partnerInput?.addEventListener("change", () => {
+                    if (combinationSelect) {
+                        combinationSelect.dataset.selectedValue = "";
+                    }
+                    loadCombinations();
+                });
+
+                productInput?.addEventListener("change", () => {
+                    if (combinationSelect) {
+                        combinationSelect.dataset.selectedValue = "";
+                    }
+                    loadCombinations();
+                });
+
+                locationSelect?.addEventListener("change", () => {
+                    if (combinationSelect) {
+                        combinationSelect.dataset.selectedValue = "";
+                    }
+                    loadCombinations();
+                });
+
+                filterLocations(partnerInput, locationSelect);
+
+                if (partnerInput?.value && productInput?.value) {
+                    loadCombinations({ keepSelection: true });
+                } else {
+                    clearCombinations("Seleziona cliente, articolo e location");
+                }
+
+                return {
+                    filterLocations: () => filterLocations(partnerInput, locationSelect),
+                    loadCombinations
+                };
+            };
+
+            setupKFlowAutocomplete({
+                inputSelector: "#Filters_CardId",
+                url: autocompleteUrl,
+                tipoRicerca: "CARD",
+                emptyText: "Nessun cartellino trovato",
+                submitOnSelect: true
+            });
+            setupKFlowAutocomplete({
+                inputSelector: "#Filters_Partner",
+                url: autocompleteUrl,
+                tipoRicerca: "PARTNER",
+                emptyText: "Nessun cliente trovato",
+                submitOnSelect: true,
+                getSelectedValue: firstLookupValue
+            });
+            setupKFlowAutocomplete({
+                inputSelector: "#Filters_Product",
+                url: autocompleteUrl,
+                tipoRicerca: "PRODUCT",
+                emptyText: "Nessun articolo trovato",
+                submitOnSelect: true,
+                getSelectedValue: firstLookupValue
+            });
+            setupKFlowAutocomplete({
+                inputSelector: "#Input_StorageLocation",
+                url: autocompleteUrl,
+                tipoRicerca: "STORAGE_LOCATION",
+                emptyText: "Nessuna storage location trovata"
+            });
+            setupKFlowAutocomplete({
+                inputSelector: "#EditInput_StorageLocation",
+                url: autocompleteUrl,
+                tipoRicerca: "STORAGE_LOCATION",
+                emptyText: "Nessuna storage location trovata"
+            });
+
+            setupKFlowFilterClear();
+
+            const createCardFlow = setupCombinationFlow({
+                partnerId: "Input_PartnerValue",
+                productId: "Input_IDProduct",
+                locationId: "Input_LocationID",
+                combinationId: "Input_IDCombination"
+            });
+
+            const editCardFlow = setupCombinationFlow({
+                partnerId: "EditInput_PartnerValue",
+                productId: "EditInput_IDProduct",
+                locationId: "EditInput_LocationID",
+                combinationId: "EditInput_IDCombination"
+            });
+
+            const combinationPartnerInput = document.getElementById("CombinationInput_PartnerValue");
+            const combinationLocationSelect = document.getElementById("CombinationInput_LocationID");
+            const filterCombinationLocations = () => filterLocations(combinationPartnerInput, combinationLocationSelect);
+
+            setupKFlowAutocomplete({
+                inputSelector: "#Input_PartnerValue",
+                url: autocompleteUrl,
+                tipoRicerca: "CARD_PARTNER",
+                emptyText: "Nessun cliente trovato",
+                onSelect: () => createCardFlow?.loadCombinations()
+            });
+            setupKFlowAutocomplete({
+                inputSelector: "#Input_IDProduct",
+                url: autocompleteUrl,
+                tipoRicerca: "CARD_PRODUCT",
+                emptyText: "Nessun articolo trovato",
+                getSelectedValue: firstLookupValue,
+                onSelect: rawValue => {
+                    setText("#inputProductDescription", `Descrizione: ${lookupDescription(rawValue)}`);
+                    createCardFlow?.loadCombinations();
+                }
+            });
+            setupKFlowAutocomplete({
+                inputSelector: "#EditInput_PartnerValue",
+                url: autocompleteUrl,
+                tipoRicerca: "EDIT_CARD_PARTNER",
+                emptyText: "Nessun cliente trovato",
+                onSelect: () => editCardFlow?.loadCombinations()
+            });
+            setupKFlowAutocomplete({
+                inputSelector: "#EditInput_IDProduct",
+                url: autocompleteUrl,
+                tipoRicerca: "EDIT_CARD_PRODUCT",
+                emptyText: "Nessun articolo trovato",
+                getSelectedValue: firstLookupValue,
+                onSelect: rawValue => {
+                    setText("#editProductDescription", `Descrizione: ${lookupDescription(rawValue)}`);
+                    editCardFlow?.loadCombinations();
+                }
+            });
+            setupKFlowAutocomplete({
+                inputSelector: "#CombinationInput_PartnerValue",
+                url: autocompleteUrl,
+                tipoRicerca: "COMBINATION_PARTNER",
+                emptyText: "Nessun cliente trovato",
+                onSelect: () => filterCombinationLocations()
+            });
+            setupKFlowAutocomplete({
+                inputSelector: "#CombinationInput_IDProduct",
+                url: autocompleteUrl,
+                tipoRicerca: "COMBINATION_PRODUCT",
+                emptyText: "Nessun articolo trovato",
+                getSelectedValue: firstLookupValue,
+                onSelect: rawValue => setText("#combinationProductDescription", `Descrizione: ${lookupDescription(rawValue)}`)
+            });
+            setupKFlowAutocomplete({
+                inputSelector: "#CombinationInput_IDCross",
+                url: autocompleteUrl,
+                tipoRicerca: "CROSS",
+                emptyText: "Nessuna cross reference trovata"
+            });
+
+            combinationPartnerInput?.addEventListener("change", filterCombinationLocations);
+            filterCombinationLocations();
+
+            const previewImage = document.getElementById("printCardPreviewImage");
+            const previewViewport = document.querySelector(".kflow-zpl-preview");
+            const previewCanvas = document.getElementById("printCardPreviewCanvas");
+            const previewZoomReset = document.getElementById("printCardZoomReset");
+            let previewScale = 1;
+            const resetPreviewScroll = () => {
+                if (!previewViewport) {
+                    return;
+                }
+
+                previewViewport.scrollLeft = 0;
+            };
+            const applyPreviewScale = () => {
+                if (!previewImage || !previewViewport || !previewCanvas || !previewImage.naturalWidth) {
+                    return;
+                }
+
+                const padding = 20;
+                const imageWidth = previewImage.naturalWidth * previewScale;
+                const imageHeight = previewImage.naturalHeight * previewScale;
+                previewImage.style.setProperty("width", `${imageWidth}px`, "important");
+                previewImage.style.setProperty("max-width", "none", "important");
+                previewCanvas.style.width = `${Math.max(previewViewport.clientWidth - 20, imageWidth + padding)}px`;
+                previewCanvas.style.height = `${Math.max(170, imageHeight + padding)}px`;
+                if (previewZoomReset) {
+                    previewZoomReset.textContent = `${Math.round(previewScale * 100)}%`;
+                }
+
+                requestAnimationFrame(() => {
+                    resetPreviewScroll();
+                });
+            };
+
+            document.getElementById("printCardZoomOut")?.addEventListener("click", () => {
+                previewScale = Math.max(1, previewScale - 0.25);
+                applyPreviewScale();
+            });
+            document.getElementById("printCardZoomReset")?.addEventListener("click", () => {
+                previewScale = 1;
+                applyPreviewScale();
+            });
+            document.getElementById("printCardZoomIn")?.addEventListener("click", () => {
+                previewScale = Math.min(2, previewScale + 0.25);
+                applyPreviewScale();
+            });
+
+            const printModal = document.getElementById("printCardModal");
+            printModal?.addEventListener("show.bs.modal", event => {
+                const button = event.relatedTarget;
+                if (!button) {
+                    return;
+                }
+
+                const cardId = button.getAttribute("data-print-card-id") || "";
+
+                setValue("printCardId", cardId);
+                setValue("printCardIdDisplay", cardId);
+
+                const previewStatus = document.getElementById("printCardPreviewStatus");
+                if (!previewImage || !previewStatus) {
+                    return;
+                }
+
+                previewScale = 1;
+                applyPreviewScale();
+                previewImage.classList.add("d-none");
+                previewImage.removeAttribute("src");
+                previewStatus.textContent = "Caricamento anteprima ZPL…";
+                previewStatus.classList.remove("d-none", "text-danger");
+
+                previewImage.onload = () => {
+                    previewStatus.classList.add("d-none");
+                    previewImage.classList.remove("d-none");
+                    applyPreviewScale();
+                    setTimeout(resetPreviewScroll, 50);
+                };
+                previewImage.onerror = () => {
+                    previewStatus.textContent = "Impossibile generare l’anteprima ZPL.";
+                    previewStatus.classList.add("text-danger");
+                };
+                previewImage.src = `${window.location.pathname}?handler=PreviewCard&idCard=${encodeURIComponent(cardId)}`;
+            });
+
+            printModal?.addEventListener("shown.bs.modal", () => {
+                setTimeout(resetPreviewScroll, 50);
+            });
+
+            const editModal = document.getElementById("editCardModal");
+            editModal?.addEventListener("show.bs.modal", event => {
+                const button = event.relatedTarget;
+                if (!button) {
+                    return;
+                }
+
+                const cardId = button.getAttribute("data-edit-card-id") || "";
+                const combinationId = button.getAttribute("data-edit-combination-id") || "";
+
+                setValue("EditInput_IDCard", cardId);
+                setValue("editCardIdDisplay", cardId);
+                setValue("EditInput_StorageLocation", button.getAttribute("data-edit-storage-location"));
+                setValue("EditInput_PartnerValue", button.getAttribute("data-edit-partner-value"));
+                setValue("EditInput_IDProduct", button.getAttribute("data-edit-product-id"));
+                setText("#editProductDescription", `Descrizione: ${button.getAttribute("data-edit-product-name") || "-"}`);
+                setValue("EditInput_LocationID", button.getAttribute("data-edit-location-id"));
+                setValue("EditInput_Quantity", button.getAttribute("data-edit-quantity"));
+                setValue("EditInput_Status", button.getAttribute("data-edit-status"));
+
+                const combinationSelect = document.getElementById("EditInput_IDCombination");
+                if (combinationSelect) {
+                    combinationSelect.dataset.selectedValue = combinationId;
+                    combinationSelect.value = combinationId;
+                }
+
+                editCardFlow?.loadCombinations({ keepSelection: true });
+            });
+
+            const showRequestedModals = () => {
+                @if (Model.ShowCreateCardModal)
+                {
+                    <text>showModal("createCardModal");</text>
+                }
+                @if (Model.ShowEditCardModal)
+                {
+                    <text>showModal("editCardModal");</text>
+                }
+                @if (Model.ShowCreateCombinationModal)
+                {
+                    <text>showModal("createCombinationModal");</text>
+                }
+            };
+
+            if (document.readyState === "loading") {
+                document.addEventListener("DOMContentLoaded", showRequestedModals);
+            } else {
+                showRequestedModals();
+            }
+        })();
+    </script>
+}
