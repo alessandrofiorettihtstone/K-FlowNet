@@ -119,6 +119,7 @@ public class PrinterService
                 "PZ",
                 null,
                 null,
+                null,
                 ""),
             cancellationToken);
 
@@ -131,6 +132,9 @@ public class PrinterService
     {
         var location = string.Join(" ", new[] { card.LocationCode, card.LocationName }
             .Where(x => !string.IsNullOrWhiteSpace(x)));
+        var storageLocation = string.IsNullOrWhiteSpace(card.StorageLocation)
+            ? location
+            : card.StorageLocation;
 
         var template = await _db.Zpls
             .AsNoTracking()
@@ -152,7 +156,8 @@ public class PrinterService
             ["#5#"] = ZplText(card.ProductName, 80),
             ["#6#"] = card.Quantity.ToString(),
             ["#7#"] = ZplText(card.UMBase),
-            ["#8#"] = ZplText(location, 38),
+            ["#8#"] = ZplText(storageLocation, 38),
+            ["#UBICAZIONE#"] = ZplText(storageLocation, 38),
             ["#9#"] = ZplText(card.IDCross, 18)
         };
 
@@ -226,6 +231,7 @@ public record CartellinoPrintPayload(
     string ProductName,
     int Quantity,
     string UMBase,
+    string? StorageLocation,
     string? LocationCode,
     string? LocationName,
     string IDCross);

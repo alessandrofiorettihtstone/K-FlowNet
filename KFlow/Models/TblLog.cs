@@ -1,8 +1,11 @@
+﻿using System;
+using System.Collections.Generic;
+
 namespace Scheletro.Models;
 
 public partial class TblLog
 {
-    public int Id { get; set; }
+    public int id { get; set; }
 
     public string ODP { get; set; } = string.Empty;
 
@@ -12,7 +15,7 @@ public partial class TblLog
 
     public string IDUser { get; set; } = string.Empty;
 
-    public string Text { get; set; } = string.Empty;
+    public string Text { get; set; } = null!;
 
     public DateTime PostingDate { get; set; }
 }

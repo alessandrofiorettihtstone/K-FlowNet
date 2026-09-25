@@ -102,8 +102,9 @@
                 <table class="table table-hover align-middle mb-0">
                     <thead class="table-light">
                         <tr>
-                            <th>Ubicazione</th>
+                            <th>Sede/Reparto</th>
                             <th>Cartellino</th>
+                            <th>Ubicazione/Scaffale</th>
                             <th>Cliente</th>
                             <th>Articolo</th>
                             <th class="text-end">Quantita</th>
@@ -133,6 +134,7 @@
                                     <div class="fw-bold">@row.IDCard</div>
                                     <div class="text-muted small">Comb. @row.IDCombinazione</div>
                                 </td>
+                                <td>@(string.IsNullOrWhiteSpace(row.StorageLocation) ? "-" : row.StorageLocation)</td>
                                 <td>
                                     <div class="fw-semibold">@row.PartnerName</div>
                                     <div class="text-muted small">@row.IDPartner</div>
@@ -179,8 +181,10 @@
                                                 data-bs-toggle="modal"
                                                 data-bs-target="#editCardModal"
                                                 data-edit-card-id="@row.IDCard"
+                                                data-edit-storage-location="@row.StorageLocation"
                                                 data-edit-partner-value="@row.PartnerLookupLabel"
-                                                data-edit-product-id="@row.ProductLookupLabel"
+                                                data-edit-product-id="@row.IDProduct"
+                                                data-edit-product-name="@row.ProductName"
                                                 data-edit-location-id="@row.LocationID"
                                                 data-edit-combination-id="@row.IDCombinazione"
                                                 data-edit-quantity="@row.Quantity"
@@ -241,11 +245,12 @@
                             <label asp-for="Input.IDProduct" class="form-label">Articolo</label>
                             <div class="kflow-autocomplete-wrapper">
                                 <input asp-for="Input.IDProduct" class="form-control" autocomplete="off" placeholder="Cerca articolo" />
+                                <div id="inputProductDescription" class="form-text text-muted">Descrizione: -</div>
                             </div>
                             <span asp-validation-for="Input.IDProduct" class="text-danger small"></span>
                         </div>
                         <div class="col-md-6">
-                            <label asp-for="Input.LocationID" class="form-label">Location</label>
+                            <label asp-for="Input.LocationID" class="form-label">Sede/Reparto</label>
                             <select asp-for="Input.LocationID" class="form-select">
                                 @foreach (var location in Model.LocationOptions)
                                 {
@@ -279,6 +284,13 @@
                             <label asp-for="Input.Quantity" class="form-label">Quantita</label>
                             <input asp-for="Input.Quantity" class="form-control" type="number" min="1" />
                             <span asp-validation-for="Input.Quantity" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Input.StorageLocation" class="form-label">Storage location</label>
+                            <div class="kflow-autocomplete-wrapper">
+                                <input asp-for="Input.StorageLocation" class="form-control" maxlength="50" autocomplete="off" placeholder="Cerca storage location" />
+                            </div>
+                            <span asp-validation-for="Input.StorageLocation" class="text-danger small"></span>
                         </div>
                     </div>
                 </div>
@@ -323,6 +335,13 @@
                             <input asp-for="EditInput.Quantity" class="form-control" type="number" min="1" />
                             <span asp-validation-for="EditInput.Quantity" class="text-danger small"></span>
                         </div>
+                        <div class="col-md-6">
+                            <label asp-for="EditInput.StorageLocation" class="form-label">Storage location</label>
+                            <div class="kflow-autocomplete-wrapper">
+                                <input asp-for="EditInput.StorageLocation" class="form-control" maxlength="50" autocomplete="off" placeholder="Cerca storage location" />
+                            </div>
+                            <span asp-validation-for="EditInput.StorageLocation" class="text-danger small"></span>
+                        </div>
 
                         <div class="col-12">
                             <hr class="my-2" />
@@ -341,11 +360,12 @@
                             <label asp-for="EditInput.IDProduct" class="form-label">Articolo</label>
                             <div class="kflow-autocomplete-wrapper">
                                 <input asp-for="EditInput.IDProduct" class="form-control" autocomplete="off" placeholder="Cerca articolo" />
+                                <div id="editProductDescription" class="form-text text-muted">Descrizione: -</div>
                             </div>
                             <span asp-validation-for="EditInput.IDProduct" class="text-danger small"></span>
                         </div>
                         <div class="col-md-6">
-                            <label asp-for="EditInput.LocationID" class="form-label">Location</label>
+                            <label asp-for="EditInput.LocationID" class="form-label">Sede/Reparto</label>
                             <select asp-for="EditInput.LocationID" class="form-select">
                                 @foreach (var location in Model.LocationOptions)
                                 {
@@ -480,6 +500,7 @@
                             <label asp-for="CombinationInput.IDProduct" class="form-label">Articolo</label>
                             <div class="kflow-autocomplete-wrapper">
                                 <input asp-for="CombinationInput.IDProduct" class="form-control" autocomplete="off" placeholder="Cerca articolo" />
+                                <div id="combinationProductDescription" class="form-text text-muted">Descrizione: -</div>
                             </div>
                             <span asp-validation-for="CombinationInput.IDProduct" class="text-danger small"></span>
                         </div>
@@ -698,6 +719,12 @@
                 return separatorIndex > 0 ? raw.slice(0, separatorIndex).trim() : raw.trim();
             };
 
+            const lookupDescription = value => {
+                const raw = value || "";
+                const separatorIndex = raw.indexOf(" - ");
+                return separatorIndex > 0 ? raw.slice(separatorIndex + 3).trim() : "-";
+            };
+
             const autocompleteUrl = "/Client/Cartellini.cshtml";
             const buildHandlerUrl = (handler, params) => {
                 const url = new URL(autocompleteUrl, window.location.origin);
@@ -877,6 +904,18 @@
                 submitOnSelect: true,
                 getSelectedValue: firstLookupValue
             });
+            setupKFlowAutocomplete({
+                inputSelector: "#Input_StorageLocation",
+                url: autocompleteUrl,
+                tipoRicerca: "STORAGE_LOCATION",
+                emptyText: "Nessuna storage location trovata"
+            });
+            setupKFlowAutocomplete({
+                inputSelector: "#EditInput_StorageLocation",
+                url: autocompleteUrl,
+                tipoRicerca: "STORAGE_LOCATION",
+                emptyText: "Nessuna storage location trovata"
+            });
 
             setupKFlowFilterClear();
 
@@ -911,7 +950,10 @@
                 tipoRicerca: "CARD_PRODUCT",
                 emptyText: "Nessun articolo trovato",
                 getSelectedValue: firstLookupValue,
-                onSelect: () => createCardFlow?.loadCombinations()
+                onSelect: rawValue => {
+                    setText("#inputProductDescription", `Descrizione: ${lookupDescription(rawValue)}`);
+                    createCardFlow?.loadCombinations();
+                }
             });
             setupKFlowAutocomplete({
                 inputSelector: "#EditInput_PartnerValue",
@@ -926,7 +968,10 @@
                 tipoRicerca: "EDIT_CARD_PRODUCT",
                 emptyText: "Nessun articolo trovato",
                 getSelectedValue: firstLookupValue,
-                onSelect: () => editCardFlow?.loadCombinations()
+                onSelect: rawValue => {
+                    setText("#editProductDescription", `Descrizione: ${lookupDescription(rawValue)}`);
+                    editCardFlow?.loadCombinations();
+                }
             });
             setupKFlowAutocomplete({
                 inputSelector: "#CombinationInput_PartnerValue",
@@ -940,7 +985,8 @@
                 url: autocompleteUrl,
                 tipoRicerca: "COMBINATION_PRODUCT",
                 emptyText: "Nessun articolo trovato",
-                getSelectedValue: firstLookupValue
+                getSelectedValue: firstLookupValue,
+                onSelect: rawValue => setText("#combinationProductDescription", `Descrizione: ${lookupDescription(rawValue)}`)
             });
             setupKFlowAutocomplete({
                 inputSelector: "#CombinationInput_IDCross",
@@ -1051,8 +1097,10 @@
 
                 setValue("EditInput_IDCard", cardId);
                 setValue("editCardIdDisplay", cardId);
+                setValue("EditInput_StorageLocation", button.getAttribute("data-edit-storage-location"));
                 setValue("EditInput_PartnerValue", button.getAttribute("data-edit-partner-value"));
                 setValue("EditInput_IDProduct", button.getAttribute("data-edit-product-id"));
+                setText("#editProductDescription", `Descrizione: ${button.getAttribute("data-edit-product-name") || "-"}`);
                 setValue("EditInput_LocationID", button.getAttribute("data-edit-location-id"));
                 setValue("EditInput_Quantity", button.getAttribute("data-edit-quantity"));
                 setValue("EditInput_Status", button.getAttribute("data-edit-status"));

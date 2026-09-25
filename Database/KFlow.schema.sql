@@ -106,6 +106,7 @@ BEGIN
         IDCard varchar(50) NOT NULL,
         IDCombination int NOT NULL,
         Quantity int NOT NULL,
+        Location varchar(50) NULL,
         [Status] smallint NOT NULL,
         CONSTRAINT PK_Cards PRIMARY KEY (IDCard)
     );

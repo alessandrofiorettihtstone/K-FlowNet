@@ -11,6 +11,30 @@ builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnC
 builder.Services.AddRazorPages(options =>
 {
     options.Conventions.AddPageRoute("/Admin/Logout", "/Admin/Logout.cshtml");
+
+    // Le pagine mantengono gli URL legacy con estensione .cshtml, ma sono
+    // raggiungibili anche con il formato canonico senza estensione.
+    var extensionlessRoutes = new[]
+    {
+        "/BarcodeScanner",
+        "/StampaCartellino",
+        "/WebForm1",
+        "/Client/Articoli",
+        "/Client/Cartellini",
+        "/Client/Clienti",
+        "/Client/Combination",
+        "/Client/KanbanBoard",
+        "/Client/Login",
+        "/Client/Logout",
+        "/Client/Printer",
+        "/Mobile/Default",
+        "/Mobile/LeggiCartellinoMain"
+    };
+
+    foreach (var route in extensionlessRoutes)
+    {
+        options.Conventions.AddPageRoute(route, route);
+    }
 });
 
 builder.Services.AddDbContext<dbContext>(options =>

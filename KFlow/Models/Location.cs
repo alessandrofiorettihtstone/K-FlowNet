@@ -1,3 +1,6 @@
+﻿using System;
+using System.Collections.Generic;
+
 namespace Scheletro.Models;
 
 public partial class Location
@@ -6,11 +9,11 @@ public partial class Location
 
     public Guid LocationGuid { get; set; }
 
-    public string PartnerType { get; set; } = string.Empty;
+    public string PartnerType { get; set; } = null!;
 
     public string PartnerID { get; set; } = string.Empty;
 
-    public string LocationCode { get; set; } = string.Empty;
+    public string LocationCode { get; set; } = null!;
 
-    public string LocationName { get; set; } = string.Empty;
+    public string LocationName { get; set; } = null!;
 }

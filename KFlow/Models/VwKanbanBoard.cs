@@ -1,3 +1,6 @@
+﻿using System;
+using System.Collections.Generic;
+
 namespace Scheletro.Models;
 
 public partial class VwKanbanBoard
@@ -12,19 +15,19 @@ public partial class VwKanbanBoard
 
     public string IDPartner { get; set; } = string.Empty;
 
-    public string PartnerName { get; set; } = string.Empty;
+    public string PartnerName { get; set; } = null!;
 
     public string IDProduct { get; set; } = string.Empty;
 
-    public string ProductName { get; set; } = string.Empty;
+    public string ProductName { get; set; } = null!;
 
     public int Quantity { get; set; }
 
     public string UMBase { get; set; } = string.Empty;
 
-    public string StatusDescription { get; set; } = string.Empty;
+    public string StatusDescription { get; set; } = null!;
 
-    public string Color { get; set; } = string.Empty;
+    public string Color { get; set; } = null!;
 
     public string? LocationCode { get; set; }
 

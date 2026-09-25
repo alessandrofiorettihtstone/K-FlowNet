@@ -97,6 +97,20 @@ public class CartelliniModel : PageModel
             return new JsonResult(values);
         }
 
+        if (searchType == "STORAGE_LOCATION")
+        {
+            var values = await _db.StorageLocations
+                .AsNoTracking()
+                .Where(x => x.StorageLocationID.Contains(prefixText))
+                .OrderBy(x => x.StorageLocationID)
+                .Select(x => x.StorageLocationID)
+                .Distinct()
+                .Take(20)
+                .ToListAsync();
+
+            return new JsonResult(values);
+        }
+
         if (searchType == "PARTNER")
         {
             var partnerQuery = BuildPartnerSuggestionQuery(prefixText);
@@ -187,7 +201,7 @@ public class CartelliniModel : PageModel
             Input.Status = await GetDefaultStatusAsync();
         }
 
-        await ValidateCreateCardInputAsync();
+            await ValidateCreateCardInputAsync();
 
         if (!ModelState.IsValid)
         {
@@ -205,6 +219,7 @@ public class CartelliniModel : PageModel
                 IDCard = Input.IDCard,
                 IDCombination = Input.IDCombination,
                 Quantity = Input.Quantity,
+                StorageLocation = Input.StorageLocation?.Trim(),
                 Status = Input.Status
             };
 
@@ -313,6 +328,7 @@ public class CartelliniModel : PageModel
 
             card.IDCombination = EditInput.IDCombination;
             card.Quantity = EditInput.Quantity;
+            card.StorageLocation = EditInput.StorageLocation?.Trim();
             card.Status = EditInput.Status;
 
             await _db.SaveChangesAsync();
@@ -390,6 +406,7 @@ public class CartelliniModel : PageModel
             idCombination: Input.IDCombination,
             quantity: Input.Quantity,
             status: Input.Status,
+            storageLocation: Input.StorageLocation,
             requireExistingCard: false,
             requireUniqueCard: true);
     }
@@ -405,6 +422,7 @@ public class CartelliniModel : PageModel
             idCombination: EditInput.IDCombination,
             quantity: EditInput.Quantity,
             status: EditInput.Status,
+            storageLocation: EditInput.StorageLocation,
             requireExistingCard: true,
             requireUniqueCard: false);
     }
@@ -418,6 +436,7 @@ public class CartelliniModel : PageModel
         int idCombination,
         int quantity,
         short status,
+        string? storageLocation,
         bool requireExistingCard,
         bool requireUniqueCard)
     {
@@ -552,6 +571,17 @@ public class CartelliniModel : PageModel
             ModelState.AddModelError($"{prefix}.Quantity", "La quantita deve essere maggiore di zero.");
         }
 
+        if (!string.IsNullOrWhiteSpace(storageLocation))
+        {
+            var storageLocationExists = await _db.StorageLocations
+                .AsNoTracking()
+                .AnyAsync(x => x.StorageLocationID == storageLocation.Trim());
+
+            if (!storageLocationExists)
+            {
+                ModelState.AddModelError($"{prefix}.StorageLocation", "Seleziona una storage location valida.");
+            }
+        }
         if (status <= 0)
         {
             ModelState.AddModelError($"{prefix}.Status", "Seleziona uno stato.");
@@ -780,22 +810,25 @@ public class CartelliniModel : PageModel
 
     private async Task<CartellinoPrintPayload?> LoadPrintPayloadAsync(string idCard)
     {
-        var row = await _db.VwKanbanBoard
-            .AsNoTracking()
-            .Where(x => x.IDCard == idCard)
-            .Select(x => new
+        var row = await (
+            from board in _db.VwKanbanBoard
+            join card in _db.Cards on board.IDCard equals card.IDCard
+            where board.IDCard == idCard
+            select new
             {
-                x.IDCard,
-                x.IDPartner,
-                x.PartnerName,
-                x.IDProduct,
-                x.ProductName,
-                x.Quantity,
-                x.UMBase,
-                x.LocationCode,
-                x.LocationName,
-                x.IDCross
+                board.IDCard,
+                board.IDPartner,
+                board.PartnerName,
+                board.IDProduct,
+                board.ProductName,
+                board.Quantity,
+                board.UMBase,
+                card.StorageLocation,
+                board.LocationCode,
+                board.LocationName,
+                board.IDCross
             })
+            .AsNoTracking()
             .FirstOrDefaultAsync();
 
         return row is null
@@ -808,6 +841,7 @@ public class CartelliniModel : PageModel
                 row.ProductName,
                 row.Quantity,
                 row.UMBase,
+                row.StorageLocation,
                 row.LocationCode,
                 row.LocationName,
                 row.IDCross);
@@ -860,12 +894,15 @@ public class CartelliniModel : PageModel
 
         var rows = await (
             from board in query
+            join cardItem in _db.Cards.AsNoTracking()
+                on board.IDCard equals cardItem.IDCard
             join combinationItem in _db.Combinations.AsNoTracking()
                 on board.IDCombinazione equals combinationItem.ID into combinationJoin
             from combination in combinationJoin.DefaultIfEmpty()
             select new
             {
                 board.IDCard,
+                cardItem.StorageLocation,
                 board.IDCombinazione,
                 board.IDPartner,
                 board.PartnerName,
@@ -892,6 +929,7 @@ public class CartelliniModel : PageModel
             .Select(x => new CartellinoRowViewModel
             {
                 IDCard = x.IDCard,
+                StorageLocation = x.StorageLocation,
                 IDCombinazione = x.IDCombinazione,
                 PartnerType = x.PartnerType,
                 PartnerValue = string.IsNullOrWhiteSpace(x.PartnerType) ? string.Empty : BuildPartnerValue(x.PartnerType, x.IDPartner),
@@ -1140,6 +1178,7 @@ public class CartelliniModel : PageModel
     private void NormalizeCreateCardInput()
     {
         Input.IDCard = Input.IDCard?.Trim() ?? string.Empty;
+        Input.StorageLocation = Input.StorageLocation?.Trim();
         Input.PartnerValue = Input.PartnerValue?.Trim() ?? string.Empty;
         Input.IDProduct = Input.IDProduct?.Trim() ?? string.Empty;
     }
@@ -1147,6 +1186,7 @@ public class CartelliniModel : PageModel
     private void NormalizeEditCardInput()
     {
         EditInput.IDCard = EditInput.IDCard?.Trim() ?? string.Empty;
+        EditInput.StorageLocation = EditInput.StorageLocation?.Trim();
         EditInput.PartnerValue = EditInput.PartnerValue?.Trim() ?? string.Empty;
         EditInput.IDProduct = EditInput.IDProduct?.Trim() ?? string.Empty;
     }
@@ -1241,6 +1281,9 @@ public class CreateCardInput
     [StringLength(50, ErrorMessage = "Il codice cartellino non puo superare 50 caratteri.")]
     public string IDCard { get; set; } = string.Empty;
 
+    [StringLength(50, ErrorMessage = "La location non puo superare 50 caratteri.")]
+    public string? StorageLocation { get; set; }
+
     [Required(ErrorMessage = "Seleziona un cliente.")]
     public string PartnerValue { get; set; } = string.Empty;
 
@@ -1266,6 +1309,9 @@ public class EditCardInput
     [Required(ErrorMessage = "Il codice cartellino e obbligatorio.")]
     [StringLength(50, ErrorMessage = "Il codice cartellino non puo superare 50 caratteri.")]
     public string IDCard { get; set; } = string.Empty;
+
+    [StringLength(50, ErrorMessage = "La location non puo superare 50 caratteri.")]
+    public string? StorageLocation { get; set; }
 
     [Required(ErrorMessage = "Seleziona un cliente.")]
     public string PartnerValue { get; set; } = string.Empty;
@@ -1312,6 +1358,8 @@ public class CreateCombinationInput
 public class CartellinoRowViewModel
 {
     public string IDCard { get; set; } = string.Empty;
+
+    public string? StorageLocation { get; set; }
 
     public int IDCombinazione { get; set; }
 

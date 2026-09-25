@@ -204,7 +204,7 @@ public class ArticoliModel : PageModel
 
     private IQueryable<Product> BuildProductSuggestionQuery(string prefixText)
     {
-        var byId = _db.Products
+        var byID = _db.Products
             .AsNoTracking()
             .Where(x => x.ID.Contains(prefixText));
 
@@ -215,7 +215,7 @@ public class ArticoliModel : PageModel
             byName = byName.Where(x => x.Name.Contains(searchWord));
         }
 
-        return byId.Concat(byName);
+        return byID.Concat(byName);
     }
 
     private async Task ValidateEditInputAsync()
@@ -239,7 +239,7 @@ public class ArticoliModel : PageModel
         ValidateArticoloSharedFields("EditInput", EditInput.Name, EditInput.UMBase);
     }
 
-    private void ValidateArticoloSharedFields(string prefix, string name, string umBase)
+    private void ValidateArticoloSharedFields(string prefix, string name, string UMBase)
     {
         if (string.IsNullOrWhiteSpace(name))
         {
@@ -250,7 +250,7 @@ public class ArticoliModel : PageModel
             ModelState.AddModelError($"{prefix}.Name", "La descrizione non puo superare 150 caratteri.");
         }
 
-        if (umBase.Length > 50)
+        if (UMBase.Length > 50)
         {
             ModelState.AddModelError($"{prefix}.UMBase", "L'unita di misura non puo superare 50 caratteri.");
         }

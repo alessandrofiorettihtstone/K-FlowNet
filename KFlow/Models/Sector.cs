@@ -1,3 +1,6 @@
+﻿using System;
+using System.Collections.Generic;
+
 namespace Scheletro.Models;
 
 public partial class Sector
@@ -6,5 +9,5 @@ public partial class Sector
 
     public Guid SectorGuid { get; set; }
 
-    public string SectorName { get; set; } = string.Empty;
+    public string SectorName { get; set; } = null!;
 }

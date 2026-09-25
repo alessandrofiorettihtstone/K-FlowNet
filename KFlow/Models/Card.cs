@@ -1,3 +1,6 @@
+﻿using System;
+using System.Collections.Generic;
+
 namespace Scheletro.Models;
 
 public partial class Card
@@ -11,4 +14,6 @@ public partial class Card
     public int Quantity { get; set; }
 
     public short Status { get; set; }
+
+    public string? StorageLocation { get; set; }
 }
