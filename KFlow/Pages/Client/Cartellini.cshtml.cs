@@ -275,6 +275,71 @@ public class CartelliniModel : PageModel
         return RedirectAfterPost(returnUrl);
     }
 
+    public async Task<IActionResult> OnPostPrintSelectedAsync(
+        string[]? idCards,
+        string? returnUrl,
+        CancellationToken cancellationToken)
+    {
+        var selectedCardIds = (idCards ?? Array.Empty<string>())
+            .Where(x => !string.IsNullOrWhiteSpace(x))
+            .Select(x => x.Trim())
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        if (selectedCardIds.Count == 0)
+        {
+            ErrorMessage = "Seleziona almeno un cartellino da stampare.";
+            return RedirectAfterPost(returnUrl);
+        }
+
+        var printer = (await _printerService.GetConfiguredPrintersAsync(cancellationToken))
+            .FirstOrDefault();
+        if (printer is null)
+        {
+            ErrorMessage = "Nessuna stampante configurata.";
+            return RedirectAfterPost(returnUrl);
+        }
+
+        var printed = 0;
+        var failed = new List<string>();
+
+        foreach (var idCard in selectedCardIds)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var payload = await LoadPrintPayloadAsync(idCard);
+            if (payload is null)
+            {
+                failed.Add(idCard);
+                continue;
+            }
+
+            var result = await _printerService.PrintCardAsync(payload, printer.Value, cancellationToken);
+            if (result.Success)
+            {
+                printed++;
+            }
+            else
+            {
+                failed.Add(idCard);
+                Log("PrintSelectedCardError", $"{idCard}: {result.Message}");
+            }
+        }
+
+        if (failed.Count == 0)
+        {
+            SuccessMessage = $"Stampa completata: {printed} cartellini inviati.";
+            Log("PrintSelectedCards", SuccessMessage);
+        }
+        else
+        {
+            ErrorMessage = $"Stampa parziale: {printed} inviati, {failed.Count} non stampati ({string.Join(", ", failed)}).";
+            Log("PrintSelectedCardsPartial", ErrorMessage);
+        }
+
+        return RedirectAfterPost(returnUrl);
+    }
+
     public async Task<IActionResult> OnGetPreviewCardAsync(
         string? idCard,
         CancellationToken cancellationToken)
@@ -919,9 +984,10 @@ public class CartelliniModel : PageModel
                 PartnerType = combination != null ? combination.PartnerType : string.Empty,
                 LocationID = combination != null ? combination.LocationID : 0
             })
-            .OrderBy(x => x.IDPartner)
-            .ThenBy(x=> x.LocationCode)
-            .ThenBy(x => x.IDProduct)
+            .OrderBy(x => x.IDProduct)
+            .ThenBy(x => x.ProductName)
+            .ThenBy(x => x.IDPartner)
+            .ThenBy(x => x.LocationCode)
             .ThenBy(x => x.IDCard)
             .ToListAsync();
 

@@ -89,7 +89,16 @@
 <section class="kflow-panel">
     <div class="kflow-panel-header d-flex flex-wrap align-items-center justify-content-between gap-2">
         <h2>Elenco cartellini</h2>
-        <span class="text-muted small">@Model.Rows.Count cartellini</span>
+        <div class="d-flex align-items-center gap-2">
+            <span class="text-muted small">@Model.Rows.Count cartellini</span>
+            @if (Model.Rows.Count > 0)
+            {
+                <button type="submit" form="printSelectedCardsForm" class="btn btn-primary btn-sm" id="printSelectedCardsButton" disabled>
+                    <i class="bi bi-printer me-1"></i>
+                    Stampa selezionati <span id="selectedCardsCount">(0)</span>
+                </button>
+            }
+        </div>
     </div>
     <div class="kflow-panel-body p-0">
         @if (Model.Rows.Count == 0)
@@ -98,10 +107,15 @@
         }
         else
         {
+            <form method="post" asp-page-handler="PrintSelected" id="printSelectedCardsForm">
+                <input type="hidden" name="returnUrl" value="@returnUrl" />
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
                     <thead class="table-light">
                         <tr>
+                            <th class="text-center" style="width:42px">
+                                <input class="form-check-input" type="checkbox" id="selectAllCards" title="Seleziona tutti i cartellini" aria-label="Seleziona tutti i cartellini" />
+                            </th>
                             <th>Sede/Reparto</th>
                             <th>Cartellino</th>
                             <th>Ubicazione/Scaffale</th>
@@ -117,6 +131,9 @@
                         @foreach (var row in Model.Rows)
                         {
                             <tr>
+                                <td class="text-center">
+                                    <input class="form-check-input card-selection" type="checkbox" name="idCards" value="@row.IDCard" aria-label="Seleziona @row.IDCard" />
+                                </td>
                                 <td>
                                     @if (!string.IsNullOrWhiteSpace(row.LocationCode) || !string.IsNullOrWhiteSpace(row.LocationName))
                                     {
@@ -199,6 +216,7 @@
                     </tbody>
                 </table>
             </div>
+            </form>
         }
     </div>
 </section>
@@ -1084,6 +1102,31 @@
             printModal?.addEventListener("shown.bs.modal", () => {
                 setTimeout(resetPreviewScroll, 50);
             });
+
+            const selectAllCards = document.getElementById("selectAllCards");
+            const cardSelections = [...document.querySelectorAll(".card-selection")];
+            const printSelectedCardsButton = document.getElementById("printSelectedCardsButton");
+            const selectedCardsCount = document.getElementById("selectedCardsCount");
+            const updateCardSelectionState = () => {
+                const selectedCount = cardSelections.filter(input => input.checked).length;
+                if (printSelectedCardsButton) {
+                    printSelectedCardsButton.disabled = selectedCount === 0;
+                }
+                if (selectedCardsCount) {
+                    selectedCardsCount.textContent = `(${selectedCount})`;
+                }
+                if (selectAllCards) {
+                    selectAllCards.checked = cardSelections.length > 0 && selectedCount === cardSelections.length;
+                    selectAllCards.indeterminate = selectedCount > 0 && selectedCount < cardSelections.length;
+                }
+            };
+
+            selectAllCards?.addEventListener("change", () => {
+                cardSelections.forEach(input => input.checked = selectAllCards.checked);
+                updateCardSelectionState();
+            });
+            cardSelections.forEach(input => input.addEventListener("change", updateCardSelectionState));
+            updateCardSelectionState();
 
             const editModal = document.getElementById("editCardModal");
             editModal?.addEventListener("show.bs.modal", event => {
