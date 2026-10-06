@@ -149,10 +149,10 @@ public class PrinterService
 
         var values = new Dictionary<string, string>(StringComparer.Ordinal)
         {
-            ["#1#"] = ZplText(card.IDCard),
+            ["#IDCard#"] = ZplText(card.IDCard),
             ["#2#"] = ZplText(card.IDPartner),
             ["#3#"] = ZplText(card.PartnerName, 50),
-            ["#4#"] = ZplText(card.IDProduct),
+            ["#IDProduct#"] = ZplText(card.IDProduct),
             ["#5#"] = ZplText(card.ProductName, 80),
             ["#6#"] = card.Quantity.ToString(),
             ["#7#"] = ZplText(card.UMBase),

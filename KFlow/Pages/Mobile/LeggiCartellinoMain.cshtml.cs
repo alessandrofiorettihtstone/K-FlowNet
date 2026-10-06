@@ -43,10 +43,12 @@ public class LeggiCartellinoMainModel : PageModel
         }
 
         Card = await _kanbanService.GetCardDetailAsync(Barcode.Trim());
+        Barcode = string.Empty;
+        ModelState.Remove(nameof(Barcode));
+
         if (Card == null)
         {
             ErrorMessage = "Nessun cartellino trovato.";
-            Barcode = string.Empty;
         }
     }
 

@@ -145,7 +145,18 @@ public class KanbanService
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.IDCard == idCard);
 
-        return card == null ? null : ToCardDetail(card);
+        if (card == null)
+        {
+            return null;
+        }
+
+        var storageLocation = await _db.Cards
+            .AsNoTracking()
+            .Where(x => x.IDCard == idCard)
+            .Select(x => x.StorageLocation)
+            .FirstOrDefaultAsync();
+
+        return ToCardDetail(card, storageLocation);
     }
 
     public async Task ChangeCardStatusAsync(string idCard, short newStatus)
@@ -273,7 +284,7 @@ public class KanbanService
             .ToListAsync();
     }
 
-    private static CardDetailViewModel ToCardDetail(VwKanbanBoard card)
+    private static CardDetailViewModel ToCardDetail(VwKanbanBoard card, string? storageLocation)
     {
         return new CardDetailViewModel
         {
@@ -288,6 +299,7 @@ public class KanbanService
             IDCross = card.IDCross,
             Quantity = card.Quantity,
             UMBase = card.UMBase,
+            StorageLocation = storageLocation,
             LocationCode = card.LocationCode,
             LocationName = card.LocationName
         };

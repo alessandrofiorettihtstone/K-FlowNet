@@ -94,6 +94,8 @@ public class CardDetailViewModel
 
     public string UMBase { get; set; } = string.Empty;
 
+    public string? StorageLocation { get; set; }
+
     public string? LocationCode { get; set; }
 
     public string? LocationName { get; set; }
