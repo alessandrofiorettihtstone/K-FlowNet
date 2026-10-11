@@ -65,21 +65,27 @@
                     <span asp-validation-for="CID" class="text-danger small"></span>
                 </div>
 
-                <div class="row g-2">
-                    <div class="col-sm-6">
-                        <button type="submit" asp-page-handler="Clear" class="btn btn-outline-secondary w-100">
-                            Annulla
-                        </button>
-                    </div>
-                    <div class="col-sm-6">
-                        <button id="btnLogin" type="submit" class="btn btn-primary w-100">
-                            <span class="login-label">Accedi</span>
+                <div class="kflow-login-actions">
+                    <button id="btnClear" type="button" class="kflow-action-button kflow-action-button-danger">
+                        <span class="kflow-action-icon" aria-hidden="true"><i class="bi bi-x-lg"></i></span>
+                        <span class="kflow-action-copy">
+                            <span class="kflow-action-title">Annulla</span>
+                            <span class="kflow-action-subtitle">Svuota i campi</span>
+                        </span>
+                        <i class="bi bi-chevron-right kflow-action-arrow" aria-hidden="true"></i>
+                    </button>
+                    <button id="btnLogin" type="submit" class="kflow-action-button kflow-action-button-success">
+                        <span class="kflow-action-icon" aria-hidden="true"><i class="bi bi-box-arrow-in-right"></i></span>
+                        <span class="kflow-action-copy">
+                            <span class="kflow-action-title login-label">Accedi</span>
+                            <span class="kflow-action-subtitle login-label-subtitle">Avvia la sessione</span>
                             <span class="login-wait d-none">
                                 <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
                                 Attendere
                             </span>
-                        </button>
-                    </div>
+                        </span>
+                        <i class="bi bi-chevron-right kflow-action-arrow" aria-hidden="true"></i>
+                    </button>
                 </div>
             </form>
         </div>
@@ -89,15 +95,23 @@
     <script>
         (() => {
             const form = document.getElementById("loginForm");
+            const clear = document.getElementById("btnClear");
             const submit = document.getElementById("btnLogin");
             const label = submit?.querySelector(".login-label");
+            const subtitle = submit?.querySelector(".login-label-subtitle");
             const wait = submit?.querySelector(".login-wait");
 
             const restoreLoginButton = () => {
                 submit?.removeAttribute("disabled");
                 label?.classList.remove("d-none");
+                subtitle?.classList.remove("d-none");
                 wait?.classList.add("d-none");
             };
+
+            clear?.addEventListener("click", () => {
+                form?.reset();
+                form?.querySelector("input[name='Username']")?.focus();
+            });
 
             form?.addEventListener("submit", event => {
                 if (event.submitter !== submit) {
@@ -107,7 +121,15 @@
 
                 submit?.setAttribute("disabled", "disabled");
                 label?.classList.add("d-none");
+                subtitle?.classList.add("d-none");
                 wait?.classList.remove("d-none");
+            });
+
+            form?.addEventListener("keydown", event => {
+                if (event.key === "Enter" && event.target.matches("input")) {
+                    event.preventDefault();
+                    form.requestSubmit(submit);
+                }
             });
 
             window.addEventListener("pageshow", restoreLoginButton);
