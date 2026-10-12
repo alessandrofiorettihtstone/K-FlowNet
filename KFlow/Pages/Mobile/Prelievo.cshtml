@@ -1,0 +1,133 @@
+@page "/Mobile/Prelievo.cshtml"
+@model Scheletro.Pages.Mobile.PrelievoModel
+@{
+    Layout = "_MobileLayout";
+    ViewData["Title"] = "Prelievo";
+}
+
+<section class="kflow-mobile-card p-3">
+    @if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
+    {
+        <div class="alert alert-success" role="alert">@Model.SuccessMessage</div>
+    }
+
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+    <form method="post" novalidate>
+    <div class="mb-3">
+        <input asp-for="Input.CardId" id="cardId" class="form-control form-control-lg" autocomplete="off" placeholder="Cartellino" required />
+        <span id="cardIdFeedback" asp-validation-for="Input.CardId" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <input id="productId" class="form-control form-control-lg" readonly placeholder="Articolo" aria-describedby="cardIdFeedback" />
+    </div>
+
+    <div class="mb-3">
+        <input id="productDescription" class="form-control form-control-lg" readonly placeholder="Descrizione" />
+    </div>
+
+    <div class="mb-3">
+        <input asp-for="Input.ProductionNumber" id="productionNumber" class="form-control form-control-lg" autocomplete="off" placeholder="Numero di produzione" required />
+        <span id="productionNumberFeedback" asp-validation-for="Input.ProductionNumber" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <input asp-for="Input.Quantity" id="quantity" class="form-control form-control-lg" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="Quantità" required />
+        <span id="quantityFeedback" asp-validation-for="Input.Quantity" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary w-100">
+        <i class="bi bi-box-arrow-in-down me-2"></i>Registra prelievo
+    </button>
+    </form>
+</section>
+
+@section Scripts {
+    <script>
+        (() => {
+            const cardInput = document.getElementById("cardId");
+            const productInput = document.getElementById("productId");
+            const productDescriptionInput = document.getElementById("productDescription");
+            const feedback = document.getElementById("cardIdFeedback");
+            const productionInput = document.getElementById("productionNumber");
+            const quantityInput = document.getElementById("quantity");
+            const form = cardInput?.closest("form");
+
+            if (!cardInput || !productInput || !productDescriptionInput || !feedback) {
+                return;
+            }
+
+            async function loadProduct() {
+                const cardId = cardInput.value.trim();
+                productInput.value = "";
+                productDescriptionInput.value = "";
+                feedback.textContent = "";
+                cardInput.setCustomValidity("");
+
+                if (!cardId) {
+                    return false;
+                }
+
+                try {
+                    const response = await fetch(`${window.location.pathname}?handler=CardInfo&cardId=${encodeURIComponent(cardId)}`, {
+                        headers: { "Accept": "application/json" }
+                    });
+                    const result = await response.json();
+
+                    if (!response.ok || !result.found) {
+                        feedback.textContent = result.message || "Cartellino non trovato.";
+                        cardInput.setCustomValidity(feedback.textContent);
+                        return false;
+                    }
+
+                    productInput.value = result.productId;
+                    productDescriptionInput.value = result.productDescription || "";
+                    return true;
+                } catch {
+                    feedback.textContent = "Impossibile verificare il cartellino.";
+                    cardInput.setCustomValidity(feedback.textContent);
+                    return false;
+                }
+            }
+
+            cardInput.addEventListener("change", loadProduct);
+            cardInput.addEventListener("blur", loadProduct);
+            cardInput.addEventListener("keydown", async event => {
+                if (event.key !== "Enter") {
+                    return;
+                }
+
+                event.preventDefault();
+                if (await loadProduct()) {
+                    productionInput?.focus();
+                } else {
+                    cardInput.focus();
+                }
+            });
+
+            form?.addEventListener("submit", event => {
+                const requiredFields = [
+                    [cardInput, feedback, "Inserisci il cartellino."],
+                    [productionInput, document.getElementById("productionNumberFeedback"), "Inserisci il numero di produzione."],
+                    [quantityInput, document.getElementById("quantityFeedback"), "Inserisci la quantità."]
+                ];
+                const missingField = requiredFields.find(([field, error]) => {
+                    const isMissing = !field?.value.trim();
+                    if (isMissing) {
+                        field.classList.add("is-invalid");
+                        error.textContent = error.textContent || "Campo obbligatorio.";
+                    } else {
+                        field.classList.remove("is-invalid");
+                    }
+                    return isMissing;
+                });
+
+                if (missingField) {
+                    event.preventDefault();
+                    missingField[0].focus();
+                }
+            });
+        })();
+    </script>
+}

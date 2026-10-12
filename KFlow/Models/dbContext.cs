@@ -23,6 +23,8 @@ public partial class dbContext : DbContext
 
     public virtual DbSet<Partner> Partners { get; set; }
 
+    public virtual DbSet<PickingTransaction> PickingTransactions { get; set; }
+
     public virtual DbSet<Printer> Printers { get; set; }
 
     public virtual DbSet<Product> Products { get; set; }
@@ -128,6 +130,38 @@ public partial class dbContext : DbContext
                 .IsUnicode(false);
             entity.Property(e => e.PartnerType)
                 .HasMaxLength(1)
+                .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<PickingTransaction>(entity =>
+        {
+            entity.HasKey(e => e.ID);
+
+            entity.ToTable("PickingTransactions");
+
+            entity.Property(e => e.ID)
+                .ValueGeneratedOnAdd()
+                .HasColumnName("id");
+            entity.Property(e => e.CreateDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.IDCard)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("IDCard");
+            entity.Property(e => e.IsEnable)
+                .HasDefaultValue(true)
+                .HasColumnName("isEnable");
+            entity.Property(e => e.ItemCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.ItemPF)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("ItemPF");
+            entity.Property(e => e.LastUpdate).HasColumnType("datetime");
+            entity.Property(e => e.Production)
+                .HasMaxLength(50)
                 .IsUnicode(false);
         });
 

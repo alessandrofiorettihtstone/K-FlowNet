@@ -33,7 +33,7 @@
                         <span class="input-group-text"><i class="bi bi-search"></i></span>
                         <input asp-for="Filters.Partner" class="form-control" autocomplete="off" />
                         <button type="button" class="btn btn-outline-secondary" title="Pulisci cliente" aria-label="Pulisci cliente" data-clear-target="#Filters_Partner">
-                            <i class="bi bi-trash"></i>
+                            <i class="bi bi-x-circle"></i>
                         </button>
                     </div>
                 </div>
@@ -43,7 +43,7 @@
                         <span class="input-group-text"><i class="bi bi-search"></i></span>
                         <input asp-for="Filters.Product" class="form-control" autocomplete="off" />
                         <button type="button" class="btn btn-outline-secondary" title="Pulisci articolo" aria-label="Pulisci articolo" data-clear-target="#Filters_Product">
-                            <i class="bi bi-trash"></i>
+                            <i class="bi bi-x-circle"></i>
                         </button>
                     </div>
                 </div>
@@ -53,7 +53,7 @@
                         <span class="input-group-text"><i class="bi bi-search"></i></span>
                         <input asp-for="Filters.Cross" class="form-control" autocomplete="off" />
                         <button type="button" class="btn btn-outline-secondary" title="Pulisci cross" aria-label="Pulisci cross" data-clear-target="#Filters_Cross">
-                            <i class="bi bi-trash"></i>
+                            <i class="bi bi-x-circle"></i>
                         </button>
                     </div>
                 </div>
@@ -163,9 +163,10 @@
 
                     <div class="row g-3">
                         <div class="col-12">
-                            <label asp-for="Input.PartnerValue" class="form-label">Cliente</label>
+                            <label class="form-label" for="Input_PartnerDisplay">Cliente</label>
                             <div class="kflow-autocomplete-wrapper">
-                                <input asp-for="Input.PartnerValue" class="form-control" autocomplete="off" placeholder="Cerca cliente" />
+                                <input asp-for="Input.PartnerValue" type="hidden" />
+                                <input id="Input_PartnerDisplay" class="form-control" autocomplete="off" placeholder="Cerca cliente" />
                             </div>
                             <span asp-validation-for="Input.PartnerValue" class="text-danger small"></span>
                         </div>
@@ -313,9 +314,15 @@
     <script>
         (() => {
             const firstLookupValue = value => {
-                const raw = value || "";
+                const raw = typeof value === "string" ? value : value?.value || "";
                 const separatorIndex = raw.indexOf(" - ");
                 return separatorIndex > 0 ? raw.slice(0, separatorIndex).trim() : raw.trim();
+            };
+
+            const partnerDisplayName = value => {
+                const label = typeof value === "string" ? value : value?.label || "";
+                const separatorIndex = label.indexOf(" - ");
+                return separatorIndex > 0 ? label.slice(separatorIndex + 3).trim() : label.trim();
             };
 
             const setValue = (id, value) => {
@@ -394,12 +401,22 @@
             const refreshCreateLocations = bindLocationFilter("Input_PartnerValue", "Input_LocationID");
             const refreshEditLocations = bindLocationFilter("EditInput_PartnerValue", "EditInput_LocationID");
 
+            const createPartnerDisplay = document.getElementById("Input_PartnerDisplay");
+            createPartnerDisplay?.addEventListener("input", () => {
+                setValue("Input_PartnerValue", "");
+                refreshCreateLocations();
+            });
+
             setupKFlowAutocomplete({
-                inputSelector: "#Input_PartnerValue",
+                inputSelector: "#Input_PartnerDisplay",
                 url: "/Client/Combination.cshtml",
                 tipoRicerca: "PARTNER",
                 emptyText: "Nessun cliente trovato",
-                onSelect: refreshCreateLocations
+                getSelectedValue: partnerDisplayName,
+                onSelect: item => {
+                    setValue("Input_PartnerValue", firstLookupValue(item));
+                    refreshCreateLocations();
+                }
             });
             setupKFlowAutocomplete({
                 inputSelector: "#Input_IDProduct",

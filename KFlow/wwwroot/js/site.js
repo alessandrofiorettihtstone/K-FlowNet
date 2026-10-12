@@ -411,7 +411,11 @@ window.setupKFlowAutocomplete = function (options) {
             return options.getSelectedValue(item);
         }
 
-        return item;
+        return typeof item === "string" ? item : item?.value || item?.label || "";
+    };
+
+    const getItemLabel = item => {
+        return typeof item === "string" ? item : item?.label || item?.value || "";
     };
 
     const renderSuggestions = items => {
@@ -434,7 +438,7 @@ window.setupKFlowAutocomplete = function (options) {
             const button = document.createElement("button");
             button.type = "button";
             button.className = "list-group-item list-group-item-action text-start";
-            button.textContent = item;
+            button.textContent = getItemLabel(item);
             button.addEventListener("mousedown", event => {
                 event.preventDefault();
                 input.value = getSelectedValue(item);

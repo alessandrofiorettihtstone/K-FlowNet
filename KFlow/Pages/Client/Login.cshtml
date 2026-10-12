@@ -39,7 +39,7 @@
                 <div class="mb-3">
                     <label asp-for="Username" class="form-label">Username</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="bi bi-person"></i></span>
+                        <span class="input-group-text"><i class="bi bi-person-fill" aria-hidden="true"></i></span>
                         <input asp-for="Username" class="form-control" autocomplete="username" autofocus />
                     </div>
                     <span asp-validation-for="Username" class="text-danger small"></span>
@@ -48,7 +48,7 @@
                 <div class="mb-3">
                     <label asp-for="Password" class="form-label">Password</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="bi bi-key"></i></span>
+                        <span class="input-group-text"><i class="bi bi-lock-fill" aria-hidden="true"></i></span>
                         <input asp-for="Password" class="form-control" autocomplete="current-password" />
                     </div>
                     <span asp-validation-for="Password" class="text-danger small"></span>
@@ -59,15 +59,28 @@
                 <div class="mb-4">
                     <label asp-for="CID" class="form-label">CID</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="bi bi-credit-card-2-front"></i></span>
+                        <span class="input-group-text"><i class="bi bi-person-vcard-fill" aria-hidden="true"></i></span>
                         <input asp-for="CID" class="form-control" autocomplete="off" />
                     </div>
                     <span asp-validation-for="CID" class="text-danger small"></span>
                 </div>
 
+                <label class="kflow-remember-option mb-3" for="RememberMe">
+                    <span class="kflow-remember-copy">
+                        <span class="kflow-remember-icon" aria-hidden="true"><i class="bi bi-shield-lock-fill"></i></span>
+                        <span>
+                            <strong>Resta collegato</strong>
+                            <small>Ricorda l’accesso su questo dispositivo</small>
+                        </span>
+                    </span>
+                    <span class="form-check form-switch m-0">
+                        <input asp-for="RememberMe" class="form-check-input" role="switch" />
+                    </span>
+                </label>
+
                 <div class="kflow-login-actions">
                     <button id="btnClear" type="button" class="kflow-action-button kflow-action-button-danger">
-                        <span class="kflow-action-icon" aria-hidden="true"><i class="bi bi-x-lg"></i></span>
+                        <span class="kflow-action-icon" aria-hidden="true"><i class="bi bi-x-circle-fill"></i></span>
                         <span class="kflow-action-copy">
                             <span class="kflow-action-title">Annulla</span>
                             <span class="kflow-action-subtitle">Svuota i campi</span>

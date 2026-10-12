@@ -8,7 +8,6 @@
     var isCartellini = path.Contains("Cartellini", StringComparison.OrdinalIgnoreCase);
     var isCombination = path.Contains("/Client/Combination", StringComparison.OrdinalIgnoreCase);
     var isPrinter = path.Contains("/Client/Printer", StringComparison.OrdinalIgnoreCase);
-    var isMobile = path.StartsWith("/Mobile", StringComparison.OrdinalIgnoreCase);
     var isScanner = path.Contains("BarcodeScanner", StringComparison.OrdinalIgnoreCase);
     var isPrint = path.Contains("StampaCartellino", StringComparison.OrdinalIgnoreCase);
     var isAuthenticated = User.Identity?.IsAuthenticated == true;
@@ -37,10 +36,10 @@
                     <i class="bi bi-kanban"></i>
                     <span>KanbanBoard</span>
                 </a>
-                <a class="kflow-nav-link @(isMobile ? "active" : "")" href="/Mobile/Default">
+                <button type="button" class="kflow-nav-link kflow-terminal-launch" aria-haspopup="dialog">
                     <i class="bi bi-phone"></i>
                     <span>Mobile</span>
-                </a>
+                </button>
                 <a class="kflow-nav-link @(isScanner ? "active" : "")" href="/BarcodeScanner">
                     <i class="bi bi-upc-scan"></i>
                     <span>Scanner</span>
@@ -119,7 +118,7 @@
         <div class="offcanvas-body">
             <nav class="kflow-nav mobile">
                 <a class="kflow-nav-link @(isKanban ? "active" : "")" href="/Client/KanbanBoard"><i class="bi bi-kanban"></i><span>KanbanBoard</span></a>
-                <a class="kflow-nav-link @(isMobile ? "active" : "")" href="/Mobile/Default"><i class="bi bi-phone"></i><span>Mobile</span></a>
+                <button type="button" class="kflow-nav-link kflow-terminal-launch" aria-haspopup="dialog"><i class="bi bi-phone"></i><span>Mobile</span></button>
                 <a class="kflow-nav-link @(isScanner ? "active" : "")" href="/BarcodeScanner"><i class="bi bi-upc-scan"></i><span>Scanner</span></a>
                 <a class="kflow-nav-link @(isPrint ? "active" : "")" href="/StampaCartellino"><i class="bi bi-printer"></i><span>Stampa</span></a>
                 <a class="kflow-nav-link @(isClienti ? "active" : "")" href="/Client/Clienti"><i class="bi bi-building"></i><span>Clienti</span></a>
@@ -131,10 +130,53 @@
         </div>
     </div>
 
+    <div class="modal fade kflow-terminal-modal" id="kflowTerminalModal" tabindex="-1" aria-labelledby="kflowTerminalModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="kflow-terminal-notch" aria-hidden="true"><span></span></div>
+                <div class="modal-header">
+                    <h2 class="modal-title fs-6" id="kflowTerminalModalLabel">
+                        <i class="bi bi-phone me-2"></i>Mobile
+                    </h2>
+                    <button type="button" class="btn btn-sm btn-light rounded-circle" data-bs-dismiss="modal" aria-label="Chiudi simulazione terminale">
+                        <span class="kflow-terminal-close" aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body p-0">
+                    <iframe id="kflowTerminalFrame" title="Simulazione terminale mobile"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <partial name="_KFlowToasts" />
 
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        const terminalModalElement = document.getElementById("kflowTerminalModal");
+        const terminalFrame = document.getElementById("kflowTerminalFrame");
+
+        terminalModalElement?.addEventListener("show.bs.modal", () => {
+            terminalFrame.src = "/Mobile/Default.cshtml";
+        });
+
+        document.querySelectorAll(".kflow-terminal-launch").forEach(button => {
+            button.addEventListener("click", () => {
+                const openTerminal = () => bootstrap.Modal.getOrCreateInstance(terminalModalElement).show();
+                const offcanvasElement = button.closest(".offcanvas");
+                const offcanvas = offcanvasElement && bootstrap.Offcanvas.getInstance(offcanvasElement);
+
+                if (offcanvasElement?.classList.contains("show") && offcanvas) {
+                    offcanvasElement.addEventListener("hidden.bs.offcanvas", openTerminal, { once: true });
+                    offcanvas.hide();
+                    return;
+                }
+
+                openTerminal();
+            });
+        });
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
