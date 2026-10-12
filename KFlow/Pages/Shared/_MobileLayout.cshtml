@@ -4,6 +4,7 @@
     var path = Context.Request.Path.Value ?? string.Empty;
     var isHome = path.EndsWith("/Default.cshtml", StringComparison.OrdinalIgnoreCase);
     var isReader = path.Contains("LeggiCartellinoMain", StringComparison.OrdinalIgnoreCase);
+    var isPicking = path.Contains("Prelievo", StringComparison.OrdinalIgnoreCase);
     var displayName = User.Identity?.IsAuthenticated == true ? AuthConfiguration.GetDisplayName(User) : "Accesso";
 }
 <!DOCTYPE html>
@@ -43,7 +44,10 @@
             <i class="bi bi-upc-scan"></i>
             <span>Leggi</span>
         </a>
-        
+        <a class="@(isPicking ? "active" : "")" href="/Mobile/Prelievo.cshtml" aria-label="Prelievo">
+            <i class="bi bi-box-seam"></i>
+            <span>Prelievo</span>
+        </a>
     </nav>
 
     <div class="offcanvas offcanvas-end" tabindex="-1" id="mobileUserPanel" aria-labelledby="mobileUserPanelLabel">
@@ -79,6 +83,38 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/Scripts/html5-qrcode.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        (() => {
+            const mobileFields = () => Array.from(document.querySelectorAll(
+                ".kflow-mobile-content input:not([type='hidden']):not([type='button']):not([type='submit']):not([type='reset']), .kflow-mobile-content select, .kflow-mobile-content textarea"
+            )).filter(field => !field.disabled && !field.readOnly && field.getClientRects().length > 0);
+
+            window.setTimeout(() => {
+                const preferredField = document.querySelector(".kflow-mobile-content [data-focus-target='true']");
+                const firstField = preferredField ?? mobileFields()[0];
+                firstField?.focus();
+            }, 0);
+
+            document.addEventListener("keydown", event => {
+                if (event.key !== "Enter" || event.shiftKey || event.isComposing || event.target instanceof HTMLTextAreaElement) {
+                    return;
+                }
+
+                if (event.defaultPrevented) {
+                    return;
+                }
+
+                const fields = mobileFields();
+                const currentIndex = fields.indexOf(event.target);
+                const nextField = currentIndex >= 0 ? fields[currentIndex + 1] : null;
+
+                if (nextField) {
+                    event.preventDefault();
+                    nextField.focus();
+                }
+            });
+        })();
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

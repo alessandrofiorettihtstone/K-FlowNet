@@ -151,6 +151,74 @@ body.kflow-mobile-app {
   cursor: not-allowed;
 }
 
+button.kflow-nav-link {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  text-align: left;
+}
+
+.kflow-terminal-modal {
+  --bs-modal-width: 420px;
+}
+
+.kflow-terminal-modal .modal-content {
+  height: min(85vh, 760px);
+  overflow: hidden;
+  border: 8px solid #1f2937;
+  border-radius: 32px;
+  background: #111827;
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.35);
+}
+
+.kflow-terminal-notch {
+  display: flex;
+  flex: 0 0 26px;
+  align-items: center;
+  justify-content: center;
+}
+
+.kflow-terminal-notch span {
+  width: 90px;
+  height: 8px;
+  border-radius: 20px;
+  background: #374151;
+}
+
+.kflow-terminal-modal .modal-header {
+  flex: 0 0 auto;
+  padding: 0.5rem 0.75rem;
+  border: 0;
+  background: #111827;
+  color: #fff;
+}
+
+.kflow-terminal-modal .modal-header .btn {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+}
+
+.kflow-terminal-close {
+  display: block;
+  font-size: 1.35rem;
+  font-weight: 500;
+  line-height: 26px;
+}
+
+.kflow-terminal-modal .modal-body {
+  min-height: 0;
+  background: #fff;
+}
+
+.kflow-terminal-modal iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: #fff;
+}
+
 .kflow-sidebar-section {
   margin-top: 26px;
   padding-top: 18px;
@@ -456,8 +524,10 @@ body.kflow-mobile-app {
   display: grid;
   grid-template-columns: minmax(280px, 0.9fr) minmax(300px, 1fr);
   overflow: hidden;
-  border-radius: 8px;
-  background: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.56);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 1rem 2.5rem rgba(0, 0, 0, 0.3);
 }
 
 .kflow-login-brand {
@@ -465,8 +535,11 @@ body.kflow-mobile-app {
   align-items: center;
   justify-content: center;
   padding: 42px;
-  background: linear-gradient(145deg, rgba(235, 247, 252, 0.96), rgba(207, 231, 243, 0.92));
-  border-right: 1px solid #c1dce9;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.64), rgba(255, 255, 255, 0.64)),
+    url("../img/BackKanban.png") center / cover no-repeat;
+  border-right: 1px solid rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(2px);
 }
 
 .kflow-login-brand img {
@@ -475,12 +548,17 @@ body.kflow-mobile-app {
 
 .kflow-login-form {
   padding: 38px;
+  background: rgba(255, 255, 255, 0.97);
 }
 
 .kflow-login-form h1 {
   margin: 0 0 22px;
   font-size: 1.44rem;
   font-weight: 700;
+}
+
+.kflow-login-form .input-group-text .bi {
+  font-size: 0.92rem;
 }
 
 .kflow-login-divider {
@@ -497,6 +575,57 @@ body.kflow-mobile-app {
   content: "";
   height: 1px;
   background: var(--kflow-border);
+}
+
+.kflow-remember-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--kflow-border);
+  border-radius: 10px;
+  background: #f8f9fa;
+  cursor: pointer;
+}
+
+.kflow-remember-copy {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.kflow-remember-copy > span:last-child {
+  display: grid;
+  gap: 2px;
+}
+
+.kflow-remember-copy strong {
+  font-size: 0.8rem;
+}
+
+.kflow-remember-copy small {
+  color: var(--kflow-muted);
+  font-size: 0.7rem;
+}
+
+.kflow-remember-icon {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  place-items: center;
+  border-radius: 50%;
+  background: #e8f5ee;
+  color: var(--kflow-success);
+}
+
+.kflow-remember-option .form-check-input {
+  width: 2.55rem;
+  height: 1.35rem;
+  margin: 0;
 }
 
 .kflow-login-actions {
@@ -856,7 +985,7 @@ body.kflow-mobile-app {
   .kflow-login-brand {
     padding: 26px;
     border-right: 0;
-    border-bottom: 1px solid #202a35;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.65);
   }
 
   .kflow-login-form {

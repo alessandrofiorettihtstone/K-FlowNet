@@ -65,7 +65,11 @@ public class CombinationModel : PageModel
             var values = await BuildPartnerSuggestionQuery(prefixText)
                 .OrderBy(x => x.Name)
                 .ThenBy(x => x.ID)
-                .Select(x => BuildPartnerLookupLabel(x.PartnerType, x.ID, x.Name))
+                .Select(x => new PartnerSuggestionItem
+                {
+                    Value = x.PartnerType + PartnerValueSeparator + x.ID,
+                    Label = string.IsNullOrWhiteSpace(x.Name) ? x.ID : x.ID + " - " + x.Name
+                })
                 .Distinct()
                 .Take(20)
                 .ToListAsync();
@@ -349,13 +353,12 @@ public class CombinationModel : PageModel
                     x.PartnerType == partnerType &&
                     x.IDPartner == partnerId &&
                     x.LocationID == locationId &&
-                    x.IDProduct == productId &&
-                    x.IDCross == normalizedCross);
+                    x.IDProduct == productId);
 
             if (duplicateExists)
             {
                 isValid = false;
-                ModelState.AddModelError($"{prefix}.IDCross", "Esiste gia una combination con cliente, articolo, ubicazione e cross indicati.");
+                ModelState.AddModelError($"{prefix}.IDCross", "Esiste gia una combination con cliente, articolo e ubicazione indicati.");
             }
         }
 
@@ -668,6 +671,13 @@ public class CombinationFilters
     public string? Product { get; set; }
 
     public string? Cross { get; set; }
+}
+
+public class PartnerSuggestionItem
+{
+    public string Value { get; set; } = string.Empty;
+
+    public string Label { get; set; } = string.Empty;
 }
 
 public class ManageCombinationInput

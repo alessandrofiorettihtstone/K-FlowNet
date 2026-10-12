@@ -34,6 +34,9 @@ public class LoginModel : PageModel
     [DataType(DataType.Password)]
     public string? CID { get; set; }
 
+    [BindProperty]
+    public bool RememberMe { get; set; }
+
     public async Task<IActionResult> OnGetAsync()
     {
         if (User.Identity?.IsAuthenticated == true)
@@ -48,7 +51,7 @@ public class LoginModel : PageModel
             var user = await _authService.FindByGuidAsync(guid);
             if (user is { Enabled: true })
             {
-                await SignInUserAsync(user);
+                await SignInUserAsync(user, rememberMe: true);
                 return Redirect("/Client/KanbanBoard.cshtml");
             }
         }
@@ -131,7 +134,7 @@ public class LoginModel : PageModel
             return Page();
         }
 
-        await SignInUserAsync(user);
+        await SignInUserAsync(user, RememberMe);
         _logger.Log(new LoggerDTO.logDTO
         {
             typeMessage = "Login",
@@ -148,7 +151,7 @@ public class LoginModel : PageModel
         return Redirect("/Client/Login.cshtml");
     }
 
-    private async Task SignInUserAsync(Scheletro.Models.User user)
+    private async Task SignInUserAsync(Scheletro.Models.User user, bool rememberMe)
     {
         await HttpContext.SignOutAsync(AuthConfiguration.CookieScheme);
         await HttpContext.SignInAsync(
@@ -156,20 +159,32 @@ public class LoginModel : PageModel
             _authService.CreatePrincipal(user),
             new AuthenticationProperties
             {
-                IsPersistent = true,
-                ExpiresUtc = DateTimeOffset.UtcNow.AddDays(7)
+                IsPersistent = rememberMe,
+                ExpiresUtc = rememberMe ? DateTimeOffset.UtcNow.AddDays(7) : null
             });
 
         var cookieName = _configuration["KFlow:LegacyLoginCookieName"] ?? "login";
-        Response.Cookies.Append(
-            cookieName,
-            $"guid={Uri.EscapeDataString(user.Guid.ToString())}",
-            new CookieOptions
+        if (rememberMe)
+        {
+            Response.Cookies.Append(
+                cookieName,
+                $"guid={Uri.EscapeDataString(user.Guid.ToString())}",
+                new CookieOptions
+                {
+                    Expires = DateTimeOffset.Now.AddDays(7),
+                    HttpOnly = true,
+                    SameSite = SameSiteMode.Lax,
+                    Secure = Request.IsHttps
+                });
+        }
+        else
+        {
+            Response.Cookies.Delete(cookieName, new CookieOptions
             {
-                Expires = DateTimeOffset.Now.AddDays(7),
                 HttpOnly = true,
                 SameSite = SameSiteMode.Lax,
                 Secure = Request.IsHttps
             });
+        }
     }
 }

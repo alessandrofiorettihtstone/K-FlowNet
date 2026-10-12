@@ -107,8 +107,28 @@ BEGIN
         IDCombination int NOT NULL,
         Quantity int NOT NULL,
         Location varchar(50) NULL,
+        StorageLocation varchar(50) NULL,
         [Status] smallint NOT NULL,
         CONSTRAINT PK_Cards PRIMARY KEY (IDCard)
+    );
+END
+GO
+
+-- Bring databases restored from an older backup in line with the current
+-- application model.  This is deliberately separate from CREATE TABLE so it
+-- also applies when dbo.Cards already exists.
+IF COL_LENGTH(N'dbo.Cards', N'StorageLocation') IS NULL
+BEGIN
+    ALTER TABLE dbo.Cards ADD StorageLocation varchar(50) NULL;
+END
+GO
+
+IF OBJECT_ID(N'dbo.StorageLocations', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.StorageLocations
+    (
+        StorageLocationID varchar(50) NOT NULL,
+        CONSTRAINT PK_StorageLocations PRIMARY KEY (StorageLocationID)
     );
 END
 GO
@@ -148,6 +168,24 @@ BEGIN
         id int IDENTITY(1,1) NOT NULL,
         ZPL varchar(max) NULL,
         CONSTRAINT PK_ZPL PRIMARY KEY (id)
+    );
+END
+GO
+
+IF OBJECT_ID(N'dbo.PickingTransactions', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.PickingTransactions
+    (
+        id int IDENTITY(1,1) NOT NULL,
+        Production varchar(50) NOT NULL,
+        IDCard varchar(50) NOT NULL,
+        ItemCode varchar(50) NOT NULL,
+        ItemPF varchar(50) NOT NULL,
+        Qty float NOT NULL,
+        CreateDate datetime NOT NULL CONSTRAINT DF_PickingTransactions_CreateDate DEFAULT (getdate()),
+        LastUpdate datetime NULL,
+        isEnable bit NOT NULL CONSTRAINT DF_PickingTransactions_IsEnable DEFAULT ((1)),
+        CONSTRAINT PK_PickingTransactions PRIMARY KEY (id)
     );
 END
 GO
