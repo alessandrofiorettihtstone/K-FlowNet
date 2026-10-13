@@ -47,8 +47,14 @@ public class PrelievoModel : PageModel
 
     public async Task OnGetAsync(string? itemCode, string? production, string? cardId)
     {
-        Input.CardId = cardId?.Trim() ?? string.Empty;
-        Input.ProductionNumber = production?.Trim() ?? string.Empty;
+        // Il cartellino viene passato solo dalla ricerca dello storico. Dopo una
+        // registrazione, invece, il form deve restare pronto per un nuovo prelievo.
+        if (!string.IsNullOrWhiteSpace(cardId))
+        {
+            Input.CardId = cardId.Trim();
+            Input.ProductionNumber = production?.Trim() ?? string.Empty;
+        }
+
         await LoadPickingTransactionsAsync(itemCode, production);
     }
 

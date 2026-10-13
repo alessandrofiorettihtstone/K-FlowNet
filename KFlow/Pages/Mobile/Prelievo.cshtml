@@ -100,11 +100,11 @@
                                 </form>
                             </td>
                             <td class="text-end">
-                                <form method="post" asp-page-handler="Delete" class="d-inline" onsubmit="return confirm('Eliminare questo movimento di prelievo?');">
+                                <form method="post" asp-page-handler="Delete" class="d-inline picking-delete-form">
                                     <input type="hidden" name="id" value="@transaction.ID" />
                                     <input type="hidden" name="itemCode" value="@Model.SelectedItemCode" />
                                     <input type="hidden" name="production" value="@Model.SelectedProductionNumber" />
-                                    <button type="submit" class="btn btn-outline-danger btn-sm picking-row-action" title="Elimina movimento" aria-label="Elimina movimento">
+                                    <button type="button" class="btn btn-outline-danger btn-sm picking-row-action" title="Elimina movimento" aria-label="Elimina movimento" data-bs-toggle="modal" data-bs-target="#pickingDeleteModal">
                                         <i class="bi bi-trash"></i>
                                     </button>
                                 </form>
@@ -132,6 +132,24 @@
     </div>
 </div>
 
+<div class="modal fade" id="pickingDeleteModal" tabindex="-1" aria-labelledby="pickingDeleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content">
+            <div class="modal-header text-bg-danger">
+                <h2 class="modal-title fs-6" id="pickingDeleteModalLabel"><i class="bi bi-trash3-fill me-2"></i>Elimina prelievo</h2>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+            </div>
+            <div class="modal-body">
+                Eliminare questo movimento? Non verrà cancellato dallo storico, ma sarà nascosto dall'elenco.
+            </div>
+            <div class="modal-footer d-grid gap-2">
+                <button type="button" class="btn btn-outline-secondary w-100" data-bs-dismiss="modal">Annulla</button>
+                <button type="button" class="btn btn-danger w-100" id="confirmPickingDelete">Elimina movimento</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script>
         (() => {
@@ -144,7 +162,10 @@
             const form = cardInput?.closest("form");
             const errorModalElement = document.getElementById("pickingErrorModal");
             const errorModalMessage = document.getElementById("pickingErrorMessage");
+            const deleteModalElement = document.getElementById("pickingDeleteModal");
+            const confirmDeleteButton = document.getElementById("confirmPickingDelete");
             const serverErrorMessage = @Json.Serialize(Model.ErrorMessage);
+            let pendingDeleteForm = null;
 
             function showPickingError(message) {
                 if (!errorModalElement || !errorModalMessage) {
@@ -249,7 +270,7 @@
                 loadProduct();
             }
 
-            if (new URLSearchParams(window.location.search).has("production")) {
+            if (cardInput.value.trim() && new URLSearchParams(window.location.search).has("production")) {
                 window.setTimeout(() => quantityInput?.focus(), 0);
             }
 
@@ -264,6 +285,36 @@
                         rowQuantity?.focus();
                     }
                 });
+            });
+
+            document.querySelectorAll(".picking-delete-form").forEach(deleteForm => {
+                deleteForm.querySelector("button")?.addEventListener("click", () => {
+                    pendingDeleteForm = deleteForm;
+                });
+
+                deleteForm.addEventListener("submit", event => {
+                    if (deleteForm.dataset.confirmed === "true") {
+                        deleteForm.dataset.confirmed = "";
+                        return;
+                    }
+
+                    event.preventDefault();
+                    pendingDeleteForm = deleteForm;
+                    bootstrap.Modal.getOrCreateInstance(deleteModalElement).show();
+                });
+            });
+
+            confirmDeleteButton?.addEventListener("click", () => {
+                if (!pendingDeleteForm) {
+                    return;
+                }
+
+                pendingDeleteForm.dataset.confirmed = "true";
+                pendingDeleteForm.requestSubmit();
+            });
+
+            deleteModalElement?.addEventListener("hidden.bs.modal", () => {
+                pendingDeleteForm = null;
             });
 
             form?.addEventListener("submit", event => {

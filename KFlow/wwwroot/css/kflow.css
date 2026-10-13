@@ -790,6 +790,10 @@ button.kflow-nav-link {
   padding: 16px;
 }
 
+.kflow-mobile-app.is-picking .kflow-mobile-content {
+  padding-top: 0;
+}
+
 .kflow-bottom-nav {
   position: fixed;
   right: 0;

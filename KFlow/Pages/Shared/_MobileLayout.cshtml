@@ -18,7 +18,7 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/kflow.css" asp-append-version="true" />
 </head>
-<body class="kflow-mobile-app">
+<body class="kflow-mobile-app@(isPicking ? " is-picking" : "")">
     <nav class="navbar navbar-dark kflow-mobile-navbar">
         <div class="container-fluid">
             <a class="kflow-brand" href="/Client/KanbanBoard.cshtml">
