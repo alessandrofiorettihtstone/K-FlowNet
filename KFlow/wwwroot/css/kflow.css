@@ -1082,7 +1082,7 @@ button.kflow-nav-link {
 }
 
 .quantity-keypad {
-  --bs-modal-width: 300px;
+  --bs-modal-width: 340px;
 }
 
 .quantity-keypad .modal-content {
@@ -1132,15 +1132,15 @@ button.kflow-nav-link {
 
 .quantity-keypad-value {
   display: block;
-  min-height: 44px;
-  padding: 7px 11px;
+  min-height: 52px;
+  padding: 9px 13px;
   margin-bottom: 10px;
   overflow: hidden;
   border: 1px solid #d9c3e2;
   border-radius: 7px;
   color: #3d2944;
   background: #fff;
-  font-size: 1.35rem;
+  font-size: 1.7rem;
   font-variant-numeric: tabular-nums;
   font-weight: 800;
   line-height: 1.1;
@@ -1161,12 +1161,12 @@ button.kflow-nav-link {
 }
 
 .quantity-keypad button {
-  min-height: 42px;
+  min-height: 54px;
   border: 1px solid #dccbe3;
   border-radius: 7px;
   color: #3d2944;
   background: #fff;
-  font-size: 1rem;
+  font-size: 1.25rem;
   font-weight: 750;
 }
 
