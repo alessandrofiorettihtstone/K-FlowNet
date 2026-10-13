@@ -824,6 +824,239 @@ button.kflow-nav-link {
   background: #fff;
 }
 
+.picking-entry-card {
+  overflow: hidden;
+}
+
+.picking-entry-header {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 16px;
+  color: #fff;
+  background: var(--kflow-nav);
+}
+
+.picking-entry-icon {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border-radius: 10px;
+  color: var(--kflow-nav);
+  background: #fff;
+  font-size: 1.25rem;
+}
+
+.picking-entry-header h1,
+.picking-history-header h2 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 750;
+}
+
+.picking-entry-header p {
+  margin: 2px 0 0;
+  color: #cbd5df;
+  font-size: 0.72rem;
+}
+
+.picking-form {
+  padding: 16px;
+}
+
+.picking-field {
+  margin-bottom: 16px;
+}
+
+.picking-field label,
+.picking-product-details span {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--kflow-muted);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.035em;
+  text-transform: uppercase;
+}
+
+.picking-field .input-group-text {
+  min-width: 44px;
+  justify-content: center;
+  color: var(--kflow-accent);
+  background: #f1f6f9;
+  border-color: var(--kflow-border);
+}
+
+.picking-field .form-control {
+  min-height: 42px;
+  font-weight: 650;
+}
+
+.picking-product-details {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+  padding: 12px;
+  margin: -3px 0 16px;
+  border: 1px solid #dce8ee;
+  border-radius: 8px;
+  background: #f5f9fb;
+}
+
+.picking-product-details .form-control {
+  min-width: 0;
+  padding: 2px 0 0;
+  border: 0;
+  background: transparent;
+  color: var(--kflow-text);
+  font-size: 0.82rem;
+  font-weight: 750;
+  box-shadow: none;
+}
+
+.picking-product-details .form-control::placeholder {
+  color: #8a9aa7;
+  opacity: 1;
+}
+
+.picking-product-description {
+  min-height: 21px;
+  padding: 2px 0 0;
+  color: var(--kflow-text);
+  font-size: 0.82rem;
+  font-weight: 750;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.picking-product-description:empty::before {
+  color: #8a9aa7;
+  font-weight: 400;
+  content: attr(data-placeholder);
+}
+
+.picking-quantity-input {
+  font-size: 1.2rem;
+}
+
+.picking-submit {
+  min-height: 44px;
+  border-color: #a65fc2;
+  background-color: #a65fc2;
+  font-size: 0.82rem;
+  font-weight: 750;
+  letter-spacing: 0.01em;
+}
+
+.picking-submit:hover,
+.picking-submit:focus {
+  border-color: #8f4aa9;
+  background-color: #8f4aa9;
+}
+
+.picking-submit .bi {
+  margin-right: 8px;
+  font-size: 1.1rem;
+}
+
+.picking-feedback {
+  padding: 10px 16px;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  font-weight: 650;
+}
+
+.picking-validation {
+  padding: 0 16px;
+  margin-top: 12px;
+}
+
+.picking-history {
+  overflow: hidden;
+}
+
+.picking-history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--kflow-border);
+  background: #f8fafb;
+}
+
+.picking-history-header span:not(.picking-count) {
+  display: block;
+  margin-top: 3px;
+  color: var(--kflow-muted);
+  font-size: 0.68rem;
+  font-weight: 650;
+}
+
+.picking-count {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border-radius: 50%;
+  color: #fff;
+  background: var(--kflow-accent);
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.picking-history .table {
+  font-size: 0.75rem;
+}
+
+.picking-history .table > :not(caption) > * > * {
+  padding: 9px 10px;
+}
+
+.picking-history thead th {
+  border-bottom-width: 1px;
+  color: var(--kflow-muted);
+  background: #fff;
+  font-size: 0.64rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.picking-date {
+  color: var(--kflow-muted);
+  font-variant-numeric: tabular-nums;
+  font-weight: 650;
+}
+
+.picking-row-quantity {
+  width: 78px;
+  min-height: 34px;
+  font-weight: 700;
+}
+
+.picking-row-action {
+  display: inline-grid;
+  width: 34px;
+  min-height: 34px;
+  place-items: center;
+  padding: 0;
+}
+
+.picking-update-form .picking-row-action {
+  border-color: #a65fc2;
+  color: #fff;
+  background: #a65fc2;
+}
+
+.picking-update-form .picking-row-action:hover,
+.picking-update-form .picking-row-action:focus {
+  border-color: #8f4aa9;
+  color: #fff;
+  background: #8f4aa9;
+}
+
 .kflow-scanner-frame {
   position: relative;
   width: 100%;

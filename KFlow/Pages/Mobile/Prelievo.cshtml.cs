@@ -21,6 +21,15 @@ public class PrelievoModel : PageModel
     [TempData]
     public string? SuccessMessage { get; set; }
 
+    [TempData]
+    public string? ErrorMessage { get; set; }
+
+    public string SelectedItemCode { get; private set; } = string.Empty;
+
+    public string SelectedProductionNumber { get; private set; } = string.Empty;
+
+    public IReadOnlyList<PickingTransaction> PickingTransactions { get; private set; } = Array.Empty<PickingTransaction>();
+
     public class InputModel
     {
         [Required(ErrorMessage = "Inserisci il cartellino.")]
@@ -34,6 +43,13 @@ public class PrelievoModel : PageModel
         [Required(ErrorMessage = "Inserisci la quantità.")]
         [Range(0.01, double.MaxValue, ErrorMessage = "La quantità deve essere maggiore di zero.")]
         public double? Quantity { get; set; }
+    }
+
+    public async Task OnGetAsync(string? itemCode, string? production, string? cardId)
+    {
+        Input.CardId = cardId?.Trim() ?? string.Empty;
+        Input.ProductionNumber = production?.Trim() ?? string.Empty;
+        await LoadPickingTransactionsAsync(itemCode, production);
     }
 
     public async Task<IActionResult> OnGetCardInfoAsync(string? cardId)
@@ -110,6 +126,78 @@ public class PrelievoModel : PageModel
         await _db.SaveChangesAsync();
 
         SuccessMessage = "Prelievo registrato correttamente.";
-        return RedirectToPage();
+        return RedirectToPage(new
+        {
+            itemCode = combination.IDProduct,
+            production = Input.ProductionNumber
+        });
+    }
+
+    public async Task<IActionResult> OnPostUpdateAsync(int id, double? quantity, string? itemCode, string? production)
+    {
+        await LoadPickingTransactionsAsync(itemCode, production);
+
+        if (quantity is null || quantity <= 0)
+        {
+            ErrorMessage = "Inserisci una quantità numerica maggiore di zero.";
+            return RedirectToPage(new { itemCode, production });
+        }
+
+        var transaction = await _db.PickingTransactions
+            .SingleOrDefaultAsync(x => x.ID == id && x.IsEnable);
+
+        if (transaction is null)
+        {
+            ErrorMessage = "Movimento di prelievo non trovato.";
+            return RedirectToPage(new { itemCode, production });
+        }
+
+        transaction.Qty = quantity.Value;
+        transaction.LastUpdate = DateTime.Now;
+        await _db.SaveChangesAsync();
+
+        SuccessMessage = "Quantità del prelievo aggiornata correttamente.";
+        return RedirectToPage(new { itemCode, production });
+    }
+
+    public async Task<IActionResult> OnPostDeleteAsync(int id, string? itemCode, string? production)
+    {
+        var transaction = await _db.PickingTransactions
+            .SingleOrDefaultAsync(x => x.ID == id && x.IsEnable);
+
+        if (transaction is null)
+        {
+            SuccessMessage = "Il movimento non era più disponibile.";
+            return RedirectToPage(new { itemCode, production });
+        }
+
+        // Manteniamo lo storico: l'eliminazione nasconde il movimento dai risultati attivi.
+        transaction.IsEnable = false;
+        transaction.LastUpdate = DateTime.Now;
+        await _db.SaveChangesAsync();
+
+        SuccessMessage = "Movimento di prelievo eliminato correttamente.";
+        return RedirectToPage(new { itemCode, production });
+    }
+
+    private async Task LoadPickingTransactionsAsync(string? itemCode, string? production)
+    {
+        SelectedItemCode = itemCode?.Trim() ?? string.Empty;
+        SelectedProductionNumber = production?.Trim() ?? string.Empty;
+
+        if (string.IsNullOrWhiteSpace(SelectedItemCode) || string.IsNullOrWhiteSpace(SelectedProductionNumber))
+        {
+            PickingTransactions = Array.Empty<PickingTransaction>();
+            return;
+        }
+
+        PickingTransactions = await _db.PickingTransactions
+            .AsNoTracking()
+            .Where(x => x.IsEnable
+                && x.ItemCode == SelectedItemCode
+                && x.Production == SelectedProductionNumber)
+            .OrderByDescending(x => x.CreateDate)
+            .ThenByDescending(x => x.ID)
+            .ToListAsync();
     }
 }
