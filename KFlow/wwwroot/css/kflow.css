@@ -828,6 +828,123 @@ button.kflow-nav-link {
   background: #fff;
 }
 
+.kflow-mobile-login-modal {
+  width: calc(100% - 32px);
+  max-width: 390px;
+  margin: auto;
+}
+
+.kflow-mobile-login-modal .modal-content {
+  overflow: hidden;
+  border: 0;
+  border-radius: 12px;
+  box-shadow: 0 16px 42px rgba(16, 24, 32, 0.32);
+}
+
+.mobile-login-header {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 18px;
+  color: #fff;
+  background: var(--kflow-nav);
+}
+
+.mobile-login-icon {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  border-radius: 10px;
+  color: var(--kflow-nav);
+  background: #fff;
+  font-size: 1.15rem;
+}
+
+.mobile-login-brand {
+  display: block;
+  margin-bottom: 1px;
+  color: #b172cd;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.mobile-login-header h2 {
+  margin: 0;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 750;
+}
+
+.mobile-login-scanner {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  padding: 0;
+  border: 1px solid #8090a0;
+  color: #fff;
+}
+
+.mobile-login-scanner:hover,
+.mobile-login-scanner:focus {
+  border-color: #fff;
+  color: #fff;
+}
+
+.mobile-login-body {
+  padding: 20px 18px;
+}
+
+.mobile-login-help {
+  margin: 0 0 15px;
+  color: var(--kflow-muted);
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.mobile-login-body .input-group-text {
+  min-width: 46px;
+  justify-content: center;
+  color: var(--kflow-accent);
+  background: #f1f6f9;
+  border-color: var(--kflow-border);
+}
+
+.mobile-login-body .form-control {
+  min-height: 46px;
+  font-weight: 700;
+}
+
+.mobile-login-error {
+  padding: 10px 12px;
+  margin-bottom: 15px;
+  font-weight: 650;
+}
+
+.mobile-login-footer {
+  padding: 0 18px 18px;
+  border: 0;
+}
+
+.mobile-login-submit {
+  min-height: 46px;
+  border-color: #a65fc2;
+  color: #fff;
+  background: #a65fc2;
+  font-size: 0.86rem;
+  font-weight: 750;
+}
+
+.mobile-login-submit:hover,
+.mobile-login-submit:focus {
+  border-color: #8f4aa9;
+  color: #fff;
+  background: #8f4aa9;
+}
+
 .picking-entry-card {
   overflow: hidden;
 }

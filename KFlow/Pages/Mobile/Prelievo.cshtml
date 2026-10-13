@@ -142,9 +142,9 @@
             <div class="modal-body">
                 Eliminare questo movimento? Non verrà cancellato dallo storico, ma sarà nascosto dall'elenco.
             </div>
-            <div class="modal-footer d-grid gap-2">
-                <button type="button" class="btn btn-outline-secondary w-100" data-bs-dismiss="modal">Annulla</button>
-                <button type="button" class="btn btn-danger w-100" id="confirmPickingDelete">Elimina movimento</button>
+            <div class="modal-footer d-flex flex-nowrap gap-2">
+                <button type="button" class="btn btn-outline-secondary flex-fill" data-bs-dismiss="modal">Annulla</button>
+                <button type="button" class="btn btn-danger flex-fill" id="confirmPickingDelete">Elimina</button>
             </div>
         </div>
     </div>
@@ -309,6 +309,7 @@
                     return;
                 }
 
+                window.kflowSetButtonLoading?.(confirmDeleteButton);
                 pendingDeleteForm.dataset.confirmed = "true";
                 pendingDeleteForm.requestSubmit();
             });

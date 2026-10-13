@@ -31,33 +31,34 @@
 </div>
 
 <div class="modal fade" id="loginModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered kflow-mobile-login-modal">
         <div class="modal-content">
             <form method="post" asp-page-handler="Login">
-                <div class="modal-header">
-                    <h2 class="modal-title fs-5" id="loginModalLabel">
-                        <i class="bi bi-person-lock me-1"></i>
-                        Login
-                    </h2>
-                    <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#scannerModalLogin">
+                <div class="mobile-login-header">
+                    <span class="mobile-login-icon"><i class="bi bi-person-lock"></i></span>
+                    <div class="flex-grow-1">
+                        <span class="mobile-login-brand">K-Flow</span>
+                        <h2 id="loginModalLabel">Accesso terminale</h2>
+                    </div>
+                    <button type="button" class="btn mobile-login-scanner" data-bs-toggle="modal" data-bs-target="#scannerModalLogin" title="Scansiona CID" aria-label="Scansiona CID">
                         <i class="bi bi-camera"></i>
                     </button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body mobile-login-body">
                     @if (!string.IsNullOrWhiteSpace(Model.LoginError))
                     {
-                        <div class="alert alert-danger">@Model.LoginError</div>
+                        <div class="alert alert-danger mobile-login-error"><i class="bi bi-exclamation-triangle-fill me-2"></i>@Model.LoginError</div>
                     }
 
-                    <label asp-for="CID" class="form-label">CID</label>
-                    <div class="input-group">
+                    <p class="mobile-login-help">Scansiona il badge oppure inserisci il tuo CID per continuare.</p>
+                    <div class="input-group input-group-lg">
                         <span class="input-group-text"><i class="bi bi-key"></i></span>
-                        <input asp-for="CID" class="form-control form-control-lg" autocomplete="off" data-focus-target="true" />
+                        <input asp-for="CID" class="form-control" autocomplete="off" placeholder="CID" data-focus-target="true" />
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button id="btnMobileLogin" type="submit" class="btn btn-primary w-100 btn-lg">
-                        Accedi
+                <div class="modal-footer mobile-login-footer">
+                    <button id="btnMobileLogin" type="submit" class="btn w-100 mobile-login-submit">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Accedi
                     </button>
                 </div>
             </form>

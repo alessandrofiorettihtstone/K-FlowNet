@@ -113,6 +113,28 @@
                     nextField.focus();
                 }
             });
+
+            window.kflowSetButtonLoading = button => {
+                if (!button || button.disabled || button.dataset.kflowLoading === "true") {
+                    return;
+                }
+
+                button.dataset.kflowLoading = "true";
+                button.dataset.kflowOriginalHtml = button.innerHTML;
+                button.disabled = true;
+                button.setAttribute("aria-busy", "true");
+                button.innerHTML = button.classList.contains("picking-row-action")
+                    ? '<span class="spinner-border spinner-border-sm" aria-hidden="true"></span>'
+                    : '<span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>Attendere...';
+            };
+
+            document.addEventListener("submit", event => {
+                if (event.defaultPrevented || !(event.submitter instanceof HTMLButtonElement)) {
+                    return;
+                }
+
+                window.kflowSetButtonLoading(event.submitter);
+            });
         })();
     </script>
     @await RenderSectionAsync("Scripts", required: false)
