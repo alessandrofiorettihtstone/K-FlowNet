@@ -63,27 +63,37 @@
     </form>
 </section>
 
-<section id="quantityKeypad" class="quantity-keypad" hidden aria-label="Tastierino quantità">
-    <div class="quantity-keypad-header">
-        <i class="bi bi-calculator"></i>
-        <span>Quantità</span>
+<div class="modal fade quantity-keypad" id="quantityKeypad" tabindex="-1" aria-labelledby="quantityKeypadLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="quantityKeypadLabel"><i class="bi bi-calculator me-2"></i>Inserisci quantità</h2>
+                <button type="button" class="quantity-keypad-close" data-bs-dismiss="modal" aria-label="Chiudi">&times;</button>
+            </div>
+            <div class="modal-body">
+                <output id="quantityKeypadValue" class="quantity-keypad-value" aria-live="polite">0</output>
+                <div class="quantity-keypad-keys">
+                    <button type="button" data-key="1">1</button>
+                    <button type="button" data-key="2">2</button>
+                    <button type="button" data-key="3">3</button>
+                    <button type="button" data-key="4">4</button>
+                    <button type="button" data-key="5">5</button>
+                    <button type="button" data-key="6">6</button>
+                    <button type="button" data-key="7">7</button>
+                    <button type="button" data-key="8">8</button>
+                    <button type="button" data-key="9">9</button>
+                    <button type="button" data-key="," aria-label="Separatore decimale">,</button>
+                    <button type="button" data-key="0">0</button>
+                    <button type="button" class="quantity-keypad-delete" data-action="backspace" aria-label="Cancella ultima cifra"><i class="bi bi-backspace"></i></button>
+                </div>
+            </div>
+            <div class="modal-footer d-flex flex-nowrap gap-2">
+                <button type="button" class="btn btn-outline-secondary flex-fill" data-action="clear"><i class="bi bi-x-circle me-1"></i>Svuota</button>
+                <button type="button" class="btn flex-fill quantity-keypad-confirm" id="confirmQuantityKeypad"><i class="bi bi-check2 me-1"></i>OK</button>
+            </div>
+        </div>
     </div>
-    <div class="quantity-keypad-keys">
-        <button type="button" data-key="1">1</button>
-        <button type="button" data-key="2">2</button>
-        <button type="button" data-key="3">3</button>
-        <button type="button" data-key="4">4</button>
-        <button type="button" data-key="5">5</button>
-        <button type="button" data-key="6">6</button>
-        <button type="button" data-key="7">7</button>
-        <button type="button" data-key="8">8</button>
-        <button type="button" data-key="9">9</button>
-        <button type="button" data-key="," aria-label="Separatore decimale">,</button>
-        <button type="button" data-key="0">0</button>
-        <button type="button" class="quantity-keypad-delete" data-action="backspace" aria-label="Cancella ultima cifra"><i class="bi bi-backspace"></i></button>
-    </div>
-    <button type="button" class="quantity-keypad-clear" data-action="clear"><i class="bi bi-x-circle me-1"></i>Svuota</button>
-</section>
+</div>
 
 @if (Model.PickingTransactions.Count > 0)
 {
@@ -182,6 +192,8 @@
             const productionInput = document.getElementById("productionNumber");
             const quantityInput = document.getElementById("quantity");
             const quantityKeypad = document.getElementById("quantityKeypad");
+            const quantityKeypadValue = document.getElementById("quantityKeypadValue");
+            const confirmQuantityKeypad = document.getElementById("confirmQuantityKeypad");
             const form = cardInput?.closest("form");
             const errorModalElement = document.getElementById("pickingErrorModal");
             const errorModalMessage = document.getElementById("pickingErrorMessage");
@@ -189,6 +201,8 @@
             const confirmDeleteButton = document.getElementById("confirmPickingDelete");
             const serverErrorMessage = @Json.Serialize(Model.ErrorMessage);
             let pendingDeleteForm = null;
+            let suppressNextQuantityKeypad = false;
+            const quantityKeypadModal = quantityKeypad ? bootstrap.Modal.getOrCreateInstance(quantityKeypad) : null;
 
             function showPickingError(message) {
                 if (!errorModalElement || !errorModalMessage) {
@@ -197,6 +211,12 @@
 
                 errorModalMessage.textContent = message;
                 bootstrap.Modal.getOrCreateInstance(errorModalElement).show();
+            }
+
+            function refreshQuantityKeypadValue() {
+                if (quantityKeypadValue && quantityInput) {
+                    quantityKeypadValue.textContent = quantityInput.value.replace(".", ",") || "0";
+                }
             }
 
             if (!cardInput || !productInput || !productDescriptionInput || !feedback) {
@@ -290,14 +310,22 @@
             });
 
             quantityInput?.addEventListener("focus", () => {
-                quantityKeypad.hidden = false;
+                if (suppressNextQuantityKeypad) {
+                    suppressNextQuantityKeypad = false;
+                    return;
+                }
+
+                refreshQuantityKeypadValue();
+                quantityKeypadModal?.show();
             });
 
-            document.addEventListener("focusin", event => {
-                const isButton = event.target instanceof HTMLButtonElement;
-                if (event.target !== quantityInput && !quantityKeypad.contains(event.target) && !isButton) {
-                    quantityKeypad.hidden = true;
-                }
+            quantityInput?.addEventListener("click", () => {
+                refreshQuantityKeypadValue();
+                quantityKeypadModal?.show();
+            });
+
+            quantityKeypad?.addEventListener("hide.bs.modal", () => {
+                suppressNextQuantityKeypad = true;
             });
 
             quantityKeypad?.addEventListener("pointerdown", event => {
@@ -324,15 +352,17 @@
                 }
 
                 quantityInput.dispatchEvent(new Event("input", { bubbles: true }));
-                quantityInput.focus();
+                refreshQuantityKeypadValue();
+            });
+
+            confirmQuantityKeypad?.addEventListener("click", () => {
+                quantityKeypadModal?.hide();
+                window.kflowSetButtonLoading?.(document.querySelector(".picking-submit"));
+                form?.requestSubmit();
             });
 
             if (cardInput.value.trim()) {
                 loadProduct();
-            }
-
-            if (cardInput.value.trim() && new URLSearchParams(window.location.search).has("production")) {
-                window.setTimeout(() => quantityInput?.focus(), 0);
             }
 
             document.querySelectorAll(".picking-update-form").forEach(updateForm => {

@@ -1082,27 +1082,76 @@ button.kflow-nav-link {
 }
 
 .quantity-keypad {
-  padding: 12px;
-  margin-top: 10px;
+  --bs-modal-width: 300px;
+}
+
+.quantity-keypad .modal-content {
+  overflow: hidden;
   border: 1px solid #d7c0e1;
   border-radius: 10px;
-  background: #fbf8fd;
-  box-shadow: 0 5px 14px rgba(80, 43, 94, 0.1);
+  box-shadow: 0 12px 30px rgba(80, 43, 94, 0.2);
 }
 
-.quantity-keypad[hidden] {
-  display: none;
+.quantity-keypad .modal-header {
+  padding: 13px 15px;
+  border-bottom-color: #e3d6e8;
+  color: #fff;
+  background: #5a3868;
 }
 
-.quantity-keypad-header {
-  display: flex;
-  gap: 7px;
-  align-items: center;
-  margin-bottom: 9px;
-  color: #835095;
-  font-size: 0.72rem;
+.quantity-keypad .modal-title {
+  font-size: 0.82rem;
   font-weight: 800;
-  text-transform: uppercase;
+}
+
+.quantity-keypad-close {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  border-radius: 7px;
+  color: #fff;
+  background: transparent;
+  font-size: 1.45rem;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.quantity-keypad-close:hover,
+.quantity-keypad-close:focus {
+  border-color: #fff;
+  color: #fff;
+}
+
+.quantity-keypad .modal-body {
+  padding: 12px;
+  background: #fbf8fd;
+}
+
+.quantity-keypad-value {
+  display: block;
+  min-height: 44px;
+  padding: 7px 11px;
+  margin-bottom: 10px;
+  overflow: hidden;
+  border: 1px solid #d9c3e2;
+  border-radius: 7px;
+  color: #3d2944;
+  background: #fff;
+  font-size: 1.35rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+  line-height: 1.1;
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.quantity-keypad .modal-footer {
+  padding: 10px 12px;
+  border-top-color: #e3d6e8;
 }
 
 .quantity-keypad-keys {
@@ -1131,11 +1180,11 @@ button.kflow-nav-link {
   color: #a65fc2;
 }
 
-.quantity-keypad-clear {
-  width: 100%;
-  margin-top: 7px;
-  color: var(--kflow-muted) !important;
-  font-size: 0.76rem !important;
+.quantity-keypad-confirm {
+  border-color: #a65fc2;
+  color: #fff;
+  background: #a65fc2;
+  font-weight: 750;
 }
 
 .picking-feedback {
