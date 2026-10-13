@@ -21,10 +21,10 @@
 <body class="kflow-mobile-app@(isPicking ? " is-picking" : "")">
     <nav class="navbar navbar-dark kflow-mobile-navbar">
         <div class="container-fluid">
-            <a class="kflow-brand" href="/Client/KanbanBoard.cshtml">
+            <a class="kflow-brand" href="/Mobile/Default.cshtml">
                 <img src="~/img/navK-Flow.png" alt="K-Flow" height="40" />
             </a>
-            <button class="btn btn-outline-light" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileUserPanel">
+            <button class="btn btn-outline-light" type="button" data-bs-toggle="modal" data-bs-target="#mobileLogoutModal">
                 <i class="bi bi-person-circle me-1"></i>
                 @displayName
             </button>
@@ -50,6 +50,24 @@
         </a>
     </nav>
 
+    <div class="modal fade" id="mobileLogoutModal" tabindex="-1" aria-labelledby="mobileLogoutModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content">
+                <div class="modal-header text-bg-dark">
+                    <h2 class="modal-title fs-6" id="mobileLogoutModalLabel"><i class="bi bi-person-circle me-2"></i>@displayName</h2>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+                </div>
+                <div class="modal-body">Vuoi disconnetterti dal terminale?</div>
+                <div class="modal-footer d-flex flex-nowrap gap-2">
+                    <button type="button" class="btn btn-outline-secondary flex-fill" data-bs-dismiss="modal">Annulla</button>
+                    <form method="get" action="/Mobile/Logout.cshtml" class="flex-fill">
+                        <button type="submit" class="btn btn-danger w-100"><i class="bi bi-box-arrow-right me-1"></i>Esci</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="offcanvas offcanvas-end" tabindex="-1" id="mobileUserPanel" aria-labelledby="mobileUserPanelLabel">
         <div class="offcanvas-header">
             <h5 class="offcanvas-title" id="mobileUserPanelLabel">Dati utente</h5>
@@ -66,7 +84,7 @@
                     <dt>Username</dt>
                     <dd>@(User.Identity?.Name ?? "-")</dd>
                 </dl>
-                <a class="btn btn-danger w-100" href="/Client/Logout.cshtml">
+                <a class="btn btn-danger w-100" href="/Mobile/Logout.cshtml">
                     <i class="bi bi-box-arrow-right me-1"></i>
                     Disconnetti
                 </a>

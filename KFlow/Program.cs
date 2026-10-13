@@ -104,6 +104,22 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthentication();
+
+app.Use(async (context, next) =>
+{
+    var isMobileSession = context.User.HasClaim(
+        AuthConfiguration.AccessChannelClaimType,
+        AuthConfiguration.MobileAccessChannel);
+
+    if (isMobileSession && context.Request.Path.StartsWithSegments("/Client"))
+    {
+        context.Response.Redirect("/Mobile/Default.cshtml");
+        return;
+    }
+
+    await next();
+});
+
 app.UseAuthorization();
 
 app.MapRazorPages();

@@ -52,7 +52,7 @@
         <div class="picking-field">
             <div class="input-group input-group-lg">
                 <span class="input-group-text"><i class="bi bi-123"></i></span>
-                <input asp-for="Input.Quantity" id="quantity" class="form-control picking-quantity-input" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="Quantità" required />
+                <input asp-for="Input.Quantity" id="quantity" class="form-control picking-quantity-input" type="text" inputmode="none" pattern="[0-9]*[,.]?[0-9]*" placeholder="Quantità" required />
             </div>
             <span id="quantityFeedback" asp-validation-for="Input.Quantity" class="text-danger"></span>
         </div>
@@ -61,6 +61,28 @@
             <i class="bi bi-check2-circle"></i>Registra prelievo
         </button>
     </form>
+</section>
+
+<section id="quantityKeypad" class="quantity-keypad" hidden aria-label="Tastierino quantità">
+    <div class="quantity-keypad-header">
+        <i class="bi bi-calculator"></i>
+        <span>Quantità</span>
+    </div>
+    <div class="quantity-keypad-keys">
+        <button type="button" data-key="1">1</button>
+        <button type="button" data-key="2">2</button>
+        <button type="button" data-key="3">3</button>
+        <button type="button" data-key="4">4</button>
+        <button type="button" data-key="5">5</button>
+        <button type="button" data-key="6">6</button>
+        <button type="button" data-key="7">7</button>
+        <button type="button" data-key="8">8</button>
+        <button type="button" data-key="9">9</button>
+        <button type="button" data-key="," aria-label="Separatore decimale">,</button>
+        <button type="button" data-key="0">0</button>
+        <button type="button" class="quantity-keypad-delete" data-action="backspace" aria-label="Cancella ultima cifra"><i class="bi bi-backspace"></i></button>
+    </div>
+    <button type="button" class="quantity-keypad-clear" data-action="clear"><i class="bi bi-x-circle me-1"></i>Svuota</button>
 </section>
 
 @if (Model.PickingTransactions.Count > 0)
@@ -159,6 +181,7 @@
             const feedback = document.getElementById("cardIdFeedback");
             const productionInput = document.getElementById("productionNumber");
             const quantityInput = document.getElementById("quantity");
+            const quantityKeypad = document.getElementById("quantityKeypad");
             const form = cardInput?.closest("form");
             const errorModalElement = document.getElementById("pickingErrorModal");
             const errorModalMessage = document.getElementById("pickingErrorMessage");
@@ -266,6 +289,44 @@
                 form?.requestSubmit();
             });
 
+            quantityInput?.addEventListener("focus", () => {
+                quantityKeypad.hidden = false;
+            });
+
+            document.addEventListener("focusin", event => {
+                const isButton = event.target instanceof HTMLButtonElement;
+                if (event.target !== quantityInput && !quantityKeypad.contains(event.target) && !isButton) {
+                    quantityKeypad.hidden = true;
+                }
+            });
+
+            quantityKeypad?.addEventListener("pointerdown", event => {
+                if (event.target.closest("button")) {
+                    event.preventDefault();
+                }
+            });
+
+            quantityKeypad?.addEventListener("click", event => {
+                const button = event.target.closest("button");
+                if (!button || !quantityInput) {
+                    return;
+                }
+
+                if (button.dataset.action === "clear") {
+                    quantityInput.value = "";
+                } else if (button.dataset.action === "backspace") {
+                    quantityInput.value = quantityInput.value.slice(0, -1);
+                } else if (button.dataset.key) {
+                    const key = button.dataset.key;
+                    if ((key !== "." && key !== ",") || (!quantityInput.value.includes(".") && !quantityInput.value.includes(","))) {
+                        quantityInput.value += key;
+                    }
+                }
+
+                quantityInput.dispatchEvent(new Event("input", { bubbles: true }));
+                quantityInput.focus();
+            });
+
             if (cardInput.value.trim()) {
                 loadProduct();
             }
@@ -275,6 +336,10 @@
             }
 
             document.querySelectorAll(".picking-update-form").forEach(updateForm => {
+                updateForm.querySelector(".picking-row-quantity")?.addEventListener("focus", event => {
+                    event.target.select();
+                });
+
                 updateForm.addEventListener("submit", event => {
                     const rowQuantity = updateForm.querySelector("[name='quantity']");
                     const value = Number(rowQuantity?.value);
@@ -338,7 +403,10 @@
                 if (missingField) {
                     event.preventDefault();
                     missingField[0].focus();
+                    return;
                 }
+
+                quantityInput.value = quantityInput.value.replace(",", ".");
             });
         })();
     </script>

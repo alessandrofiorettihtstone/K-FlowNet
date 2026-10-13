@@ -987,7 +987,7 @@ button.kflow-nav-link {
 }
 
 .picking-field {
-  margin-bottom: 16px;
+  margin-bottom: 10px;
 }
 
 .picking-field label,
@@ -1019,7 +1019,7 @@ button.kflow-nav-link {
   grid-template-columns: minmax(0, 1fr);
   gap: 10px;
   padding: 12px;
-  margin: -3px 0 16px;
+  margin: -3px 0 10px;
   border: 1px solid #dce8ee;
   border-radius: 8px;
   background: #f5f9fb;
@@ -1079,6 +1079,63 @@ button.kflow-nav-link {
 .picking-submit .bi {
   margin-right: 8px;
   font-size: 1.1rem;
+}
+
+.quantity-keypad {
+  padding: 12px;
+  margin-top: 10px;
+  border: 1px solid #d7c0e1;
+  border-radius: 10px;
+  background: #fbf8fd;
+  box-shadow: 0 5px 14px rgba(80, 43, 94, 0.1);
+}
+
+.quantity-keypad[hidden] {
+  display: none;
+}
+
+.quantity-keypad-header {
+  display: flex;
+  gap: 7px;
+  align-items: center;
+  margin-bottom: 9px;
+  color: #835095;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.quantity-keypad-keys {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 7px;
+}
+
+.quantity-keypad button {
+  min-height: 42px;
+  border: 1px solid #dccbe3;
+  border-radius: 7px;
+  color: #3d2944;
+  background: #fff;
+  font-size: 1rem;
+  font-weight: 750;
+}
+
+.quantity-keypad button:active {
+  color: #fff;
+  border-color: #a65fc2;
+  background: #a65fc2;
+}
+
+.quantity-keypad .quantity-keypad-delete {
+  color: #a65fc2;
+}
+
+.quantity-keypad-clear {
+  width: 100%;
+  margin-top: 7px;
+  color: var(--kflow-muted) !important;
+  font-size: 0.76rem !important;
 }
 
 .picking-feedback {

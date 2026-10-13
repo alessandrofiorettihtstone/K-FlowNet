@@ -83,7 +83,7 @@ public class DefaultModel : PageModel
         await HttpContext.SignOutAsync(AuthConfiguration.CookieScheme);
         await HttpContext.SignInAsync(
             AuthConfiguration.CookieScheme,
-            _authService.CreatePrincipal(user),
+            _authService.CreatePrincipal(user, isMobileSession: true),
             new AuthenticationProperties
             {
                 IsPersistent = true,

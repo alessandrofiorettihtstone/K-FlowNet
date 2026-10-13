@@ -29,7 +29,7 @@ public class KFlowAuthService
             .FirstOrDefaultAsync(x => x.Guid == userGuid);
     }
 
-    public ClaimsPrincipal CreatePrincipal(User user)
+    public ClaimsPrincipal CreatePrincipal(User user, bool isMobileSession = false)
     {
         var roleValue = AuthConfiguration.NormalizeRole(user.Role);
         var claims = new List<Claim>
@@ -53,6 +53,11 @@ public class KFlowAuthService
         if (!string.IsNullOrWhiteSpace(user.Department))
         {
             claims.Add(new Claim("Department", user.Department));
+        }
+
+        if (isMobileSession)
+        {
+            claims.Add(new Claim(AuthConfiguration.AccessChannelClaimType, AuthConfiguration.MobileAccessChannel));
         }
 
         var identity = new ClaimsIdentity(

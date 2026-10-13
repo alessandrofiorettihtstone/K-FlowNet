@@ -9,6 +9,8 @@ public static class AuthConfiguration
     public const string DefaultUserRole = "User";
     public const string AdminPolicy = "AdminOnly";
     public const string NonAdminPolicy = "NonAdminOnly";
+    public const string AccessChannelClaimType = "KFlowAccessChannel";
+    public const string MobileAccessChannel = "Mobile";
 
     public static string NormalizeRole(string? role)
     {
