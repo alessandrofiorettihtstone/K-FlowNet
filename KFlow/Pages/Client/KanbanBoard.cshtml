@@ -4,6 +4,7 @@
     Layout = "_KFlowLayout";
     ViewData["Title"] = "KanbanBoard";
     ViewData["KFlowSuccessMessage"] = Model.SuccessMessage;
+    ViewData["KFlowErrorMessage"] = Model.ErrorMessage;
     var returnUrl = HttpContext.Request.Path + HttpContext.Request.QueryString;
     var selectedStatuses = Model.Board.Statuses.Where(status => status.Selected).ToList();
     var statusDropdownLabel = selectedStatuses.Count switch
@@ -15,20 +16,11 @@
     };
 }
 
-@if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
-{
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        <i class="bi bi-exclamation-triangle me-1"></i>
-        @Model.ErrorMessage
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Chiudi"></button>
-    </div>
-}
-
 <form method="get" class="kflow-board-toolbar">
     <section class="kflow-panel">
-       @*  <div class="kflow-panel-header">
+        <div class="kflow-panel-header">
             <h2>Ricerca</h2>
-        </div> *@
+        </div>
         <div class="kflow-panel-body">
             <div class="row g-2 align-items-end">
                 <div class="col-md-3">

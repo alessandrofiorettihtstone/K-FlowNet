@@ -509,6 +509,54 @@ button.kflow-nav-link {
   font-size: 0.72rem;
 }
 
+/* Elenchi back office: stessa gerarchia visiva della pagina Prelievi. */
+.kflow-data-panel {
+  overflow: hidden;
+  border-color: #dce6ed;
+  box-shadow: 0 10px 24px rgba(31, 61, 82, 0.06);
+}
+
+.kflow-data-panel .kflow-panel-header {
+  background: #fff;
+}
+
+.kflow-data-panel .kflow-panel-header > .text-muted {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 9px;
+  border: 1px solid #cfe3ee;
+  border-radius: 999px;
+  background: #eef7fb;
+  color: #1f5f7d !important;
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.kflow-data-table {
+  min-width: 680px;
+}
+
+.kflow-data-table thead th {
+  padding: 11px 16px;
+  border-bottom: 1px solid #dce6ed;
+  background: #f5f8fa;
+  color: #61717d;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.045em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.kflow-data-table tbody td {
+  padding: 14px 16px;
+  border-color: #edf1f4;
+}
+
+.kflow-data-table.table-hover > tbody > tr:hover > * {
+  background-color: #f1f8fb;
+}
+
 /* Prelievi */
 .picking-summary-panel {
   overflow: hidden;
@@ -845,6 +893,7 @@ button.kflow-nav-link {
   border-radius: 10px;
   background: #f8f9fa;
   cursor: pointer;
+  transition: background-color 140ms ease, border-color 140ms ease, box-shadow 140ms ease;
 }
 
 .kflow-remember-copy {
@@ -877,12 +926,42 @@ button.kflow-nav-link {
   border-radius: 50%;
   background: #e8f5ee;
   color: var(--kflow-success);
+  transition: background-color 140ms ease, color 140ms ease;
 }
 
 .kflow-remember-option .form-check-input {
   width: 2.55rem;
   height: 1.35rem;
   margin: 0;
+}
+
+.kflow-remember-option .form-check-input:checked {
+  background-color: var(--kflow-success);
+  border-color: var(--kflow-success);
+}
+
+.kflow-remember-option .form-check-input:focus {
+  border-color: var(--kflow-success);
+  box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25);
+}
+
+.kflow-remember-option:has(.form-check-input:checked) {
+  border-color: rgba(25, 135, 84, 0.55);
+  background: #eef9f2;
+  box-shadow: 0 4px 12px rgba(25, 135, 84, 0.1);
+}
+
+.kflow-remember-option:has(.form-check-input:checked) .kflow-remember-icon {
+  background: var(--kflow-success);
+  color: #fff;
+}
+
+.kflow-remember-option:has(.form-check-input:checked) .kflow-remember-copy strong {
+  color: #146c43;
+}
+
+.kflow-remember-option:has(.form-check-input:checked) .kflow-remember-copy small {
+  color: #327a54;
 }
 
 .kflow-login-actions {
@@ -1030,6 +1109,14 @@ button.kflow-nav-link {
   background: var(--kflow-success);
 }
 
+.kflow-toast-error {
+  border-left-color: var(--bs-danger) !important;
+}
+
+.kflow-toast-icon-error {
+  background: var(--bs-danger);
+}
+
 .kflow-mobile-app {
   padding-bottom: 76px;
   background: #f6f8fa;
@@ -1073,6 +1160,11 @@ button.kflow-nav-link {
   text-decoration: none;
   font-size: 0.62rem;
   font-weight: 700;
+}
+
+.kflow-bottom-nav a > i {
+  font-size: 1.35rem;
+  line-height: 1;
 }
 
 .kflow-bottom-nav a.active {

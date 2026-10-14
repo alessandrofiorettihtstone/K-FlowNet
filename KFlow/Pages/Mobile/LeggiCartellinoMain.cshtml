@@ -4,14 +4,7 @@
     Layout = "_MobileLayout";
     ViewData["Title"] = "Leggi cartellino";
     ViewData["KFlowSuccessMessage"] = Model.SuccessMessage;
-}
-
-@if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
-{
-    <div class="alert alert-danger" role="alert">
-        <i class="bi bi-exclamation-triangle me-1"></i>
-        @Model.ErrorMessage
-    </div>
+    ViewData["KFlowErrorMessage"] = Model.ErrorMessage;
 }
 
 <section class="kflow-mobile-card p-3">

@@ -4,19 +4,11 @@
     Layout = "_KFlowLayout";
     ViewData["Title"] = "Printer";
     ViewData["KFlowSuccessMessage"] = Model.SuccessMessage;
+    ViewData["KFlowErrorMessage"] = Model.ErrorMessage;
     var returnUrl = HttpContext.Request.Path + HttpContext.Request.QueryString;
 }
 
-@if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
-{
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        <i class="bi bi-exclamation-triangle me-1"></i>
-        @Model.ErrorMessage
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Chiudi"></button>
-    </div>
-}
-
-<section class="kflow-panel">
+<section class="kflow-panel kflow-data-panel">
     <div class="kflow-panel-header d-flex flex-wrap align-items-center justify-content-between gap-2">
         <h2>Printer</h2>
         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createPrinterModal">
@@ -32,8 +24,8 @@
         else
         {
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="table-light">
+                <table class="table table-hover align-middle mb-0 kflow-data-table">
+                    <thead>
                         <tr>
                             <th>ID</th>
                             <th>IP</th>

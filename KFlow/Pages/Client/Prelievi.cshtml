@@ -4,15 +4,8 @@
     Layout = "_KFlowLayout";
     ViewData["Title"] = "Prelievi";
     ViewData["KFlowSuccessMessage"] = Model.SuccessMessage;
+    ViewData["KFlowErrorMessage"] = Model.ErrorMessage;
     var returnUrl = HttpContext.Request.Path + HttpContext.Request.QueryString;
-}
-
-@if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
-{
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        <i class="bi bi-exclamation-triangle me-1"></i>@Model.ErrorMessage
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Chiudi"></button>
-    </div>
 }
 
 <form method="get" class="kflow-board-toolbar">
@@ -62,7 +55,7 @@
     <input asp-for="Filters.SortDirection" type="hidden" />
 </form>
 
-<section class="kflow-panel picking-summary-panel">
+<section class="kflow-panel kflow-data-panel picking-summary-panel">
     <div class="kflow-panel-header d-flex flex-wrap align-items-center justify-content-between gap-2">
         <div>
             <h2>Prelievi per produzione e articolo</h2>
