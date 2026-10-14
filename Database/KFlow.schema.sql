@@ -180,14 +180,49 @@ BEGIN
         Production varchar(50) NOT NULL,
         IDCard varchar(50) NOT NULL,
         ItemCode varchar(50) NOT NULL,
-        ItemPF varchar(50) NOT NULL,
+        ItemPF varchar(50) NULL,
+        DescriptionPF varchar(50) NULL,
+        [Operator] varchar(50) NOT NULL CONSTRAINT DF_PickingTransactions_Operator DEFAULT (''),
         Qty float NOT NULL,
         CreateDate datetime NOT NULL CONSTRAINT DF_PickingTransactions_CreateDate DEFAULT (getdate()),
         LastUpdate datetime NULL,
+        LastUpdatedBy varchar(50) NOT NULL CONSTRAINT DF_PickingTransactions_LastUpdatedBy DEFAULT (''),
         isEnable bit NOT NULL CONSTRAINT DF_PickingTransactions_IsEnable DEFAULT ((1)),
         CONSTRAINT PK_PickingTransactions PRIMARY KEY (id)
     );
 END
+GO
+
+IF COL_LENGTH(N'dbo.PickingTransactions', N'Operator') IS NULL
+BEGIN
+    ALTER TABLE dbo.PickingTransactions
+        ADD [Operator] varchar(50) NOT NULL CONSTRAINT DF_PickingTransactions_Operator DEFAULT ('') WITH VALUES;
+END
+GO
+
+IF COL_LENGTH(N'dbo.PickingTransactions', N'DescriptionPF') IS NULL
+BEGIN
+    ALTER TABLE dbo.PickingTransactions
+        ADD DescriptionPF varchar(50) NULL;
+END
+GO
+
+ALTER TABLE dbo.PickingTransactions ALTER COLUMN ItemPF varchar(50) NULL;
+ALTER TABLE dbo.PickingTransactions ALTER COLUMN DescriptionPF varchar(50) NULL;
+GO
+
+IF COL_LENGTH(N'dbo.PickingTransactions', N'LastUpdatedBy') IS NULL
+BEGIN
+    ALTER TABLE dbo.PickingTransactions
+        ADD LastUpdatedBy varchar(50) NOT NULL CONSTRAINT DF_PickingTransactions_LastUpdatedBy DEFAULT ('') WITH VALUES;
+END
+GO
+
+UPDATE transactionRow
+SET [Operator] = LTRIM(RTRIM(CONCAT([user].[Name], ' ', [user].Surname)))
+FROM dbo.PickingTransactions AS transactionRow
+INNER JOIN dbo.Users AS [user] ON [user].Username = transactionRow.[Operator]
+WHERE LTRIM(RTRIM(CONCAT([user].[Name], ' ', [user].Surname))) <> '';
 GO
 
 IF OBJECT_ID(N'dbo.Status', N'U') IS NOT NULL

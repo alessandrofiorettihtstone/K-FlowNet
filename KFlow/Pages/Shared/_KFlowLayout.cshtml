@@ -5,6 +5,7 @@
     var isKanban = path.Contains("KanbanBoard", StringComparison.OrdinalIgnoreCase);
     var isClienti = path.Contains("Clienti", StringComparison.OrdinalIgnoreCase);
     var isArticoli = path.Contains("Articoli", StringComparison.OrdinalIgnoreCase);
+    var isPrelievi = path.Contains("Prelievi", StringComparison.OrdinalIgnoreCase);
     var isCartellini = path.Contains("Cartellini", StringComparison.OrdinalIgnoreCase);
     var isCombination = path.Contains("/Client/Combination", StringComparison.OrdinalIgnoreCase);
     var isPrinter = path.Contains("/Client/Printer", StringComparison.OrdinalIgnoreCase);
@@ -51,6 +52,7 @@
                 <div class="kflow-sidebar-title">Anagrafiche</div>
                 <a class="kflow-nav-link @(isClienti ? "active" : "")" href="/Client/Clienti"><i class="bi bi-building"></i><span>Clienti</span></a>
                 <a class="kflow-nav-link @(isArticoli ? "active" : "")" href="/Client/Articoli"><i class="bi bi-box-seam"></i><span>Articoli</span></a>
+                <a class="kflow-nav-link @(isPrelievi ? "active" : "")" href="/Client/Prelievi"><i class="bi bi-box-arrow-in-down"></i><span>Prelievi</span></a>
                 <a class="kflow-nav-link @(isCombination ? "active" : "")" href="/Client/Combination"><i class="bi bi-diagram-3"></i><span>Combination</span></a>
                 <a class="kflow-nav-link @(isCartellini ? "active" : "")" href="/Client/Cartellini"><i class="bi bi-credit-card-2-front"></i><span>Cartellini</span></a>
             </div>
@@ -123,6 +125,7 @@
                 <a class="kflow-nav-link @(isPrint ? "active" : "")" href="/StampaCartellino"><i class="bi bi-printer"></i><span>Stampa</span></a>
                 <a class="kflow-nav-link @(isClienti ? "active" : "")" href="/Client/Clienti"><i class="bi bi-building"></i><span>Clienti</span></a>
                 <a class="kflow-nav-link @(isArticoli ? "active" : "")" href="/Client/Articoli"><i class="bi bi-box-seam"></i><span>Articoli</span></a>
+                <a class="kflow-nav-link @(isPrelievi ? "active" : "")" href="/Client/Prelievi"><i class="bi bi-box-arrow-in-down"></i><span>Prelievi</span></a>
                 <a class="kflow-nav-link @(isCombination ? "active" : "")" href="/Client/Combination"><i class="bi bi-diagram-3"></i><span>Combination</span></a>
                 <a class="kflow-nav-link @(isCartellini ? "active" : "")" href="/Client/Cartellini"><i class="bi bi-credit-card-2-front"></i><span>Cartellini</span></a>
                 <a class="kflow-nav-link @(isPrinter ? "active" : "")" href="/Client/Printer"><i class="bi bi-printer-fill"></i><span>Printer</span></a>

@@ -159,7 +159,19 @@ public partial class dbContext : DbContext
                 .HasMaxLength(50)
                 .IsUnicode(false)
                 .HasColumnName("ItemPF");
+            entity.Property(e => e.DescriptionPF)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("DescriptionPF");
+            entity.Property(e => e.Operator)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("Operator");
             entity.Property(e => e.LastUpdate).HasColumnType("datetime");
+            entity.Property(e => e.LastUpdatedBy)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("LastUpdatedBy");
             entity.Property(e => e.Production)
                 .HasMaxLength(50)
                 .IsUnicode(false);

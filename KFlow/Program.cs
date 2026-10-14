@@ -20,6 +20,7 @@ builder.Services.AddRazorPages(options =>
         "/StampaCartellino",
         "/WebForm1",
         "/Client/Articoli",
+        "/Client/Prelievi",
         "/Client/Cartellini",
         "/Client/Clienti",
         "/Client/Combination",

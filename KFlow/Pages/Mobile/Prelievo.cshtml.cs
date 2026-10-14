@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
@@ -123,7 +124,9 @@ public class PrelievoModel : PageModel
             IDCard = card.IDCard,
             Production = Input.ProductionNumber,
             ItemCode = combination.IDProduct,
-            ItemPF = combination.IDCross,
+            ItemPF = null,
+            DescriptionPF = null,
+            Operator = GetOperatorDisplayName(),
             Qty = Input.Quantity!.Value,
             CreateDate = DateTime.Now,
             IsEnable = true
@@ -160,6 +163,7 @@ public class PrelievoModel : PageModel
 
         transaction.Qty = quantity.Value;
         transaction.LastUpdate = DateTime.Now;
+        transaction.LastUpdatedBy = GetOperatorDisplayName();
         await _db.SaveChangesAsync();
 
         SuccessMessage = "Quantità del prelievo aggiornata correttamente.";
@@ -180,6 +184,7 @@ public class PrelievoModel : PageModel
         // Manteniamo lo storico: l'eliminazione nasconde il movimento dai risultati attivi.
         transaction.IsEnable = false;
         transaction.LastUpdate = DateTime.Now;
+        transaction.LastUpdatedBy = GetOperatorDisplayName();
         await _db.SaveChangesAsync();
 
         SuccessMessage = "Movimento di prelievo eliminato correttamente.";
@@ -206,4 +211,10 @@ public class PrelievoModel : PageModel
             .ThenByDescending(x => x.ID)
             .ToListAsync();
     }
+
+    private string GetOperatorDisplayName() => string.Join(" ", new[]
+    {
+        User.FindFirstValue(ClaimTypes.GivenName),
+        User.FindFirstValue(ClaimTypes.Surname)
+    }.Where(value => !string.IsNullOrWhiteSpace(value))).Trim();
 }

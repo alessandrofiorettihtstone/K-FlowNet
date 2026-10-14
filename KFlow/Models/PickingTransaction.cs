@@ -13,13 +13,19 @@ public partial class PickingTransaction
 
     public string ItemCode { get; set; } = string.Empty;
 
-    public string ItemPF { get; set; } = string.Empty;
+    public string? ItemPF { get; set; }
+
+    public string? DescriptionPF { get; set; }
+
+    public string Operator { get; set; } = string.Empty;
 
     public double Qty { get; set; }
 
     public DateTime CreateDate { get; set; }
 
     public DateTime? LastUpdate { get; set; }
+
+    public string LastUpdatedBy { get; set; } = string.Empty;
 
     public bool IsEnable { get; set; }
 }

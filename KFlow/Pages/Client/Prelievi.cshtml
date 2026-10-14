@@ -1,0 +1,345 @@
+@page "/Client/Prelievi.cshtml"
+@model Scheletro.Pages.Client.PrelieviModel
+@{
+    Layout = "_KFlowLayout";
+    ViewData["Title"] = "Prelievi";
+    ViewData["KFlowSuccessMessage"] = Model.SuccessMessage;
+    var returnUrl = HttpContext.Request.Path + HttpContext.Request.QueryString;
+}
+
+@if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle me-1"></i>@Model.ErrorMessage
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Chiudi"></button>
+    </div>
+}
+
+<form method="get" class="kflow-board-toolbar">
+    <section class="kflow-panel">
+        <div class="kflow-panel-header">
+            <h2>Ricerca</h2>
+        </div>
+        <div class="kflow-panel-body">
+            <div class="row g-2 align-items-end">
+                <div class="col-md-5">
+                    <label asp-for="Filters.Production" class="form-label">Produzione</label>
+                    <div class="input-group kflow-autocomplete-wrapper">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                        <input asp-for="Filters.Production" class="form-control" placeholder="Numero produzione" autocomplete="off" />
+                        <button type="button" class="btn btn-outline-secondary" title="Pulisci produzione" aria-label="Pulisci produzione" data-clear-target="#Filters_Production">
+                            <i class="bi bi-x-circle"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-5">
+                    <label asp-for="Filters.Article" class="form-label">Articolo</label>
+                    <div class="input-group kflow-autocomplete-wrapper">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                        <input asp-for="Filters.Article" class="form-control" placeholder="Codice o descrizione" autocomplete="off" />
+                        <button type="button" class="btn btn-outline-secondary" title="Pulisci articolo" aria-label="Pulisci articolo" data-clear-target="#Filters_Article">
+                            <i class="bi bi-x-circle"></i>
+                        </button>
+                    </div>
+                </div>
+                <input asp-for="Filters.SortBy" type="hidden" />
+                <input asp-for="Filters.SortDirection" type="hidden" />
+                <div class="col-md-2 d-flex justify-content-end gap-2">
+                    <a class="btn btn-outline-secondary" href="/Client/Prelievi.cshtml">Pulisci</a>
+                    <button class="btn btn-primary" type="submit">
+                        <i class="bi bi-search me-1"></i>Cerca
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+</form>
+
+<form id="prelieviSortForm" method="get">
+    <input asp-for="Filters.Production" type="hidden" />
+    <input asp-for="Filters.Article" type="hidden" />
+    <input asp-for="Filters.SortBy" type="hidden" />
+    <input asp-for="Filters.SortDirection" type="hidden" />
+</form>
+
+<section class="kflow-panel picking-summary-panel">
+    <div class="kflow-panel-header d-flex flex-wrap align-items-center justify-content-between gap-2">
+        <div>
+            <h2>Prelievi per produzione e articolo</h2>
+            <p class="picking-summary-hint mb-0"><i class="bi bi-hand-index-thumb me-1"></i>Seleziona una riga per vedere i movimenti, poi un movimento per gestirlo.</p>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <button class="btn btn-sm btn-outline-success picking-export-button" type="submit" form="prelieviSortForm" name="handler" value="Export">
+                <i class="bi bi-file-earmark-excel me-1"></i>Esporta Excel
+            </button>
+            <span class="picking-summary-count"><i class="bi bi-collection me-1"></i>@Model.Rows.Count gruppi</span>
+        </div>
+    </div>
+    <div class="kflow-panel-body p-0">
+        @if (Model.Rows.Count == 0)
+        {
+            <div class="kflow-empty-column">Nessun prelievo trovato.</div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table align-middle mb-0 picking-summary-table">
+                    <thead>
+                        <tr>
+                            <th>
+                                <button class="btn btn-link btn-sm p-0 text-decoration-none text-dark fw-semibold" type="submit" form="prelieviSortForm" name="sortColumn" value="Production">
+                                    Produzione <i class="bi @Model.GetSortIcon("Production")"></i>
+                                </button>
+                            </th>
+                            <th>
+                                <button class="btn btn-link btn-sm p-0 text-decoration-none text-dark fw-semibold" type="submit" form="prelieviSortForm" name="sortColumn" value="Article">
+                                    Articolo prelevato <i class="bi @Model.GetSortIcon("Article")"></i>
+                                </button>
+                            </th>
+                            <th class="text-end">
+                                <button class="btn btn-link btn-sm p-0 text-decoration-none text-dark fw-semibold" type="submit" form="prelieviSortForm" name="sortColumn" value="Movements">
+                                    Movimenti <i class="bi @Model.GetSortIcon("Movements")"></i>
+                                </button>
+                            </th>
+                            <th class="text-end">
+                                <button class="btn btn-link btn-sm p-0 text-decoration-none text-dark fw-semibold" type="submit" form="prelieviSortForm" name="sortColumn" value="TotalQuantity">
+                                    Quantità totale <i class="bi @Model.GetSortIcon("TotalQuantity")"></i>
+                                </button>
+                            </th>
+                            <th>
+                                <button class="btn btn-link btn-sm p-0 text-decoration-none text-dark fw-semibold" type="submit" form="prelieviSortForm" name="sortColumn" value="LastPicking">
+                                    Ultimo prelievo <i class="bi @Model.GetSortIcon("LastPicking")"></i>
+                                </button>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{ var rowIndex = 0; }
+                        @foreach (var row in Model.Rows)
+                        {
+                            var detailId = $"picking-details-{rowIndex++}";
+                            <tr class="picking-summary-row"
+                                role="button"
+                                tabindex="0"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#@detailId"
+                                aria-expanded="false"
+                                aria-controls="@detailId">
+                                <td>
+                                    <span class="picking-expand-indicator"><i class="bi bi-chevron-right"></i></span>
+                                    <span class="picking-production-code">@row.Production</span>
+                                </td>
+                                <td>
+                                    <div class="picking-article-code">@row.ArticleCode</div>
+                                    @if (!string.IsNullOrWhiteSpace(row.DescriptionCode))
+                                    {
+                                        <div class="picking-article-description">@row.DescriptionCode</div>
+                                    }
+                                </td>
+                                <td class="text-end"><span class="picking-value-chip">@row.TransactionCount.ToString("N0")</span></td>
+                                <td class="text-end"><span class="picking-total-value">@row.TotalQuantity.ToString("N2")</span></td>
+                                <td class="text-nowrap"><span class="picking-date-value"><i class="bi bi-clock-history me-1"></i>@row.LastPickingDate.ToString("dd/MM/yyyy HH:mm")</span></td>
+                            </tr>
+                            <tr>
+                                <td colspan="5" class="picking-detail-cell">
+                                    <div id="@detailId" class="collapse">
+                                        <div class="picking-detail-body">
+                                            <div class="picking-detail-title"><i class="bi bi-list-check me-2"></i>Dettaglio movimenti</div>
+                                            <div class="table-responsive">
+                                                <table class="table table-sm mb-0 picking-detail-table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Cartellino</th>
+                                                            <th class="text-end">Quantità</th>
+                                                            <th>Operatore</th>
+                                                            <th>Data riferimento</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach (var movement in row.Movements)
+                                                        {
+                                                            <tr class="picking-movement-row"
+                                                                role="button"
+                                                                tabindex="0"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#pickingMovementModal"
+                                                                data-movement-id="@movement.Id"
+                                                                data-card-id="@movement.CardId"
+                                                                data-quantity="@movement.Quantity.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+                                                                data-operator="@movement.Operator"
+                                                                data-create-date="@movement.CreateDate.ToString("dd/MM/yyyy HH:mm")"
+                                                                data-last-update="@(movement.LastUpdate?.ToString("dd/MM/yyyy HH:mm") ?? string.Empty)"
+                                                                data-last-updated-by="@movement.LastUpdatedBy"
+                                                                data-production="@row.Production"
+                                                                data-article="@row.ArticleCode">
+                                                                <td><span class="picking-card-code">@movement.CardId</span></td>
+                                                                <td class="text-end"><span class="picking-detail-quantity">@movement.Quantity.ToString("N2")</span></td>
+                                                                <td><span class="picking-operator"><i class="bi bi-person me-1"></i>@(string.IsNullOrWhiteSpace(movement.LastUpdatedBy) ? (string.IsNullOrWhiteSpace(movement.Operator) ? "-" : movement.Operator) : movement.LastUpdatedBy)</span></td>
+                                                                <td class="text-nowrap"><i class="bi bi-calendar3 me-2 text-muted"></i>@((movement.LastUpdate ?? movement.CreateDate).ToString("dd/MM/yyyy HH:mm"))</td>
+                                                            </tr>
+                                                        }
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</section>
+
+<div class="modal fade" id="pickingMovementModal" tabindex="-1" aria-labelledby="pickingMovementModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form id="updatePickingMovementForm" method="post" asp-page-handler="UpdateMovement">
+                <div class="modal-header">
+                    <h2 class="modal-title fs-5" id="pickingMovementModalLabel"><i class="bi bi-box-seam me-2"></i>Dettaglio prelievo</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+                </div>
+                <div class="modal-body">
+                    <input id="updateMovementId" name="id" type="hidden" />
+                    <input name="returnUrl" type="hidden" value="@returnUrl" />
+                    <dl class="row picking-movement-summary mb-4">
+                        <dt class="col-5">Produzione</dt><dd class="col-7" id="movementProduction"></dd>
+                        <dt class="col-5">Articolo</dt><dd class="col-7" id="movementArticle"></dd>
+                        <dt class="col-5">Cartellino</dt><dd class="col-7" id="movementCardId"></dd>
+                        <dt class="col-5">Registrato da</dt><dd class="col-7" id="movementOperator"></dd>
+                        <dt class="col-5">Data registrazione</dt><dd class="col-7" id="movementCreateDate"></dd>
+                        <dt class="col-5">Ultima modifica</dt><dd class="col-7" id="movementLastUpdate"></dd>
+                        <dt class="col-5">Modificato da</dt><dd class="col-7" id="movementLastUpdatedBy"></dd>
+                    </dl>
+                    <div>
+                        <label class="form-label" for="movementQuantity">Quantità</label>
+                        <input id="movementQuantity" name="quantity" class="form-control" type="number" min="0.01" step="0.01" required />
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <button class="btn btn-outline-danger" type="button" data-bs-toggle="modal" data-bs-target="#pickingDeleteMovementModal">
+                        <i class="bi bi-trash3 me-1"></i>Elimina movimento
+                    </button>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annulla</button>
+                        <button type="submit" class="btn btn-primary"><i class="bi bi-save me-1"></i>Salva quantità</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="pickingDeleteMovementModal" tabindex="-1" aria-labelledby="pickingDeleteMovementModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form method="post" asp-page-handler="DeleteMovement">
+                <div class="modal-header">
+                    <h2 class="modal-title fs-5" id="pickingDeleteMovementModalLabel"><i class="bi bi-exclamation-triangle-fill text-danger me-2"></i>Elimina movimento</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+                </div>
+                <div class="modal-body">
+                    <input id="deleteMovementId" name="id" type="hidden" />
+                    <input name="returnUrl" type="hidden" value="@returnUrl" />
+                    <p class="mb-0">Vuoi eliminare questo movimento? Il record resterà nello storico, ma non sarà più visibile nell’elenco attivo.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annulla</button>
+                    <button type="submit" class="btn btn-danger"><i class="bi bi-trash3 me-1"></i>Elimina movimento</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (() => {
+            const firstLookupValue = value => {
+                const separatorIndex = value.indexOf(" - ");
+                return separatorIndex > 0 ? value.slice(0, separatorIndex).trim() : value;
+            };
+
+            setupKFlowAutocomplete({
+                inputSelector: "#Filters_Production",
+                url: "/Client/Prelievi.cshtml",
+                tipoRicerca: "P",
+                emptyText: "Nessuna produzione trovata",
+                submitOnSelect: true
+            });
+            setupKFlowAutocomplete({
+                inputSelector: "#Filters_Article",
+                url: "/Client/Prelievi.cshtml",
+                tipoRicerca: "A",
+                emptyText: "Nessun articolo trovato",
+                submitOnSelect: true,
+                getSelectedValue: firstLookupValue
+            });
+            setupKFlowFilterClear();
+
+            document.querySelectorAll("tr[data-bs-toggle='collapse']").forEach(row => {
+                row.addEventListener("keydown", event => {
+                    if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
+                        row.click();
+                    }
+                });
+            });
+
+            const setMovementDetail = (id, value, fallback = "-") => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.textContent = value || fallback;
+                }
+            };
+
+            document.getElementById("pickingMovementModal")?.addEventListener("show.bs.modal", event => {
+                const row = event.relatedTarget;
+                if (!(row instanceof HTMLElement)) {
+                    return;
+                }
+
+                document.getElementById("updateMovementId").value = row.dataset.movementId || "";
+                document.getElementById("movementQuantity").value = row.dataset.quantity || "";
+                setMovementDetail("movementProduction", row.dataset.production);
+                setMovementDetail("movementArticle", row.dataset.article);
+                setMovementDetail("movementCardId", row.dataset.cardId);
+                setMovementDetail("movementOperator", row.dataset.operator);
+                setMovementDetail("movementCreateDate", row.dataset.createDate);
+                setMovementDetail("movementLastUpdate", row.dataset.lastUpdate, "Non modificato");
+                setMovementDetail("movementLastUpdatedBy", row.dataset.lastUpdatedBy, "-");
+            });
+
+            document.querySelectorAll(".picking-movement-row").forEach(row => {
+                row.addEventListener("keydown", event => {
+                    if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
+                        row.click();
+                    }
+                });
+            });
+
+            const movementModalElement = document.getElementById("pickingMovementModal");
+            const deleteMovementModalElement = document.getElementById("pickingDeleteMovementModal");
+            let isDeletingMovement = false;
+
+            deleteMovementModalElement?.addEventListener("show.bs.modal", () => {
+                isDeletingMovement = false;
+                document.getElementById("deleteMovementId").value = document.getElementById("updateMovementId").value;
+                bootstrap.Modal.getInstance(movementModalElement)?.hide();
+            });
+
+            deleteMovementModalElement?.addEventListener("hidden.bs.modal", () => {
+                if (!isDeletingMovement) {
+                    bootstrap.Modal.getOrCreateInstance(movementModalElement).show();
+                }
+            });
+
+            document.querySelector("#pickingDeleteMovementModal form")?.addEventListener("submit", () => {
+                isDeletingMovement = true;
+            });
+        })();
+    </script>
+}
