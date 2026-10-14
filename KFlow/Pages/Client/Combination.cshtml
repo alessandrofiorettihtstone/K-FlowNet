@@ -4,16 +4,8 @@
     Layout = "_KFlowLayout";
     ViewData["Title"] = "Combination";
     ViewData["KFlowSuccessMessage"] = Model.SuccessMessage;
+    ViewData["KFlowErrorMessage"] = Model.ErrorMessage;
     var returnUrl = HttpContext.Request.Path + HttpContext.Request.QueryString;
-}
-
-@if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
-{
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        <i class="bi bi-exclamation-triangle me-1"></i>
-        @Model.ErrorMessage
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Chiudi"></button>
-    </div>
 }
 
 <form method="get" class="kflow-board-toolbar">
@@ -69,7 +61,7 @@
     </section>
 </form>
 
-<section class="kflow-panel">
+<section class="kflow-panel kflow-data-panel">
     <div class="kflow-panel-header d-flex flex-wrap align-items-center justify-content-between gap-2">
         <h2>Elenco combination</h2>
         <span class="text-muted small">@Model.Rows.Count combination</span>
@@ -82,8 +74,8 @@
         else
         {
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="table-light">
+                <table class="table table-hover align-middle mb-0 kflow-data-table">
+                    <thead>
                         <tr>
                             <th>ID</th>
                             <th>Cliente</th>

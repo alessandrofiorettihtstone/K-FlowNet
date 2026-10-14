@@ -303,6 +303,62 @@
 })();
 
 (() => {
+    const toastContainerClass = "kflow-toast-container";
+
+    const getToastContainer = () => {
+        let container = document.querySelector(`.${toastContainerClass}`);
+        if (!container) {
+            container = document.createElement("div");
+            container.className = `toast-container ${toastContainerClass} p-3`;
+            document.body.append(container);
+        }
+
+        return container;
+    };
+
+    const showToast = (message, type = "success", options = {}) => {
+        if (!message || typeof bootstrap === "undefined") {
+            return null;
+        }
+
+        const isError = type === "error" || type === "danger";
+        const toastElement = document.createElement("div");
+        toastElement.className = `toast kflow-toast kflow-toast-${isError ? "error" : "success"} border-0 shadow`;
+        toastElement.setAttribute("role", isError ? "alert" : "status");
+        toastElement.setAttribute("aria-live", isError ? "assertive" : "polite");
+        toastElement.setAttribute("aria-atomic", "true");
+        toastElement.dataset.kflowToast = "";
+        toastElement.dataset.bsDelay = String(options.delay ?? 2500);
+
+        const header = document.createElement("div");
+        header.className = "toast-header";
+        const icon = document.createElement("span");
+        icon.className = `kflow-toast-icon kflow-toast-icon-${isError ? "error" : "success"}`;
+        icon.innerHTML = `<i class="bi bi-${isError ? "exclamation-lg" : "check2"}"></i>`;
+        const title = document.createElement("strong");
+        title.className = "me-auto";
+        title.textContent = options.title ?? (isError ? "Operazione non completata" : "Operazione completata");
+        const closeButton = document.createElement("button");
+        closeButton.type = "button";
+        closeButton.className = "btn-close";
+        closeButton.dataset.bsDismiss = "toast";
+        closeButton.setAttribute("aria-label", "Chiudi");
+        header.append(icon, title, closeButton);
+
+        const body = document.createElement("div");
+        body.className = "toast-body";
+        body.textContent = message;
+        toastElement.append(header, body);
+        toastElement.addEventListener("hidden.bs.toast", () => toastElement.remove(), { once: true });
+        getToastContainer().append(toastElement);
+        bootstrap.Toast.getOrCreateInstance(toastElement, {
+            autohide: options.autohide ?? true,
+            delay: Number.parseInt(toastElement.dataset.bsDelay, 10)
+        }).show();
+
+        return toastElement;
+    };
+
     const showKFlowToasts = () => {
         if (typeof bootstrap === "undefined") {
             return;
@@ -311,7 +367,7 @@
         document.querySelectorAll("[data-kflow-toast]").forEach(toastElement => {
             bootstrap.Toast.getOrCreateInstance(toastElement, {
                 autohide: true,
-                delay: Number.parseInt(toastElement.dataset.bsDelay || "3800", 10)
+                delay: Number.parseInt(toastElement.dataset.bsDelay || "2500", 10)
             }).show();
         });
     };
@@ -321,6 +377,12 @@
     } else {
         showKFlowToasts();
     }
+
+    window.KFlowToast = {
+        success: (message, options) => showToast(message, "success", options),
+        error: (message, options) => showToast(message, "error", options),
+        show: showToast
+    };
 })();
 
 window.setupKFlowScanner = function (modalId, readerId, inputName, buttonId) {

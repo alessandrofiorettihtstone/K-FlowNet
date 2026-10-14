@@ -3,6 +3,7 @@
 @{
     Layout = "_MobileLayout";
     ViewData["Title"] = "Prelievo";
+    ViewData["KFlowSuccessMessage"] = Model.SuccessMessage;
 }
 
 <section class="kflow-mobile-card picking-entry-card">
@@ -13,13 +14,6 @@
             <p>Scansiona il cartellino e completa i dati richiesti.</p>
         </div>
     </header>
-
-    @if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
-    {
-        <div class="alert alert-success picking-feedback" role="alert">
-            <i class="bi bi-check-circle-fill me-2"></i>@Model.SuccessMessage
-        </div>
-    }
 
     <div asp-validation-summary="ModelOnly" class="text-danger picking-validation"></div>
 

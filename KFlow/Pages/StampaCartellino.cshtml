@@ -4,13 +4,7 @@
     Layout = "_KFlowLayout";
     ViewData["Title"] = "Stampa cartellino";
     ViewData["KFlowSuccessMessage"] = Model.Success ? Model.Message : null;
-}
-
-@if (!string.IsNullOrWhiteSpace(Model.Message) && !Model.Success)
-{
-    <div class="alert alert-danger" role="alert">
-        @Model.Message
-    </div>
+    ViewData["KFlowErrorMessage"] = !Model.Success ? Model.Message : null;
 }
 
 <section class="kflow-panel">
