@@ -167,6 +167,7 @@ public class PrelieviModel : PageModel
                 DescriptionCode = product == null ? string.Empty : product.Name,
                 transaction.ItemPF,
                 transaction.DescriptionPF,
+                transaction.QtyPF,
                 transaction.IDCard,
                 transaction.Operator,
                 transaction.Qty,
@@ -187,6 +188,9 @@ public class PrelieviModel : PageModel
                 Production = group.Key.Production,
                 ArticleCode = group.Key.ItemCode,
                 DescriptionCode = group.Key.DescriptionCode,
+                ItemPF = group.Select(x => x.ItemPF).FirstOrDefault(value => !string.IsNullOrWhiteSpace(value)),
+                DescriptionPF = group.Select(x => x.DescriptionPF).FirstOrDefault(value => !string.IsNullOrWhiteSpace(value)),
+                QtyPF = group.Select(x => x.QtyPF).FirstOrDefault(value => value.HasValue),
                 TransactionCount = group.Count(),
                 TotalQuantity = group.Sum(x => x.Qty),
                 LastPickingDate = group.Max(x => x.LastUpdate ?? x.CreateDate),
@@ -283,6 +287,12 @@ public class PrelieviRowViewModel
 
     public string DescriptionCode { get; set; } = string.Empty;
 
+    public string? ItemPF { get; set; }
+
+    public string? DescriptionPF { get; set; }
+
+    public double? QtyPF { get; set; }
+
     public int TransactionCount { get; set; }
 
     public double TotalQuantity { get; set; }
@@ -377,15 +387,18 @@ internal static class PrelieviExcelExport
         var sheet = new StringBuilder();
         sheet.Append("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>");
         sheet.Append("<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\"><sheetViews><sheetView workbookViewId=\"0\"><pane ySplit=\"1\" topLeftCell=\"A2\" activePane=\"bottomLeft\" state=\"frozen\"/></sheetView></sheetViews><cols>");
-        sheet.Append("<col min=\"1\" max=\"1\" width=\"20\" customWidth=\"1\"/><col min=\"2\" max=\"2\" width=\"18\" customWidth=\"1\"/><col min=\"3\" max=\"3\" width=\"38\" customWidth=\"1\"/><col min=\"4\" max=\"5\" width=\"16\" customWidth=\"1\"/><col min=\"6\" max=\"6\" width=\"21\" customWidth=\"1\"/>");
+        sheet.Append("<col min=\"1\" max=\"1\" width=\"20\" customWidth=\"1\"/><col min=\"2\" max=\"2\" width=\"18\" customWidth=\"1\"/><col min=\"3\" max=\"3\" width=\"38\" customWidth=\"1\"/><col min=\"4\" max=\"5\" width=\"16\" customWidth=\"1\"/><col min=\"6\" max=\"6\" width=\"18\" customWidth=\"1\"/><col min=\"7\" max=\"7\" width=\"38\" customWidth=\"1\"/><col min=\"8\" max=\"8\" width=\"14\" customWidth=\"1\"/><col min=\"9\" max=\"9\" width=\"21\" customWidth=\"1\"/>");
         sheet.Append("</cols><sheetData>");
         sheet.Append(Row(1,
             TextCell("A", 1, "Produzione", 1),
             TextCell("B", 1, "Articolo", 1),
             TextCell("C", 1, "Descrizione", 1),
-            TextCell("D", 1, "Movimenti", 1),
-            TextCell("E", 1, "Quantità totale", 1),
-            TextCell("F", 1, "Ultimo prelievo", 1)));
+            TextCell("D", 1, "Item PF", 1),
+            TextCell("E", 1, "Descrizione PF", 1),
+            TextCell("F", 1, "Qty PF", 1),
+            TextCell("G", 1, "Movimenti", 1),
+            TextCell("H", 1, "Quantità totale", 1),
+            TextCell("I", 1, "Ultimo prelievo", 1)));
 
         for (var index = 0; index < rows.Count; index++)
         {
@@ -395,12 +408,15 @@ internal static class PrelieviExcelExport
                 TextCell("A", rowNumber, row.Production),
                 TextCell("B", rowNumber, row.ArticleCode),
                 TextCell("C", rowNumber, row.DescriptionCode),
-                NumberCell("D", rowNumber, row.TransactionCount),
-                NumberCell("E", rowNumber, row.TotalQuantity, 2),
-                NumberCell("F", rowNumber, row.LastPickingDate.ToOADate(), 3)));
+                TextCell("D", rowNumber, row.ItemPF),
+                TextCell("E", rowNumber, row.DescriptionPF),
+                row.QtyPF is null ? TextCell("F", rowNumber, string.Empty) : NumberCell("F", rowNumber, row.QtyPF.Value, 2),
+                NumberCell("G", rowNumber, row.TransactionCount),
+                NumberCell("H", rowNumber, row.TotalQuantity, 2),
+                NumberCell("I", rowNumber, row.LastPickingDate.ToOADate(), 3)));
         }
 
-        sheet.Append("</sheetData><autoFilter ref=\"A1:F").Append(rows.Count + 1).Append("\"/></worksheet>");
+        sheet.Append("</sheetData><autoFilter ref=\"A1:I").Append(rows.Count + 1).Append("\"/></worksheet>");
         return sheet.ToString();
     }
 

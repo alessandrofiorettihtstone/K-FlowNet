@@ -182,6 +182,7 @@ BEGIN
         ItemCode varchar(50) NOT NULL,
         ItemPF varchar(50) NULL,
         DescriptionPF varchar(50) NULL,
+        QtyPF float NULL,
         [Operator] varchar(50) NOT NULL CONSTRAINT DF_PickingTransactions_Operator DEFAULT (''),
         Qty float NOT NULL,
         CreateDate datetime NOT NULL CONSTRAINT DF_PickingTransactions_CreateDate DEFAULT (getdate()),
@@ -204,6 +205,13 @@ IF COL_LENGTH(N'dbo.PickingTransactions', N'DescriptionPF') IS NULL
 BEGIN
     ALTER TABLE dbo.PickingTransactions
         ADD DescriptionPF varchar(50) NULL;
+END
+GO
+
+IF COL_LENGTH(N'dbo.PickingTransactions', N'QtyPF') IS NULL
+BEGIN
+    ALTER TABLE dbo.PickingTransactions
+        ADD QtyPF float NULL;
 END
 GO
 

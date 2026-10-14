@@ -301,6 +301,31 @@
                     return;
                 }
 
+                try {
+                    const response = await fetch(`${window.location.pathname}?handler=ProductionInfo&production=${encodeURIComponent(production)}`, {
+                        headers: { "Accept": "application/json" }
+                    });
+                    const result = await response.json();
+
+                    if (!response.ok || !result.found) {
+                        const message = result.message || "Produzione non trovata.";
+                        productionInput.setCustomValidity(message);
+                        document.getElementById("productionNumberFeedback").textContent = message;
+                        showPickingError(message);
+                        productionInput.select();
+                        return;
+                    }
+
+                    productionInput.setCustomValidity("");
+                    document.getElementById("productionNumberFeedback").textContent = "";
+                } catch {
+                    const message = "Impossibile verificare la produzione.";
+                    productionInput.setCustomValidity(message);
+                    document.getElementById("productionNumberFeedback").textContent = message;
+                    showPickingError(message);
+                    return;
+                }
+
                 if (!productInput.value.trim() && !(await loadProduct())) {
                     return;
                 }

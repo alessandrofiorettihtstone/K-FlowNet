@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -10,10 +11,15 @@ namespace Scheletro.Pages.Mobile;
 public class PrelievoModel : PageModel
 {
     private readonly dbContext _db;
+    private readonly ILogger<PrelievoModel> _logger;
+    private readonly string _toPickArchiveDirectory;
 
-    public PrelievoModel(dbContext db)
+    public PrelievoModel(dbContext db, IConfiguration configuration, ILogger<PrelievoModel> logger)
     {
         _db = db;
+        _logger = logger;
+        _toPickArchiveDirectory = configuration["KFlow:ToPickArchiveDirectory"]
+            ?? @"C:\SmartMag\Exchange\Missions\ToPick\IN\Archive";
     }
 
     [BindProperty]
@@ -89,6 +95,23 @@ public class PrelievoModel : PageModel
             });
     }
 
+    public async Task<IActionResult> OnGetProductionInfoAsync(string? production)
+    {
+        if (string.IsNullOrWhiteSpace(production))
+        {
+            return new JsonResult(new { found = false, message = "Inserisci il numero di produzione." });
+        }
+
+        var productFinished = await GetProductFinishedDataAsync(production.Trim());
+        return productFinished is null
+            ? new JsonResult(new
+            {
+                found = false,
+                message = "Produzione non trovata o dati ItemPF/CausaQty mancanti."
+            })
+            : new JsonResult(new { found = true });
+    }
+
     public async Task<IActionResult> OnPostAsync()
     {
         Input.CardId = Input.CardId?.Trim() ?? string.Empty;
@@ -119,13 +142,22 @@ public class PrelievoModel : PageModel
             return Page();
         }
 
+        var pf = await GetProductFinishedDataAsync(Input.ProductionNumber);
+        if (pf is null)
+        {
+            ModelState.AddModelError(nameof(Input.ProductionNumber),
+                "Produzione non trovata: ItemPF, descrizione o quantità CausaQty non disponibili.");
+            return Page();
+        }
+
         _db.PickingTransactions.Add(new PickingTransaction
         {
             IDCard = card.IDCard,
             Production = Input.ProductionNumber,
             ItemCode = combination.IDProduct,
-            ItemPF = null,
-            DescriptionPF = null,
+            ItemPF = pf.ItemPF,
+            DescriptionPF = pf.Description,
+            QtyPF = pf.Quantity,
             Operator = GetOperatorDisplayName(),
             Qty = Input.Quantity!.Value,
             CreateDate = DateTime.Now,
@@ -211,6 +243,134 @@ public class PrelievoModel : PageModel
             .ThenByDescending(x => x.ID)
             .ToListAsync();
     }
+
+    private async Task<ProductFinishedData?> GetProductFinishedDataAsync(string production)
+    {
+        var existing = await _db.PickingTransactions
+            .AsNoTracking()
+            .Where(x => x.Production == production
+                && x.ItemPF != null
+                && x.ItemPF != string.Empty
+                && x.DescriptionPF != null
+                && x.DescriptionPF != string.Empty
+                && x.QtyPF.HasValue)
+            .Select(x => new { x.ItemPF, x.DescriptionPF, x.QtyPF })
+            .FirstOrDefaultAsync();
+
+        if (existing is not null)
+        {
+            return new ProductFinishedData(existing.ItemPF!, existing.DescriptionPF, existing.QtyPF);
+        }
+
+        return ReadProductFinishedDataFromArchive(production);
+    }
+
+    private ProductFinishedData? ReadProductFinishedDataFromArchive(string production)
+    {
+        if (string.IsNullOrWhiteSpace(production) || !Directory.Exists(_toPickArchiveDirectory))
+        {
+            return null;
+        }
+
+        var productionPrefix = production.Split('_', 2)[0];
+        try
+        {
+            var file = Directory.EnumerateFiles(_toPickArchiveDirectory, $"{productionPrefix}_*.csv")
+                .OrderByDescending(System.IO.File.GetLastWriteTimeUtc)
+                .FirstOrDefault();
+
+            if (file is null)
+            {
+                return null;
+            }
+
+            using var reader = new StreamReader(file);
+            var headers = ParseCsvLine(reader.ReadLine() ?? string.Empty);
+            var indexes = headers
+                .Select((header, index) => new { Header = header.Trim(), index })
+                .ToDictionary(x => x.Header, x => x.index, StringComparer.OrdinalIgnoreCase);
+
+            if (!indexes.TryGetValue("CausaRif", out var itemIndex)
+                || !indexes.TryGetValue("CausaDesc", out var descriptionIndex)
+                || !indexes.TryGetValue("CausaQty", out var quantityIndex))
+            {
+                _logger.LogWarning("Il CSV {File} non contiene tutte le colonne CausaRif/CausaDesc/CausaQty.", file);
+                return null;
+            }
+
+            while (!reader.EndOfStream)
+            {
+                var values = ParseCsvLine(reader.ReadLine() ?? string.Empty);
+                if (values.Count <= Math.Max(itemIndex, Math.Max(descriptionIndex, quantityIndex))
+                    || string.IsNullOrWhiteSpace(values[itemIndex]))
+                {
+                    continue;
+                }
+
+                var quantity = double.TryParse(
+                    values[quantityIndex].Trim(),
+                    NumberStyles.Float,
+                    CultureInfo.GetCultureInfo("it-IT"),
+                    out var parsedQuantity)
+                    ? parsedQuantity
+                    : (double?)null;
+
+                if (string.IsNullOrWhiteSpace(values[descriptionIndex]) || quantity is null)
+                {
+                    continue;
+                }
+
+                return new ProductFinishedData(
+                    values[itemIndex].Trim(),
+                    values[descriptionIndex].Trim(),
+                    quantity);
+            }
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            _logger.LogWarning(ex, "Impossibile leggere il CSV per la produzione {Production}.", production);
+        }
+
+        return null;
+    }
+
+    private static List<string> ParseCsvLine(string line)
+    {
+        var values = new List<string>();
+        var value = new System.Text.StringBuilder();
+        var quoted = false;
+
+        for (var i = 0; i < line.Length; i++)
+        {
+            var character = line[i];
+            if (character == '"')
+            {
+                if (quoted && i + 1 < line.Length && line[i + 1] == '"')
+                {
+                    value.Append('"');
+                    i++;
+                }
+                else
+                {
+                    quoted = !quoted;
+                }
+            }
+            else if (character == ';' && !quoted)
+            {
+                values.Add(value.ToString());
+                value.Clear();
+            }
+            else
+            {
+                value.Append(character);
+            }
+        }
+
+        values.Add(value.ToString());
+        return values;
+    }
+
+    private sealed record ProductFinishedData(string ItemPF, string? Description, double? Quantity);
 
     private string GetOperatorDisplayName() => string.Join(" ", new[]
     {

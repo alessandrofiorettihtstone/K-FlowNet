@@ -163,6 +163,8 @@ public partial class dbContext : DbContext
                 .HasMaxLength(50)
                 .IsUnicode(false)
                 .HasColumnName("DescriptionPF");
+            entity.Property(e => e.QtyPF)
+                .HasColumnName("QtyPF");
             entity.Property(e => e.Operator)
                 .HasMaxLength(50)
                 .IsUnicode(false)

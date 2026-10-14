@@ -17,6 +17,8 @@ public partial class PickingTransaction
 
     public string? DescriptionPF { get; set; }
 
+    public double? QtyPF { get; set; }
+
     public string Operator { get; set; } = string.Empty;
 
     public double Qty { get; set; }

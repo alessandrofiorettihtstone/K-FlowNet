@@ -96,6 +96,9 @@
                                     Articolo prelevato <i class="bi @Model.GetSortIcon("Article")"></i>
                                 </button>
                             </th>
+                            <th>Item PF</th>
+                            <th>Descrizione PF</th>
+                            <th class="text-end">Qty PF</th>
                             <th class="text-end">
                                 <button class="btn btn-link btn-sm p-0 text-decoration-none text-dark fw-semibold" type="submit" form="prelieviSortForm" name="sortColumn" value="Movements">
                                     Movimenti <i class="bi @Model.GetSortIcon("Movements")"></i>
@@ -136,12 +139,15 @@
                                         <div class="picking-article-description">@row.DescriptionCode</div>
                                     }
                                 </td>
+                                <td>@row.ItemPF</td>
+                                <td>@row.DescriptionPF</td>
+                                <td class="text-end">@(row.QtyPF?.ToString("N3") ?? "-")</td>
                                 <td class="text-end"><span class="picking-value-chip">@row.TransactionCount.ToString("N0")</span></td>
                                 <td class="text-end"><span class="picking-total-value">@row.TotalQuantity.ToString("N2")</span></td>
                                 <td class="text-nowrap"><span class="picking-date-value"><i class="bi bi-clock-history me-1"></i>@row.LastPickingDate.ToString("dd/MM/yyyy HH:mm")</span></td>
                             </tr>
                             <tr>
-                                <td colspan="5" class="picking-detail-cell">
+                                <td colspan="8" class="picking-detail-cell">
                                     <div id="@detailId" class="collapse">
                                         <div class="picking-detail-body">
                                             <div class="picking-detail-title"><i class="bi bi-list-check me-2"></i>Dettaglio movimenti</div>
