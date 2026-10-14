@@ -4,6 +4,7 @@
     Layout = "_MobileLayout";
     ViewData["Title"] = "Prelievo";
     ViewData["KFlowSuccessMessage"] = Model.SuccessMessage;
+    ViewData["KFlowErrorMessage"] = Model.ErrorMessage;
 }
 
 <section class="kflow-mobile-card picking-entry-card">
@@ -23,12 +24,11 @@
                 <span class="input-group-text"><i class="bi bi-upc-scan"></i></span>
                 <input asp-for="Input.CardId" id="cardId" class="form-control" autocomplete="off" placeholder="Cartellino" required />
             </div>
-            <span id="cardIdFeedback" asp-validation-for="Input.CardId" class="text-danger"></span>
         </div>
 
         <div class="picking-product-details" aria-live="polite">
             <div>
-                <input id="productId" class="form-control" readonly placeholder="Articolo" aria-describedby="cardIdFeedback" />
+                <input id="productId" class="form-control" readonly placeholder="Articolo" />
             </div>
             <div>
                 <div id="productDescription" class="picking-product-description" data-placeholder="Descrizione" aria-live="polite"></div>
@@ -40,7 +40,6 @@
                 <span class="input-group-text"><i class="bi bi-hash"></i></span>
                 <input asp-for="Input.ProductionNumber" id="productionNumber" class="form-control" autocomplete="off" placeholder="Numero di produzione" required />
             </div>
-            <span id="productionNumberFeedback" asp-validation-for="Input.ProductionNumber" class="text-danger"></span>
         </div>
 
         <div class="picking-field">
@@ -182,7 +181,6 @@
             const cardInput = document.getElementById("cardId");
             const productInput = document.getElementById("productId");
             const productDescriptionInput = document.getElementById("productDescription");
-            const feedback = document.getElementById("cardIdFeedback");
             const productionInput = document.getElementById("productionNumber");
             const quantityInput = document.getElementById("quantity");
             const quantityKeypad = document.getElementById("quantityKeypad");
@@ -193,7 +191,6 @@
             const errorModalMessage = document.getElementById("pickingErrorMessage");
             const deleteModalElement = document.getElementById("pickingDeleteModal");
             const confirmDeleteButton = document.getElementById("confirmPickingDelete");
-            const serverErrorMessage = @Json.Serialize(Model.ErrorMessage);
             let pendingDeleteForm = null;
             let activeQuantityInput = quantityInput;
             let activeQuantityForm = form;
@@ -203,6 +200,11 @@
             const quantityKeypadModal = quantityKeypad ? bootstrap.Modal.getOrCreateInstance(quantityKeypad) : null;
 
             function showPickingError(message) {
+                if (window.KFlowToast?.error) {
+                    window.KFlowToast.error(message);
+                    return;
+                }
+
                 if (!errorModalElement || !errorModalMessage) {
                     return;
                 }
@@ -226,19 +228,14 @@
                 quantityKeypadModal?.show();
             }
 
-            if (!cardInput || !productInput || !productDescriptionInput || !feedback) {
+            if (!cardInput || !productInput || !productDescriptionInput) {
                 return;
-            }
-
-            if (serverErrorMessage) {
-                showPickingError(serverErrorMessage);
             }
 
             async function loadProduct() {
                 const cardId = cardInput.value.trim();
                 productInput.value = "";
                 productDescriptionInput.textContent = "";
-                feedback.textContent = "";
                 cardInput.setCustomValidity("");
 
                 if (!cardId) {
@@ -252,8 +249,11 @@
                     const result = await response.json();
 
                     if (!response.ok || !result.found) {
-                        feedback.textContent = result.message || "Cartellino non trovato.";
-                        cardInput.setCustomValidity(feedback.textContent);
+                        const message = result.message || "Cartellino non trovato.";
+                        cardInput.setCustomValidity(message);
+                        showPickingError(message);
+                        cardInput.value = "";
+                        cardInput.focus();
                         return false;
                     }
 
@@ -261,8 +261,11 @@
                     productDescriptionInput.textContent = result.productDescription || "";
                     return true;
                 } catch {
-                    feedback.textContent = "Impossibile verificare il cartellino.";
-                    cardInput.setCustomValidity(feedback.textContent);
+                    const message = "Impossibile verificare il cartellino.";
+                    cardInput.setCustomValidity(message);
+                    showPickingError(message);
+                    cardInput.value = "";
+                    cardInput.focus();
                     return false;
                 }
             }
@@ -304,19 +307,19 @@
                     if (!response.ok || !result.found) {
                         const message = result.message || "Produzione non trovata.";
                         productionInput.setCustomValidity(message);
-                        document.getElementById("productionNumberFeedback").textContent = message;
                         showPickingError(message);
-                        productionInput.select();
+                        productionInput.value = "";
+                        productionInput.focus();
                         return;
                     }
 
                     productionInput.setCustomValidity("");
-                    document.getElementById("productionNumberFeedback").textContent = "";
                 } catch {
                     const message = "Impossibile verificare la produzione.";
                     productionInput.setCustomValidity(message);
-                    document.getElementById("productionNumberFeedback").textContent = message;
                     showPickingError(message);
+                    productionInput.value = "";
+                    productionInput.focus();
                     return;
                 }
 
@@ -472,15 +475,20 @@
 
             form?.addEventListener("submit", event => {
                 const requiredFields = [
-                    [cardInput, feedback, "Inserisci il cartellino."],
-                    [productionInput, document.getElementById("productionNumberFeedback"), "Inserisci il numero di produzione."],
+                    [cardInput, null, "Inserisci il cartellino."],
+                    [productionInput, null, "Inserisci il numero di produzione."],
                     [quantityInput, document.getElementById("quantityFeedback"), "Inserisci la quantità."]
                 ];
-                const missingField = requiredFields.find(([field, error]) => {
+                const missingField = requiredFields.find(([field, error, message]) => {
                     const isMissing = !field?.value.trim();
                     if (isMissing) {
                         field.classList.add("is-invalid");
-                        error.textContent = error.textContent || "Campo obbligatorio.";
+                        if (error) {
+                            error.textContent = error.textContent || "Campo obbligatorio.";
+                        }
+                        if (field === cardInput || field === productionInput) {
+                            showPickingError(message);
+                        }
                     } else {
                         field.classList.remove("is-invalid");
                     }

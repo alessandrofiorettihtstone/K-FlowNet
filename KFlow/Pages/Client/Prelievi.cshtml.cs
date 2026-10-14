@@ -202,6 +202,7 @@ public class PrelieviModel : PageModel
                         Operator = x.Operator,
                         ItemPF = x.ItemPF,
                         DescriptionPF = x.DescriptionPF,
+                        QtyPF = x.QtyPF,
                         Quantity = x.Qty,
                         CreateDate = x.CreateDate,
                         LastUpdate = x.LastUpdate,
@@ -313,6 +314,8 @@ public class PickingMovementRowViewModel
     public string? ItemPF { get; set; }
 
     public string? DescriptionPF { get; set; }
+
+    public double? QtyPF { get; set; }
 
     public double Quantity { get; set; }
 
@@ -427,7 +430,7 @@ internal static class PrelieviExcelExport
 
         sheet.Append("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>");
         sheet.Append("<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\"><sheetViews><sheetView workbookViewId=\"0\"><pane ySplit=\"1\" topLeftCell=\"A2\" activePane=\"bottomLeft\" state=\"frozen\"/></sheetView></sheetViews><cols>");
-        sheet.Append("<col min=\"1\" max=\"1\" width=\"20\" customWidth=\"1\"/><col min=\"2\" max=\"2\" width=\"18\" customWidth=\"1\"/><col min=\"3\" max=\"3\" width=\"38\" customWidth=\"1\"/><col min=\"4\" max=\"4\" width=\"18\" customWidth=\"1\"/><col min=\"5\" max=\"5\" width=\"38\" customWidth=\"1\"/><col min=\"6\" max=\"6\" width=\"20\" customWidth=\"1\"/><col min=\"7\" max=\"7\" width=\"14\" customWidth=\"1\"/><col min=\"8\" max=\"8\" width=\"24\" customWidth=\"1\"/><col min=\"9\" max=\"9\" width=\"21\" customWidth=\"1\"/>");
+        sheet.Append("<col min=\"1\" max=\"1\" width=\"20\" customWidth=\"1\"/><col min=\"2\" max=\"2\" width=\"18\" customWidth=\"1\"/><col min=\"3\" max=\"3\" width=\"38\" customWidth=\"1\"/><col min=\"4\" max=\"4\" width=\"18\" customWidth=\"1\"/><col min=\"5\" max=\"5\" width=\"38\" customWidth=\"1\"/><col min=\"6\" max=\"6\" width=\"14\" customWidth=\"1\"/><col min=\"7\" max=\"7\" width=\"20\" customWidth=\"1\"/><col min=\"8\" max=\"8\" width=\"14\" customWidth=\"1\"/><col min=\"9\" max=\"9\" width=\"24\" customWidth=\"1\"/><col min=\"10\" max=\"10\" width=\"21\" customWidth=\"1\"/>");
         sheet.Append("</cols><sheetData>");
         sheet.Append(Row(1,
             TextCell("A", 1, "Produzione", 1),
@@ -435,10 +438,11 @@ internal static class PrelieviExcelExport
             TextCell("C", 1, "Descrizione", 1),
             TextCell("D", 1, "Item PF", 1),
             TextCell("E", 1, "Descrizione PF", 1),
-            TextCell("F", 1, "Cartellino", 1),
-            TextCell("G", 1, "Quantità", 1),
-            TextCell("H", 1, "Operatore", 1),
-            TextCell("I", 1, "Data riferimento", 1)));
+            TextCell("F", 1, "Qty PF", 1),
+            TextCell("G", 1, "Cartellino", 1),
+            TextCell("H", 1, "Quantità", 1),
+            TextCell("I", 1, "Operatore", 1),
+            TextCell("J", 1, "Data riferimento", 1)));
 
         var rowNumber = 2;
         foreach (var summaryRow in rows)
@@ -451,15 +455,16 @@ internal static class PrelieviExcelExport
                     TextCell("C", rowNumber, summaryRow.DescriptionCode),
                     TextCell("D", rowNumber, movement.ItemPF),
                     TextCell("E", rowNumber, movement.DescriptionPF),
-                    TextCell("F", rowNumber, movement.CardId),
-                    NumberCell("G", rowNumber, movement.Quantity, 2),
-                    TextCell("H", rowNumber, string.IsNullOrWhiteSpace(movement.LastUpdatedBy) ? movement.Operator : movement.LastUpdatedBy),
-                    NumberCell("I", rowNumber, (movement.LastUpdate ?? movement.CreateDate).ToOADate(), 3)));
+                    movement.QtyPF is null ? TextCell("F", rowNumber, string.Empty) : NumberCell("F", rowNumber, movement.QtyPF.Value, 2),
+                    TextCell("G", rowNumber, movement.CardId),
+                    NumberCell("H", rowNumber, movement.Quantity, 2),
+                    TextCell("I", rowNumber, string.IsNullOrWhiteSpace(movement.LastUpdatedBy) ? movement.Operator : movement.LastUpdatedBy),
+                    NumberCell("J", rowNumber, (movement.LastUpdate ?? movement.CreateDate).ToOADate(), 3)));
                 rowNumber++;
             }
         }
 
-        sheet.Append("</sheetData><autoFilter ref=\"A1:I").Append(movementCount + 1).Append("\"/></worksheet>");
+        sheet.Append("</sheetData><autoFilter ref=\"A1:J").Append(movementCount + 1).Append("\"/></worksheet>");
         return sheet.ToString();
     }
 

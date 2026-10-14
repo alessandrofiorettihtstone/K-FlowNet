@@ -128,7 +128,9 @@ public class PrelievoModel : PageModel
 
         if (card is null)
         {
-            ModelState.AddModelError(nameof(Input.CardId), "Cartellino non trovato.");
+            const string message = "Cartellino non trovato.";
+            ErrorMessage = message;
+            ModelState.AddModelError(nameof(Input.CardId), message);
             return Page();
         }
 
@@ -138,15 +140,18 @@ public class PrelievoModel : PageModel
 
         if (combination is null)
         {
-            ModelState.AddModelError(nameof(Input.CardId), "La combinazione associata al cartellino non è stata trovata.");
+            const string message = "La combinazione associata al cartellino non è stata trovata.";
+            ErrorMessage = message;
+            ModelState.AddModelError(nameof(Input.CardId), message);
             return Page();
         }
 
         var pf = await GetProductFinishedDataAsync(Input.ProductionNumber);
         if (pf is null)
         {
-            ModelState.AddModelError(nameof(Input.ProductionNumber),
-                "Produzione non trovata: ItemPF, descrizione o quantità CausaQty non disponibili.");
+            const string message = "Produzione non trovata: ItemPF, descrizione o quantità CausaQty non disponibili.";
+            ErrorMessage = message;
+            ModelState.AddModelError(nameof(Input.ProductionNumber), message);
             return Page();
         }
 
