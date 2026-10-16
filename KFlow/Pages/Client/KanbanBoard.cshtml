@@ -17,6 +17,7 @@
 }
 
 <form method="get" class="kflow-board-toolbar">
+    <input name="statusSelectionSubmitted" type="hidden" value="true" />
     <section class="kflow-panel">
         <div class="kflow-panel-header">
             <h2>Ricerca</h2>
@@ -94,7 +95,7 @@
                 </div>
             </div>
             <div class="d-flex justify-content-end gap-2 mt-3">
-                <a class="btn btn-outline-secondary" href="/Client/KanbanBoard.cshtml">Pulisci</a>
+                <a class="btn btn-outline-secondary" href="/Client/KanbanBoard.cshtml?clearStatusSelection=true">Pulisci</a>
                 <button class="btn btn-primary" type="submit">
                     <i class="bi bi-search me-1"></i>
                     Cerca
@@ -325,7 +326,25 @@
                 }
             };
 
-            statusOptions.forEach(option => option.addEventListener("change", updateStatusLabel));
+            let saveStatusSelectionTimer;
+            const saveStatusSelection = () => {
+                window.clearTimeout(saveStatusSelectionTimer);
+                saveStatusSelectionTimer = window.setTimeout(() => {
+                    const query = new URLSearchParams();
+                    statusOptions
+                        .filter(option => option.checked)
+                        .forEach(option => query.append("statusIds", option.value));
+
+                    fetch(`${window.location.pathname}?handler=SaveStatusSelection&${query.toString()}`, {
+                        credentials: "same-origin"
+                    }).catch(() => { });
+                }, 150);
+            };
+
+            statusOptions.forEach(option => option.addEventListener("change", () => {
+                updateStatusLabel();
+                saveStatusSelection();
+            }));
             updateStatusLabel();
 
             const modal = document.getElementById("changeStatusModal");

@@ -11,6 +11,8 @@ namespace Scheletro.Pages.Client;
 [Authorize]
 public class KanbanBoardModel : PageModel
 {
+    private const string StatusSelectionSessionKey = "KanbanBoard.SelectedStatusIds";
+    private const string StatusSelectionCookieName = "KFlow.KanbanStatusIds";
     private readonly KanbanService _kanbanService;
     private readonly LoggerDTO _logger;
 
@@ -31,9 +33,81 @@ public class KanbanBoardModel : PageModel
     [TempData]
     public string? ErrorMessage { get; set; }
 
-    public async Task OnGetAsync()
+    public async Task OnGetAsync(bool statusSelectionSubmitted = false, bool clearStatusSelection = false)
     {
+        if (clearStatusSelection)
+        {
+            ClearStatusSelection();
+            Filters.StatusIds.Clear();
+        }
+        else if (statusSelectionSubmitted || Request.Query.ContainsKey("Filters.StatusIds"))
+        {
+            SaveStatusSelection();
+        }
+        else
+        {
+            Filters.StatusIds = ReadStatusSelection();
+        }
+
         Board = await _kanbanService.GetBoardAsync(Filters);
+    }
+
+    private void SaveStatusSelection()
+    {
+        var selectedStatuses = Filters.StatusIds
+            .Distinct()
+            .OrderBy(id => id)
+            .ToArray();
+
+        HttpContext.Session.SetString(StatusSelectionSessionKey, string.Join(',', selectedStatuses));
+        Response.Cookies.Append(
+            StatusSelectionCookieName,
+            string.Join(',', selectedStatuses),
+            new CookieOptions
+            {
+                HttpOnly = true,
+                IsEssential = true,
+                SameSite = SameSiteMode.Lax,
+                Secure = Request.IsHttps
+            });
+    }
+
+    private List<short> ReadStatusSelection()
+    {
+        var savedSelection = HttpContext.Session.GetString(StatusSelectionSessionKey);
+        if (string.IsNullOrWhiteSpace(savedSelection))
+        {
+            savedSelection = Request.Cookies[StatusSelectionCookieName];
+            if (!string.IsNullOrWhiteSpace(savedSelection))
+            {
+                HttpContext.Session.SetString(StatusSelectionSessionKey, savedSelection);
+            }
+        }
+
+        if (string.IsNullOrWhiteSpace(savedSelection))
+        {
+            return new List<short>();
+        }
+
+        return savedSelection
+            .Split(',', StringSplitOptions.RemoveEmptyEntries)
+            .Select(value => short.TryParse(value, out var statusId) ? statusId : (short?)null)
+            .Where(statusId => statusId.HasValue)
+            .Select(statusId => statusId!.Value)
+            .Distinct()
+            .ToList();
+    }
+
+    private void ClearStatusSelection()
+    {
+        HttpContext.Session.Remove(StatusSelectionSessionKey);
+        Response.Cookies.Delete(StatusSelectionCookieName, new CookieOptions
+        {
+            HttpOnly = true,
+            IsEssential = true,
+            SameSite = SameSiteMode.Lax,
+            Secure = Request.IsHttps
+        });
     }
 
     public async Task<JsonResult> OnGetSuggerimentiRicercaAsync(string prefixText, string tipoRicerca)
@@ -62,6 +136,14 @@ public class KanbanBoardModel : PageModel
         }
 
         return new JsonResult(Array.Empty<string>());
+    }
+
+    public JsonResult OnGetSaveStatusSelection(List<short>? statusIds)
+    {
+        Filters.StatusIds = statusIds ?? new List<short>();
+        SaveStatusSelection();
+
+        return new JsonResult(new { saved = true });
     }
 
     public async Task<JsonResult> OnGetPartnersAsync(string term)

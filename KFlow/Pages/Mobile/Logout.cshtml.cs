@@ -17,9 +17,17 @@ public class LogoutModel : PageModel
     public async Task<IActionResult> OnGetAsync()
     {
         await HttpContext.SignOutAsync(AuthConfiguration.CookieScheme);
+        HttpContext.Session.Remove("KanbanBoard.SelectedStatusIds");
 
         var cookieName = _configuration["KFlow:LegacyLoginCookieName"] ?? "login";
         Response.Cookies.Delete(cookieName);
+        Response.Cookies.Delete("KFlow.KanbanStatusIds", new CookieOptions
+        {
+            HttpOnly = true,
+            IsEssential = true,
+            SameSite = SameSiteMode.Lax,
+            Secure = Request.IsHttps
+        });
 
         return Redirect("/Mobile/Default.cshtml");
     }

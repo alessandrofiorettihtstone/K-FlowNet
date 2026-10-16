@@ -41,6 +41,15 @@ builder.Services.AddRazorPages(options =>
 builder.Services.AddDbContext<dbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.Cookie.Name = ".KFlow.Session";
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+    options.IdleTimeout = TimeSpan.FromHours(8);
+});
+
 builder.Services.AddScoped<LoggerDTO>();
 builder.Services.AddScoped<KFlowAuthService>();
 builder.Services.AddScoped<KanbanService>();
@@ -103,6 +112,8 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+app.UseSession();
 
 app.UseAuthentication();
 
