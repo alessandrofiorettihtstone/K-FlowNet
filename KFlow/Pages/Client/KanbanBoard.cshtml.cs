@@ -67,6 +67,7 @@ public class KanbanBoardModel : PageModel
             {
                 HttpOnly = true,
                 IsEssential = true,
+                MaxAge = TimeSpan.FromDays(365),
                 SameSite = SameSiteMode.Lax,
                 Secure = Request.IsHttps
             });
