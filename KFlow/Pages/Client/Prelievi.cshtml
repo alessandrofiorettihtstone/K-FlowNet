@@ -14,8 +14,8 @@
             <h2>Ricerca</h2>
         </div>
         <div class="kflow-panel-body">
-            <div class="row g-2 align-items-end">
-                <div class="col-md-5">
+            <div class="row g-3 align-items-end prelievi-filter-grid">
+                <div class="col-12 col-lg-4">
                     <label asp-for="Filters.Production" class="form-label">Produzione</label>
                     <div class="input-group kflow-autocomplete-wrapper">
                         <span class="input-group-text"><i class="bi bi-search"></i></span>
@@ -25,7 +25,7 @@
                         </button>
                     </div>
                 </div>
-                <div class="col-md-5">
+                <div class="col-12 col-lg-4">
                     <label asp-for="Filters.Picking" class="form-label">Picking</label>
                     <div class="input-group kflow-autocomplete-wrapper">
                         <span class="input-group-text"><i class="bi bi-search"></i></span>
@@ -35,7 +35,7 @@
                         </button>
                     </div>
                 </div>
-                <div class="col-md-5">
+                <div class="col-12 col-lg-4">
                     <label asp-for="Filters.Article" class="form-label">Articolo</label>
                     <div class="input-group kflow-autocomplete-wrapper">
                         <span class="input-group-text"><i class="bi bi-search"></i></span>
@@ -47,8 +47,11 @@
                 </div>
                 <input asp-for="Filters.SortBy" type="hidden" />
                 <input asp-for="Filters.SortDirection" type="hidden" />
-                <div class="col-md-2 d-flex justify-content-end gap-2">
+                <div class="col-12 prelievi-filter-actions">
                     <a class="btn btn-outline-secondary" href="/Client/Prelievi.cshtml">Pulisci</a>
+                    <a class="btn btn-outline-primary" href="@returnUrl" title="Aggiorna i risultati mantenendo i filtri correnti">
+                        <i class="bi bi-arrow-clockwise me-1"></i>Aggiorna
+                    </a>
                     <button class="btn btn-primary" type="submit">
                         <i class="bi bi-search me-1"></i>Cerca
                     </button>

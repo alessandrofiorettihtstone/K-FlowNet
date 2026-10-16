@@ -350,6 +350,26 @@ button.kflow-nav-link {
   margin-bottom: 14px;
 }
 
+.prelievi-filter-grid .form-label {
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.prelievi-filter-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 4px;
+  border-top: 1px solid var(--kflow-border, #dee2e6);
+}
+
+@media (max-width: 575.98px) {
+  .prelievi-filter-actions > * {
+    flex: 1 1 auto;
+  }
+}
+
 .kflow-status-dropdown {
   min-width: 240px;
 }
