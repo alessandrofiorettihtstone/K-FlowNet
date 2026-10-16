@@ -43,7 +43,7 @@ public class PrelievoModel : PageModel
         [StringLength(50)]
         public string CardId { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Inserisci il numero di picking di produzione.")]
+        [Required(ErrorMessage = "Inserisci numero di picking (PckList).")]
         [StringLength(50)]
         public string ProductionNumber { get; set; } = string.Empty;
 
