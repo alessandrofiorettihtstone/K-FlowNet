@@ -158,9 +158,10 @@ public class PrelievoModel : PageModel
         _db.PickingTransactions.Add(new PickingTransaction
         {
             IDCard = card.IDCard,
-            Production = Input.ProductionNumber,
+            Production = pf.DocRif,
+            Picking = Input.ProductionNumber,
             ItemCode = combination.IDProduct,
-            ItemPF = pf.ItemPF,
+            ItemPF = pf.Item,
             DescriptionPF = pf.Description,
             QtyPF = pf.Quantity,
             Operator = GetOperatorDisplayName(),
@@ -243,7 +244,7 @@ public class PrelievoModel : PageModel
             .AsNoTracking()
             .Where(x => x.IsEnable
                 && x.ItemCode == SelectedItemCode
-                && x.Production == SelectedProductionNumber)
+                && x.Picking == SelectedProductionNumber)
             .OrderByDescending(x => x.CreateDate)
             .ThenByDescending(x => x.ID)
             .ToListAsync();
@@ -253,18 +254,18 @@ public class PrelievoModel : PageModel
     {
         var existing = await _db.PickingTransactions
             .AsNoTracking()
-            .Where(x => x.Production == production
+            .Where(x => x.Picking == production
                 && x.ItemPF != null
                 && x.ItemPF != string.Empty
                 && x.DescriptionPF != null
                 && x.DescriptionPF != string.Empty
                 && x.QtyPF.HasValue)
-            .Select(x => new { x.ItemPF, x.DescriptionPF, x.QtyPF })
+            .Select(x => new { x.ItemPF, x.DescriptionPF, x.QtyPF, x.Production })
             .FirstOrDefaultAsync();
 
         if (existing is not null)
         {
-            return new ProductFinishedData(existing.ItemPF!, existing.DescriptionPF, existing.QtyPF);
+            return new ProductFinishedData(existing.ItemPF!, existing.DescriptionPF, existing.QtyPF, existing.Production);
         }
 
         return ReadProductFinishedDataFromArchive(production);
@@ -297,7 +298,8 @@ public class PrelievoModel : PageModel
 
             if (!indexes.TryGetValue("CausaRif", out var itemIndex)
                 || !indexes.TryGetValue("CausaDesc", out var descriptionIndex)
-                || !indexes.TryGetValue("CausaQty", out var quantityIndex))
+                || !indexes.TryGetValue("CausaQty", out var quantityIndex)
+                || !indexes.TryGetValue("DocRif", out var docrif))
             {
                 _logger.LogWarning("Il CSV {File} non contiene tutte le colonne CausaRif/CausaDesc/CausaQty.", file);
                 return null;
@@ -306,8 +308,13 @@ public class PrelievoModel : PageModel
             while (!reader.EndOfStream)
             {
                 var values = ParseCsvLine(reader.ReadLine() ?? string.Empty);
-                if (values.Count <= Math.Max(itemIndex, Math.Max(descriptionIndex, quantityIndex))
-                    || string.IsNullOrWhiteSpace(values[itemIndex]))
+                            if (values.Count <= new[] {
+                            itemIndex,
+                            descriptionIndex,
+                            quantityIndex,
+                            docrif
+                        }.Max()
+                         || string.IsNullOrWhiteSpace(values[itemIndex]))
                 {
                     continue;
                 }
@@ -326,9 +333,11 @@ public class PrelievoModel : PageModel
                 }
 
                 return new ProductFinishedData(
-                    values[itemIndex].Trim(),
-                    values[descriptionIndex].Trim(),
-                    quantity);
+     values[itemIndex].Trim(),
+     values[descriptionIndex].Trim(),
+     quantity,
+     values[docrif].Trim()
+ );
             }
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
@@ -375,7 +384,12 @@ public class PrelievoModel : PageModel
         return values;
     }
 
-    private sealed record ProductFinishedData(string ItemPF, string? Description, double? Quantity);
+    public record ProductFinishedData(
+    string Item,
+    string? Description,
+    double? Quantity,
+    string DocRif
+);
 
     private string GetOperatorDisplayName() => string.Join(" ", new[]
     {

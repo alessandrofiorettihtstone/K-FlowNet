@@ -9,6 +9,8 @@ public partial class PickingTransaction
 
     public string Production { get; set; } = null!;
 
+    public string Picking { get; set; } = null!;
+
     public string IDCard { get; set; } = string.Empty;
 
     public string ItemCode { get; set; } = string.Empty;

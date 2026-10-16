@@ -178,6 +178,7 @@ BEGIN
     (
         id int IDENTITY(1,1) NOT NULL,
         Production varchar(50) NOT NULL,
+        Picking varchar(50) NOT NULL CONSTRAINT DF_PickingTransactions_Picking DEFAULT (''),
         IDCard varchar(50) NOT NULL,
         ItemCode varchar(50) NOT NULL,
         ItemPF varchar(50) NULL,
@@ -191,6 +192,13 @@ BEGIN
         isEnable bit NOT NULL CONSTRAINT DF_PickingTransactions_IsEnable DEFAULT ((1)),
         CONSTRAINT PK_PickingTransactions PRIMARY KEY (id)
     );
+END
+GO
+
+IF COL_LENGTH(N'dbo.PickingTransactions', N'Picking') IS NULL
+BEGIN
+    ALTER TABLE dbo.PickingTransactions
+        ADD Picking varchar(50) NOT NULL CONSTRAINT DF_PickingTransactions_Picking DEFAULT ('') WITH VALUES;
 END
 GO
 

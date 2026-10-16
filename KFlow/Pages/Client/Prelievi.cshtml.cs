@@ -113,8 +113,8 @@ public class PrelieviModel : PageModel
         if (searchType == "P")
         {
             var productions = await activeTransactions
-                .Where(x => x.Production.Contains(searchText))
-                .Select(x => x.Production)
+                .Where(x => x.Picking.Contains(searchText))
+                .Select(x => x.Picking)
                 .Distinct()
                 .OrderBy(x => x)
                 .Take(20)
@@ -156,13 +156,13 @@ public class PrelieviModel : PageModel
             join product in _db.Products.AsNoTracking() on transaction.ItemCode equals product.ID into products
             from product in products.DefaultIfEmpty()
             where transaction.IsEnable
-                && (string.IsNullOrWhiteSpace(production) || transaction.Production.Contains(production))
+                && (string.IsNullOrWhiteSpace(production) || transaction.Picking.Contains(production))
                 && (string.IsNullOrWhiteSpace(article)
                     || transaction.ItemCode.Contains(article)
                     || (product != null && product.Name.Contains(article)))
             select new
             {
-                transaction.Production,
+                Production = transaction.Picking,
                 transaction.ItemCode,
                 DescriptionCode = product == null ? string.Empty : product.Name,
                 transaction.ItemPF,

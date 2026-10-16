@@ -177,6 +177,9 @@ public partial class dbContext : DbContext
             entity.Property(e => e.Production)
                 .HasMaxLength(50)
                 .IsUnicode(false);
+            entity.Property(e => e.Picking)
+                .HasMaxLength(50)
+                .IsUnicode(false);
         });
 
         modelBuilder.Entity<Printer>(entity =>
