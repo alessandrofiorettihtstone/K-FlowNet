@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Scheletro.Class;
+using KFlow.Class;
 
-namespace Scheletro.Pages.Mobile;
+namespace KFlow.Pages.Mobile;
 
 public class LogoutModel : PageModel
 {

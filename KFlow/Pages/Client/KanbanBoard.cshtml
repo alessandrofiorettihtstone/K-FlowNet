@@ -1,5 +1,5 @@
 @page "/Client/KanbanBoard.cshtml"
-@model Scheletro.Pages.Client.KanbanBoardModel
+@model KFlow.Pages.Client.KanbanBoardModel
 @{
     Layout = "_KFlowLayout";
     ViewData["Title"] = "KanbanBoard";
@@ -75,7 +75,7 @@
                                                    type="checkbox"
                                                    name="Filters.StatusIds"
                                                    value="@status.ID"
-                                                   checked="@status.Selected"
+                                                   checked="@(status.Selected ? "checked" : null)"
                                                    data-status-option
                                                    data-status-label="@status.Description" />
                                             <span class="form-check-label">@status.Description</span>
@@ -326,19 +326,16 @@
                 }
             };
 
-            let saveStatusSelectionTimer;
             const saveStatusSelection = () => {
-                window.clearTimeout(saveStatusSelectionTimer);
-                saveStatusSelectionTimer = window.setTimeout(() => {
-                    const query = new URLSearchParams();
-                    statusOptions
-                        .filter(option => option.checked)
-                        .forEach(option => query.append("statusIds", option.value));
+                const query = new URLSearchParams();
+                statusOptions
+                    .filter(option => option.checked)
+                    .forEach(option => query.append("statusIds", option.value));
 
-                    fetch(`${window.location.pathname}?handler=SaveStatusSelection&${query.toString()}`, {
-                        credentials: "same-origin"
-                    }).catch(() => { });
-                }, 150);
+                fetch(`${window.location.pathname}?handler=SaveStatusSelection&${query.toString()}`, {
+                    credentials: "same-origin",
+                    keepalive: true
+                }).catch(() => { });
             };
 
             statusOptions.forEach(option => option.addEventListener("change", () => {

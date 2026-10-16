@@ -1,6 +1,6 @@
 using System.Security.Claims;
 
-namespace Scheletro.Class;
+namespace KFlow.Class;
 
 public static class AuthConfiguration
 {

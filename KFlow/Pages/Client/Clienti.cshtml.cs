@@ -4,10 +4,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Scheletro.Class;
-using Scheletro.Models;
+using KFlow.Class;
+using KFlow.Models;
 
-namespace Scheletro.Pages.Client;
+namespace KFlow.Pages.Client;
 
 [Authorize]
 public class ClientiModel : PageModel

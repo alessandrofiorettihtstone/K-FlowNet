@@ -1,9 +1,9 @@
 using System.Net.Sockets;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
-using Scheletro.Models;
+using KFlow.Models;
 
-namespace Scheletro.Services;
+namespace KFlow.Services;
 
 public class PrinterService
 {

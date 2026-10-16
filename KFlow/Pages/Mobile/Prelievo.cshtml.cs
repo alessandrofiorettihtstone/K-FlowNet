@@ -4,9 +4,9 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
-using Scheletro.Models;
+using KFlow.Models;
 
-namespace Scheletro.Pages.Mobile;
+namespace KFlow.Pages.Mobile;
 
 public class PrelievoModel : PageModel
 {

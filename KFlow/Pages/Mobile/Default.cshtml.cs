@@ -2,11 +2,11 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Scheletro.Class;
-using Scheletro.Models;
-using Scheletro.Services;
+using KFlow.Class;
+using KFlow.Models;
+using KFlow.Services;
 
-namespace Scheletro.Pages.Mobile;
+namespace KFlow.Pages.Mobile;
 
 [AllowAnonymous]
 public class DefaultModel : PageModel
@@ -78,7 +78,7 @@ public class DefaultModel : PageModel
         return Redirect("/Mobile/Default.cshtml");
     }
 
-    private async Task SignInUserAsync(Scheletro.Models.User user)
+    private async Task SignInUserAsync(KFlow.Models.User user)
     {
         await HttpContext.SignOutAsync(AuthConfiguration.CookieScheme);
         await HttpContext.SignInAsync(

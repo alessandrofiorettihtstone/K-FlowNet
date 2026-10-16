@@ -3,11 +3,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
-using Scheletro.Class;
-using Scheletro.Models;
-using PrinterEntity = Scheletro.Models.Printer;
+using KFlow.Class;
+using KFlow.Models;
+using PrinterEntity = KFlow.Models.Printer;
 
-namespace Scheletro.Pages.Client;
+namespace KFlow.Pages.Client;
 
 [Authorize]
 public class PrinterModel : PageModel

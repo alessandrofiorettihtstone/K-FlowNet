@@ -2,11 +2,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Scheletro.Class;
-using Scheletro.Services;
-using Scheletro.ViewModels;
+using KFlow.Class;
+using KFlow.Services;
+using KFlow.ViewModels;
 
-namespace Scheletro.Pages.Client;
+namespace KFlow.Pages.Client;
 
 [Authorize]
 public class KanbanBoardModel : PageModel
@@ -67,6 +67,7 @@ public class KanbanBoardModel : PageModel
             {
                 HttpOnly = true,
                 IsEssential = true,
+                MaxAge = TimeSpan.FromDays(365),
                 SameSite = SameSiteMode.Lax,
                 Secure = Request.IsHttps
             });
