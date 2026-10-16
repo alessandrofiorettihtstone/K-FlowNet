@@ -7,9 +7,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
-using Scheletro.Models;
+using KFlow.Models;
 
-namespace Scheletro.Pages.Client;
+namespace KFlow.Pages.Client;
 
 [Authorize]
 public class PrelieviModel : PageModel

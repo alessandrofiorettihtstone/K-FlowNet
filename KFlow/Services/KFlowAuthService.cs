@@ -1,9 +1,9 @@
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
-using Scheletro.Class;
-using Scheletro.Models;
+using KFlow.Class;
+using KFlow.Models;
 
-namespace Scheletro.Services;
+namespace KFlow.Services;
 
 public class KFlowAuthService
 {

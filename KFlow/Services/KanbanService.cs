@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
-using Scheletro.Models;
-using Scheletro.ViewModels;
+using KFlow.Models;
+using KFlow.ViewModels;
 
-namespace Scheletro.Services;
+namespace KFlow.Services;
 
 public class KanbanService
 {

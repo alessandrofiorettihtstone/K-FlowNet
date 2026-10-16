@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
-using Scheletro.Models;
+using KFlow.Models;
 
-namespace Scheletro.Class
+namespace KFlow.Class
 {
     public class LoggerDTO
     {

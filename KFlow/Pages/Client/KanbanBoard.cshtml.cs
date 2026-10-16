@@ -2,11 +2,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Scheletro.Class;
-using Scheletro.Services;
-using Scheletro.ViewModels;
+using KFlow.Class;
+using KFlow.Services;
+using KFlow.ViewModels;
 
-namespace Scheletro.Pages.Client;
+namespace KFlow.Pages.Client;
 
 [Authorize]
 public class KanbanBoardModel : PageModel

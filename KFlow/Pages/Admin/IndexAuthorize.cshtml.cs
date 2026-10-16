@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Scheletro.Class;
+using KFlow.Class;
 
-namespace Scheletro.Pages.Admin
+namespace KFlow.Pages.Admin
 {
     [Authorize]
     public class IndexAuthorizeModel : PageModel

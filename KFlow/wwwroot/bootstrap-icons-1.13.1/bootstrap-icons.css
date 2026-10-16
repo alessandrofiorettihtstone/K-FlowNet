@@ -1065,11 +1065,11 @@ url("./fonts/bootstrap-icons.woff?e34853135f9e39acf64315236852cd5a") format("wof
 .bi-rainbow::before { content: "\f50d"; }
 .bi-receipt-cutoff::before { content: "\f50e"; }
 .bi-receipt::before { content: "\f50f"; }
-.bi-Scheletro-0::before { content: "\f510"; }
-.bi-Scheletro-1::before { content: "\f511"; }
-.bi-Scheletro-2::before { content: "\f512"; }
-.bi-Scheletro-3::before { content: "\f513"; }
-.bi-Scheletro-4::before { content: "\f514"; }
+.bi-KFlow-0::before { content: "\f510"; }
+.bi-KFlow-1::before { content: "\f511"; }
+.bi-KFlow-2::before { content: "\f512"; }
+.bi-KFlow-3::before { content: "\f513"; }
+.bi-KFlow-4::before { content: "\f514"; }
 .bi-record-btn-fill::before { content: "\f515"; }
 .bi-record-btn::before { content: "\f516"; }
 .bi-record-circle-fill::before { content: "\f517"; }

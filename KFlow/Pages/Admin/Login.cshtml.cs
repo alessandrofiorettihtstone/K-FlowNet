@@ -3,12 +3,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
-using Scheletro.Class;
-using Scheletro.Models;
+using KFlow.Class;
+using KFlow.Models;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 
-namespace Scheletro.Pages.Admin
+namespace KFlow.Pages.Admin
 {
     [AllowAnonymous]
     public class LoginModel : PageModel

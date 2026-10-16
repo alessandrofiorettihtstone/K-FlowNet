@@ -3,11 +3,11 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Scheletro.Class;
-using Scheletro.Models;
-using Scheletro.Services;
+using KFlow.Class;
+using KFlow.Models;
+using KFlow.Services;
 
-namespace Scheletro.Pages.Client;
+namespace KFlow.Pages.Client;
 
 [AllowAnonymous]
 public class LoginModel : PageModel
@@ -61,7 +61,7 @@ public class LoginModel : PageModel
 
     public async Task<IActionResult> OnPostAsync()
     {
-        Scheletro.Models.User? user = null;
+        KFlow.Models.User? user = null;
         var username = Username?.Trim() ?? string.Empty;
         var password = Password ?? string.Empty;
         var cid = CID?.Trim() ?? string.Empty;
@@ -151,7 +151,7 @@ public class LoginModel : PageModel
         return Redirect("/Client/Login.cshtml");
     }
 
-    private async Task SignInUserAsync(Scheletro.Models.User user, bool rememberMe)
+    private async Task SignInUserAsync(KFlow.Models.User user, bool rememberMe)
     {
         await HttpContext.SignOutAsync(AuthConfiguration.CookieScheme);
         await HttpContext.SignInAsync(

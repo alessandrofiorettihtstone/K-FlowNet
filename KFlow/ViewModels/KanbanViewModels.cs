@@ -1,4 +1,4 @@
-namespace Scheletro.ViewModels;
+namespace KFlow.ViewModels;
 
 public class KanbanFilters
 {

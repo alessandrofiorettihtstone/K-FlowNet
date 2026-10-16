@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Scheletro.Services;
+using KFlow.Services;
 
-namespace Scheletro.Pages;
+namespace KFlow.Pages;
 
 [Authorize]
 public class StampaCartellinoModel : PageModel

@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Scheletro.Class;
+using KFlow.Class;
 
-namespace Scheletro.Pages.User;
+namespace KFlow.Pages.User;
 
 [Authorize(Policy = AuthConfiguration.NonAdminPolicy)]
 public class IndexModel : PageModel

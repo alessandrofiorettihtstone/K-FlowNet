@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Scheletro.Models;
+namespace KFlow.Models;
 
 public partial class PickingTransaction
 {

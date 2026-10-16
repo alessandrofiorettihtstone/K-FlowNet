@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
-namespace Scheletro.Models;
+namespace KFlow.Models;
 
 public partial class dbContext : DbContext
 {

@@ -1,4 +1,4 @@
-namespace Scheletro.Models;
+namespace KFlow.Models;
 
 public partial class KFlowStatus
 {

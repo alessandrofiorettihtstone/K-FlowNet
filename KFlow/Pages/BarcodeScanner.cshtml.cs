@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace Scheletro.Pages;
+namespace KFlow.Pages;
 
 [AllowAnonymous]
 public class BarcodeScannerModel : PageModel

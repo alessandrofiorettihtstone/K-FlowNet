@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Scheletro.Services;
-using Scheletro.ViewModels;
+using KFlow.Services;
+using KFlow.ViewModels;
 
-namespace Scheletro.Pages.Mobile;
+namespace KFlow.Pages.Mobile;
 
 [Authorize]
 public class LeggiCartellinoMainModel : PageModel

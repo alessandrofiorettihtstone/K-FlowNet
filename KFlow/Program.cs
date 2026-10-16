@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
-using Scheletro.Class;
-using Scheletro.Models;
-using Scheletro.Services;
+using KFlow.Class;
+using KFlow.Models;
+using KFlow.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
