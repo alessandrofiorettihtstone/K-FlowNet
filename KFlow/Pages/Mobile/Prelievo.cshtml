@@ -38,7 +38,7 @@
         <div class="picking-field">
             <div class="input-group input-group-lg">
                 <span class="input-group-text"><i class="bi bi-hash"></i></span>
-                <input asp-for="Input.ProductionNumber" id="productionNumber" class="form-control" autocomplete="off" placeholder="Numero di produzione" required />
+                <input asp-for="Input.ProductionNumber" id="productionNumber" class="form-control" autocomplete="off" placeholder="Numero di picking di produzione" required />
             </div>
         </div>
 
@@ -476,7 +476,7 @@
             form?.addEventListener("submit", event => {
                 const requiredFields = [
                     [cardInput, null, "Inserisci il cartellino."],
-                    [productionInput, null, "Inserisci il numero di produzione."],
+                    [productionInput, null, "Inserisci il numero di picking di produzione."],
                     [quantityInput, document.getElementById("quantityFeedback"), "Inserisci la quantità."]
                 ];
                 const missingField = requiredFields.find(([field, error, message]) => {

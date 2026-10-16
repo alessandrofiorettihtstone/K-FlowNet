@@ -43,7 +43,7 @@ public class PrelievoModel : PageModel
         [StringLength(50)]
         public string CardId { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Inserisci il numero di produzione.")]
+        [Required(ErrorMessage = "Inserisci il numero di picking di produzione.")]
         [StringLength(50)]
         public string ProductionNumber { get; set; } = string.Empty;
 
@@ -99,7 +99,7 @@ public class PrelievoModel : PageModel
     {
         if (string.IsNullOrWhiteSpace(production))
         {
-            return new JsonResult(new { found = false, message = "Inserisci il numero di produzione." });
+            return new JsonResult(new { found = false, message = "Inserisci il numero di picking di produzione." });
         }
 
         var productFinished = await GetProductFinishedDataAsync(production.Trim());
@@ -107,7 +107,7 @@ public class PrelievoModel : PageModel
             ? new JsonResult(new
             {
                 found = false,
-                message = "Produzione non trovata o dati ItemPF/CausaQty mancanti."
+                message = "Picking di produzione non trovata o dati ItemPF/CausaQty mancanti."
             })
             : new JsonResult(new { found = true });
     }
