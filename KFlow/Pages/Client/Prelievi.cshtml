@@ -26,6 +26,16 @@
                     </div>
                 </div>
                 <div class="col-md-5">
+                    <label asp-for="Filters.Picking" class="form-label">Picking</label>
+                    <div class="input-group kflow-autocomplete-wrapper">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                        <input asp-for="Filters.Picking" class="form-control" placeholder="Numero picking" autocomplete="off" />
+                        <button type="button" class="btn btn-outline-secondary" title="Pulisci picking" aria-label="Pulisci picking" data-clear-target="#Filters_Picking">
+                            <i class="bi bi-x-circle"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-5">
                     <label asp-for="Filters.Article" class="form-label">Articolo</label>
                     <div class="input-group kflow-autocomplete-wrapper">
                         <span class="input-group-text"><i class="bi bi-search"></i></span>
@@ -50,6 +60,7 @@
 
 <form id="prelieviSortForm" method="get">
     <input asp-for="Filters.Production" type="hidden" />
+    <input asp-for="Filters.Picking" type="hidden" />
     <input asp-for="Filters.Article" type="hidden" />
     <input asp-for="Filters.SortBy" type="hidden" />
     <input asp-for="Filters.SortDirection" type="hidden" />
@@ -82,6 +93,11 @@
                             <th>
                                 <button class="btn btn-link btn-sm p-0 text-decoration-none text-dark fw-semibold" type="submit" form="prelieviSortForm" name="sortColumn" value="Production">
                                     Produzione <i class="bi @Model.GetSortIcon("Production")"></i>
+                                </button>
+                            </th>
+                            <th>
+                                <button class="btn btn-link btn-sm p-0 text-decoration-none text-dark fw-semibold" type="submit" form="prelieviSortForm" name="sortColumn" value="Picking">
+                                    Picking <i class="bi @Model.GetSortIcon("Picking")"></i>
                                 </button>
                             </th>
                             <th>
@@ -126,6 +142,9 @@
                                     <span class="picking-production-code">@row.Production</span>
                                 </td>
                                 <td>
+                                    <span class="picking-production-code">@row.Picking</span>
+                                </td>
+                                <td>
                                     <div class="picking-article-code">@row.ArticleCode</div>
                                     @if (!string.IsNullOrWhiteSpace(row.DescriptionCode))
                                     {
@@ -140,7 +159,7 @@
                                 <td class="text-nowrap"><span class="picking-date-value"><i class="bi bi-clock-history me-1"></i>@row.LastPickingDate.ToString("dd/MM/yyyy HH:mm")</span></td>
                             </tr>
                             <tr>
-                                <td colspan="8" class="picking-detail-cell">
+                                <td colspan="9" class="picking-detail-cell">
                                     <div id="@detailId" class="collapse">
                                         <div class="picking-detail-body">
                                             <div class="picking-detail-title"><i class="bi bi-list-check me-2"></i>Dettaglio movimenti</div>
@@ -170,6 +189,7 @@
                                                                 data-last-update="@(movement.LastUpdate?.ToString("dd/MM/yyyy HH:mm") ?? string.Empty)"
                                                                 data-last-updated-by="@movement.LastUpdatedBy"
                                                                 data-production="@row.Production"
+                                                                data-picking="@row.Picking"
                                                                 data-article="@row.ArticleCode">
                                                                 <td><span class="picking-card-code">@movement.CardId</span></td>
                                                                 <td class="text-end"><span class="picking-detail-quantity">@movement.Quantity.ToString("N2")</span></td>
@@ -205,6 +225,7 @@
                     <input name="returnUrl" type="hidden" value="@returnUrl" />
                     <dl class="row picking-movement-summary mb-4">
                         <dt class="col-5">Produzione</dt><dd class="col-7" id="movementProduction"></dd>
+                        <dt class="col-5">Picking</dt><dd class="col-7" id="movementPicking"></dd>
                         <dt class="col-5">Articolo</dt><dd class="col-7" id="movementArticle"></dd>
                         <dt class="col-5">Cartellino</dt><dd class="col-7" id="movementCardId"></dd>
                         <dt class="col-5">Registrato da</dt><dd class="col-7" id="movementOperator"></dd>
@@ -264,8 +285,15 @@
             setupKFlowAutocomplete({
                 inputSelector: "#Filters_Production",
                 url: "/Client/Prelievi.cshtml",
-                tipoRicerca: "P",
+                tipoRicerca: "R",
                 emptyText: "Nessuna produzione trovata",
+                submitOnSelect: true
+            });
+            setupKFlowAutocomplete({
+                inputSelector: "#Filters_Picking",
+                url: "/Client/Prelievi.cshtml",
+                tipoRicerca: "P",
+                emptyText: "Nessun picking trovato",
                 submitOnSelect: true
             });
             setupKFlowAutocomplete({
@@ -303,6 +331,7 @@
                 document.getElementById("updateMovementId").value = row.dataset.movementId || "";
                 document.getElementById("movementQuantity").value = row.dataset.quantity || "";
                 setMovementDetail("movementProduction", row.dataset.production);
+                setMovementDetail("movementPicking", row.dataset.picking);
                 setMovementDetail("movementArticle", row.dataset.article);
                 setMovementDetail("movementCardId", row.dataset.cardId);
                 setMovementDetail("movementOperator", row.dataset.operator);

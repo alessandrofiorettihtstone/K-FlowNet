@@ -110,6 +110,19 @@ public class PrelieviModel : PageModel
             .AsNoTracking()
             .Where(x => x.IsEnable);
 
+        if (searchType == "R")
+        {
+            var productions = await activeTransactions
+                .Where(x => x.Production.Contains(searchText))
+                .Select(x => x.Production)
+                .Distinct()
+                .OrderBy(x => x)
+                .Take(20)
+                .ToListAsync();
+
+            return new JsonResult(productions);
+        }
+
         if (searchType == "P")
         {
             var productions = await activeTransactions
@@ -149,6 +162,7 @@ public class PrelieviModel : PageModel
     private async Task LoadRowsAsync()
     {
         var production = Filters.Production?.Trim() ?? string.Empty;
+        var picking = Filters.Picking?.Trim() ?? string.Empty;
         var article = Filters.Article?.Trim() ?? string.Empty;
 
         var query =
@@ -156,13 +170,15 @@ public class PrelieviModel : PageModel
             join product in _db.Products.AsNoTracking() on transaction.ItemCode equals product.ID into products
             from product in products.DefaultIfEmpty()
             where transaction.IsEnable
-                && (string.IsNullOrWhiteSpace(production) || transaction.Picking.Contains(production))
+                && (string.IsNullOrWhiteSpace(production) || transaction.Production.Contains(production))
+                && (string.IsNullOrWhiteSpace(picking) || transaction.Picking.Contains(picking))
                 && (string.IsNullOrWhiteSpace(article)
                     || transaction.ItemCode.Contains(article)
                     || (product != null && product.Name.Contains(article)))
             select new
             {
-                Production = transaction.Picking,
+                transaction.Production,
+                transaction.Picking,
                 transaction.ItemCode,
                 DescriptionCode = product == null ? string.Empty : product.Name,
                 transaction.ItemPF,
@@ -182,10 +198,11 @@ public class PrelieviModel : PageModel
             .ToListAsync();
 
         var rows = movements
-            .GroupBy(x => new { x.Production, x.ItemCode, x.DescriptionCode })
+            .GroupBy(x => new { x.Production, x.Picking, x.ItemCode, x.DescriptionCode })
             .Select(group => new PrelieviRowViewModel
             {
                 Production = group.Key.Production,
+                Picking = group.Key.Picking,
                 ArticleCode = group.Key.ItemCode,
                 DescriptionCode = group.Key.DescriptionCode,
                 ItemPF = group.Select(x => x.ItemPF).FirstOrDefault(value => !string.IsNullOrWhiteSpace(value)),
@@ -216,6 +233,8 @@ public class PrelieviModel : PageModel
         {
             "Production" when Filters.SortDirection == "asc" => rows.OrderBy(x => x.Production),
             "Production" => rows.OrderByDescending(x => x.Production),
+            "Picking" when Filters.SortDirection == "asc" => rows.OrderBy(x => x.Picking),
+            "Picking" => rows.OrderByDescending(x => x.Picking),
             "Article" when Filters.SortDirection == "asc" => rows.OrderBy(x => x.ArticleCode),
             "Article" => rows.OrderByDescending(x => x.ArticleCode),
             "Movements" when Filters.SortDirection == "asc" => rows.OrderBy(x => x.TransactionCount),
@@ -246,6 +265,8 @@ public class PrelieviFilters
 {
     public string? Production { get; set; }
 
+    public string? Picking { get; set; }
+
     public string? Article { get; set; }
 
     public string SortBy { get; set; } = string.Empty;
@@ -254,7 +275,7 @@ public class PrelieviFilters
 
     public void ToggleSort(string? sortColumn)
     {
-        if (sortColumn is not ("Production" or "Article" or "Movements" or "TotalQuantity" or "LastPicking"))
+        if (sortColumn is not ("Production" or "Picking" or "Article" or "Movements" or "TotalQuantity" or "LastPicking"))
         {
             return;
         }
@@ -266,7 +287,7 @@ public class PrelieviFilters
         }
 
         SortBy = sortColumn;
-        SortDirection = sortColumn is "Production" or "Article" ? "asc" : "desc";
+        SortDirection = sortColumn is "Production" or "Picking" or "Article" ? "asc" : "desc";
     }
 
     public string GetSortIcon(string column)
@@ -283,6 +304,8 @@ public class PrelieviFilters
 public class PrelieviRowViewModel
 {
     public string Production { get; set; } = string.Empty;
+
+    public string Picking { get; set; } = string.Empty;
 
     public string ArticleCode { get; set; } = string.Empty;
 
@@ -390,18 +413,19 @@ internal static class PrelieviExcelExport
         var sheet = new StringBuilder();
         sheet.Append("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>");
         sheet.Append("<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\"><sheetViews><sheetView workbookViewId=\"0\"><pane ySplit=\"1\" topLeftCell=\"A2\" activePane=\"bottomLeft\" state=\"frozen\"/></sheetView></sheetViews><cols>");
-        sheet.Append("<col min=\"1\" max=\"1\" width=\"20\" customWidth=\"1\"/><col min=\"2\" max=\"2\" width=\"18\" customWidth=\"1\"/><col min=\"3\" max=\"3\" width=\"38\" customWidth=\"1\"/><col min=\"4\" max=\"5\" width=\"16\" customWidth=\"1\"/><col min=\"6\" max=\"6\" width=\"18\" customWidth=\"1\"/><col min=\"7\" max=\"7\" width=\"38\" customWidth=\"1\"/><col min=\"8\" max=\"8\" width=\"14\" customWidth=\"1\"/><col min=\"9\" max=\"9\" width=\"21\" customWidth=\"1\"/>");
+        sheet.Append("<col min=\"1\" max=\"2\" width=\"20\" customWidth=\"1\"/><col min=\"3\" max=\"3\" width=\"18\" customWidth=\"1\"/><col min=\"4\" max=\"4\" width=\"38\" customWidth=\"1\"/><col min=\"5\" max=\"6\" width=\"16\" customWidth=\"1\"/><col min=\"7\" max=\"7\" width=\"18\" customWidth=\"1\"/><col min=\"8\" max=\"8\" width=\"38\" customWidth=\"1\"/><col min=\"9\" max=\"9\" width=\"14\" customWidth=\"1\"/><col min=\"10\" max=\"10\" width=\"21\" customWidth=\"1\"/>");
         sheet.Append("</cols><sheetData>");
         sheet.Append(Row(1,
             TextCell("A", 1, "Produzione", 1),
-            TextCell("B", 1, "Articolo", 1),
-            TextCell("C", 1, "Descrizione", 1),
-            TextCell("D", 1, "Item PF", 1),
-            TextCell("E", 1, "Descrizione PF", 1),
-            TextCell("F", 1, "Qty PF", 1),
-            TextCell("G", 1, "Movimenti", 1),
-            TextCell("H", 1, "Quantità totale", 1),
-            TextCell("I", 1, "Ultimo prelievo", 1)));
+            TextCell("B", 1, "Picking", 1),
+            TextCell("C", 1, "Articolo", 1),
+            TextCell("D", 1, "Descrizione", 1),
+            TextCell("E", 1, "Item PF", 1),
+            TextCell("F", 1, "Descrizione PF", 1),
+            TextCell("G", 1, "Qty PF", 1),
+            TextCell("H", 1, "Movimenti", 1),
+            TextCell("I", 1, "Quantità totale", 1),
+            TextCell("J", 1, "Ultimo prelievo", 1)));
 
         for (var index = 0; index < rows.Count; index++)
         {
@@ -409,17 +433,18 @@ internal static class PrelieviExcelExport
             var row = rows[index];
             sheet.Append(Row(rowNumber,
                 TextCell("A", rowNumber, row.Production),
-                TextCell("B", rowNumber, row.ArticleCode),
-                TextCell("C", rowNumber, row.DescriptionCode),
-                TextCell("D", rowNumber, row.ItemPF),
-                TextCell("E", rowNumber, row.DescriptionPF),
-                row.QtyPF is null ? TextCell("F", rowNumber, string.Empty) : NumberCell("F", rowNumber, row.QtyPF.Value, 2),
-                NumberCell("G", rowNumber, row.TransactionCount),
-                NumberCell("H", rowNumber, row.TotalQuantity, 2),
-                NumberCell("I", rowNumber, row.LastPickingDate.ToOADate(), 3)));
+                TextCell("B", rowNumber, row.Picking),
+                TextCell("C", rowNumber, row.ArticleCode),
+                TextCell("D", rowNumber, row.DescriptionCode),
+                TextCell("E", rowNumber, row.ItemPF),
+                TextCell("F", rowNumber, row.DescriptionPF),
+                row.QtyPF is null ? TextCell("G", rowNumber, string.Empty) : NumberCell("G", rowNumber, row.QtyPF.Value, 2),
+                NumberCell("H", rowNumber, row.TransactionCount),
+                NumberCell("I", rowNumber, row.TotalQuantity, 2),
+                NumberCell("J", rowNumber, row.LastPickingDate.ToOADate(), 3)));
         }
 
-        sheet.Append("</sheetData><autoFilter ref=\"A1:I").Append(rows.Count + 1).Append("\"/></worksheet>");
+        sheet.Append("</sheetData><autoFilter ref=\"A1:J").Append(rows.Count + 1).Append("\"/></worksheet>");
         return sheet.ToString();
     }
 
@@ -430,19 +455,20 @@ internal static class PrelieviExcelExport
 
         sheet.Append("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>");
         sheet.Append("<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\"><sheetViews><sheetView workbookViewId=\"0\"><pane ySplit=\"1\" topLeftCell=\"A2\" activePane=\"bottomLeft\" state=\"frozen\"/></sheetView></sheetViews><cols>");
-        sheet.Append("<col min=\"1\" max=\"1\" width=\"20\" customWidth=\"1\"/><col min=\"2\" max=\"2\" width=\"18\" customWidth=\"1\"/><col min=\"3\" max=\"3\" width=\"38\" customWidth=\"1\"/><col min=\"4\" max=\"4\" width=\"18\" customWidth=\"1\"/><col min=\"5\" max=\"5\" width=\"38\" customWidth=\"1\"/><col min=\"6\" max=\"6\" width=\"14\" customWidth=\"1\"/><col min=\"7\" max=\"7\" width=\"20\" customWidth=\"1\"/><col min=\"8\" max=\"8\" width=\"14\" customWidth=\"1\"/><col min=\"9\" max=\"9\" width=\"24\" customWidth=\"1\"/><col min=\"10\" max=\"10\" width=\"21\" customWidth=\"1\"/>");
+        sheet.Append("<col min=\"1\" max=\"2\" width=\"20\" customWidth=\"1\"/><col min=\"3\" max=\"3\" width=\"18\" customWidth=\"1\"/><col min=\"4\" max=\"4\" width=\"38\" customWidth=\"1\"/><col min=\"5\" max=\"5\" width=\"18\" customWidth=\"1\"/><col min=\"6\" max=\"6\" width=\"38\" customWidth=\"1\"/><col min=\"7\" max=\"7\" width=\"14\" customWidth=\"1\"/><col min=\"8\" max=\"8\" width=\"20\" customWidth=\"1\"/><col min=\"9\" max=\"9\" width=\"14\" customWidth=\"1\"/><col min=\"10\" max=\"10\" width=\"24\" customWidth=\"1\"/><col min=\"11\" max=\"11\" width=\"21\" customWidth=\"1\"/>");
         sheet.Append("</cols><sheetData>");
         sheet.Append(Row(1,
             TextCell("A", 1, "Produzione", 1),
-            TextCell("B", 1, "Articolo", 1),
-            TextCell("C", 1, "Descrizione", 1),
-            TextCell("D", 1, "Item PF", 1),
-            TextCell("E", 1, "Descrizione PF", 1),
-            TextCell("F", 1, "Qty PF", 1),
-            TextCell("G", 1, "Cartellino", 1),
-            TextCell("H", 1, "Quantità", 1),
-            TextCell("I", 1, "Operatore", 1),
-            TextCell("J", 1, "Data riferimento", 1)));
+            TextCell("B", 1, "Picking", 1),
+            TextCell("C", 1, "Articolo", 1),
+            TextCell("D", 1, "Descrizione", 1),
+            TextCell("E", 1, "Item PF", 1),
+            TextCell("F", 1, "Descrizione PF", 1),
+            TextCell("G", 1, "Qty PF", 1),
+            TextCell("H", 1, "Cartellino", 1),
+            TextCell("I", 1, "Quantità", 1),
+            TextCell("J", 1, "Operatore", 1),
+            TextCell("K", 1, "Data riferimento", 1)));
 
         var rowNumber = 2;
         foreach (var summaryRow in rows)
@@ -451,20 +477,21 @@ internal static class PrelieviExcelExport
             {
                 sheet.Append(Row(rowNumber,
                     TextCell("A", rowNumber, summaryRow.Production),
-                    TextCell("B", rowNumber, summaryRow.ArticleCode),
-                    TextCell("C", rowNumber, summaryRow.DescriptionCode),
-                    TextCell("D", rowNumber, movement.ItemPF),
-                    TextCell("E", rowNumber, movement.DescriptionPF),
-                    movement.QtyPF is null ? TextCell("F", rowNumber, string.Empty) : NumberCell("F", rowNumber, movement.QtyPF.Value, 2),
-                    TextCell("G", rowNumber, movement.CardId),
-                    NumberCell("H", rowNumber, movement.Quantity, 2),
-                    TextCell("I", rowNumber, string.IsNullOrWhiteSpace(movement.LastUpdatedBy) ? movement.Operator : movement.LastUpdatedBy),
-                    NumberCell("J", rowNumber, (movement.LastUpdate ?? movement.CreateDate).ToOADate(), 3)));
+                    TextCell("B", rowNumber, summaryRow.Picking),
+                    TextCell("C", rowNumber, summaryRow.ArticleCode),
+                    TextCell("D", rowNumber, summaryRow.DescriptionCode),
+                    TextCell("E", rowNumber, movement.ItemPF),
+                    TextCell("F", rowNumber, movement.DescriptionPF),
+                    movement.QtyPF is null ? TextCell("G", rowNumber, string.Empty) : NumberCell("G", rowNumber, movement.QtyPF.Value, 2),
+                    TextCell("H", rowNumber, movement.CardId),
+                    NumberCell("I", rowNumber, movement.Quantity, 2),
+                    TextCell("J", rowNumber, string.IsNullOrWhiteSpace(movement.LastUpdatedBy) ? movement.Operator : movement.LastUpdatedBy),
+                    NumberCell("K", rowNumber, (movement.LastUpdate ?? movement.CreateDate).ToOADate(), 3)));
                 rowNumber++;
             }
         }
 
-        sheet.Append("</sheetData><autoFilter ref=\"A1:J").Append(movementCount + 1).Append("\"/></worksheet>");
+        sheet.Append("</sheetData><autoFilter ref=\"A1:K").Append(movementCount + 1).Append("\"/></worksheet>");
         return sheet.ToString();
     }
 
