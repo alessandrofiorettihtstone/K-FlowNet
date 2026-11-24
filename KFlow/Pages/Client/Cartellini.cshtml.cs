@@ -15,7 +15,8 @@ public class CartelliniModel : PageModel
 {
     private const char PartnerValueSeparator = '|';
     private const string CardPrefix = "CTL";
-    private const int CardNumberWidth = 8;
+    // Mantiene il formato dei cartellini esistenti: CTL + 6 cifre.
+    private const int CardNumberWidth = 6;
 
     private readonly dbContext _db;
     private readonly LoggerDTO _logger;
